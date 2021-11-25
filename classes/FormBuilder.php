@@ -73,6 +73,7 @@ class FormBuilder
      */
     public function addField($type, array $atts = [])
     {
+        $visible = true;
         switch ($type) {
             case 'text':
             case 'name':
@@ -80,6 +81,11 @@ class FormBuilder
             case 'postalCode':
             case 'city':
                 $html = '<input type="text" ' . $this->buildAtts($atts) . ' style="width: 100%">';
+                break;
+            case 'discount_code':
+                $visible = isset($atts['required']);
+                unset($atts['required']);
+                $html = $visible ? '<input type="text" ' . $this->buildAtts($atts) . ' style="width: 100%">' : '';
                 break;
             case 'country':
                 $html = '<select ' . $this->buildAtts($atts) . ' style="width:100%;" style="width: 100%">';
@@ -132,10 +138,10 @@ class FormBuilder
 
                 break;
             case 'submit':
-                $html = '<button type="submit" ' . $this->buildAtts($atts) . '>' . $atts['label'] . '</button>';
+                $html = '<br><button type="submit" ' . $this->buildAtts($atts) . '>' . $atts['label'] . '</button>';
 
                 if ($this->recaptchaSiteKey) {
-                    $html = '<button style="display:none;" id="rfmp_' . $this->postId . '_submit" type="submit">' .
+                    $html = '<br><button style="display:none;" id="rfmp_' . $this->postId . '_submit" type="submit">' .
                             $atts['label'] . '</button>';
                     $html .= '<button class="g-recaptcha" data-sitekey="' . esc_attr($this->recaptchaSiteKey) .
                              '" data-callback="onSubmit' . $this->postId . '" data-action="submit" ' .
@@ -149,7 +155,8 @@ class FormBuilder
                 $html = $this->getPriceOptions($atts);
                 break;
             case 'total':
-                $html = isset($atts['required']) ? $this->getTotal($atts) : '';
+                $visible = isset($atts['required']);
+                $html = $visible ? $this->getTotal($atts) : '';
                 break;
             case 'text-only':
             default:
@@ -158,7 +165,7 @@ class FormBuilder
 
         $this->form .= '<p>';
 
-        if ($type != 'submit' && $type != 'checkbox') {
+        if ($type != 'submit' && $type != 'checkbox' && $visible) {
             $this->form .= $this->getLabel() . '<br>';
         }
 

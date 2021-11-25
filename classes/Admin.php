@@ -174,20 +174,29 @@ class Admin
      */
     public function addMetaBoxes($post)
     {
-        add_meta_box('mollie-forms_fields', __('Fields', 'mollie-forms'), [$this,
-                                                                           'metaBoxFields',
+        add_meta_box('mollie-forms_fields', __('Fields', 'mollie-forms'), [
+                $this,
+                'metaBoxFields',
         ], 'mollie-forms', 'normal', 'high');
-        add_meta_box('mollie-forms_settings', __('Settings', 'mollie-forms'), [$this,
-                                                                               'metaBoxSettings',
+        add_meta_box('mollie-forms_settings', __('Settings', 'mollie-forms'), [
+                $this,
+                'metaBoxSettings',
         ], 'mollie-forms', 'normal', 'default');
-        add_meta_box('mollie-forms_priceoptions', __('Price options', 'mollie-forms'), [$this,
-                                                                                        'metaBoxPriceOptions',
+        add_meta_box('mollie-forms_priceoptions', __('Price options', 'mollie-forms'), [
+                $this,
+                'metaBoxPriceOptions',
         ], 'mollie-forms', 'normal', 'default');
-        add_meta_box('mollie-forms_emails', __('Email settings', 'mollie-forms'), [$this,
-                                                                                   'metaBoxEmails',
+        add_meta_box('mollie-forms_discountcodes', __('Discount codes', 'mollie-forms'), [
+                $this,
+                'metaBoxDiscountCodes',
         ], 'mollie-forms', 'normal', 'default');
-        add_meta_box('mollie-forms_paymentmethods', __('Payment methods', 'mollie-forms'), [$this,
-                                                                                            'metaBoxPaymentMethods',
+        add_meta_box('mollie-forms_emails', __('Email settings', 'mollie-forms'), [
+                $this,
+                'metaBoxEmails',
+        ], 'mollie-forms', 'normal', 'default');
+        add_meta_box('mollie-forms_paymentmethods', __('Payment methods', 'mollie-forms'), [
+                $this,
+                'metaBoxPaymentMethods',
         ], 'mollie-forms', 'side', 'default');
         remove_meta_box('slugdiv', 'mollie-forms', 'normal');
     }
@@ -360,34 +369,31 @@ class Admin
                 $mollie = new MollieApi($api_key);
 
                 // use billingCountry "DE" to show all methods
-                $params = ['locale'         => $locale,
-                           'resource'       => $api_type,
-                           'billingCountry' => 'DE',
-                           'includeWallets' => 'applepay',
-                ];
+                $methods = $mollie->all('methods', [
+                        'locale'         => $locale,
+                        'resource'       => $api_type,
+                        'billingCountry' => 'DE',
+                        'includeWallets' => 'applepay',
+                ]);
 
-                foreach ($mollie->all('methods', $params) as $method) {
-                    echo '<input type="hidden" value="0" name="rfmp_payment_method[' . $method->id . ']">';
-                    echo '<label><input type="checkbox" name="rfmp_payment_method[' . $method->id . ']" ' .
-                         (isset($active[$method->id]) && $active[$method->id] ? 'checked' : '') .
-                         ' value="1"> <img style="vertical-align:middle;display:inline-block;width:25px;" src="' .
-                         esc_url($method->image->svg) . '"> ' . esc_html($method->description) . '</label><br>';
-                    echo esc_html_e('Surcharge:', 'mollie-forms') . ' ' .
-                         $this->helpers->getCurrencySymbol($currency ?: 'EUR') .
-                         ' <input type="number" step="any" min="0" name="rfmp_payment_method_fixed[' . $method->id .
-                         ']" value="' . esc_attr(isset($fixed[$method->id]) ? $fixed[$method->id] : '') .
-                         '" style="width: 50px;"> + <input type="number" step="any" min="0" name="rfmp_payment_method_variable[' .
-                         $method->id . ']" value="' .
-                         esc_attr(isset($variable[$method->id]) ? $variable[$method->id] : '') .
-                         '" style="width: 50px;"> %<br>';
-                    echo '<hr>';
+                foreach ($methods as $method) {
+                    include $this->mollieForms->getDirPath() . 'templates/metaboxes/paymentMethod.php';
                 }
             }
-
 
         } catch (Exception $e) {
             echo '<p style="color: red">' . $e->getMessage() . '</p>';
         }
+    }
+
+    public function metaBoxDiscountCodes($post)
+    {
+        wp_nonce_field(basename(__FILE__), 'rfmp_meta_box_discountcodes_nonce');
+
+        $discountCodes = $this->db->get_results("SELECT * FROM {$this->mollieForms->getDiscountCodesTable()} WHERE post_id=" .
+                                               (int) $post->ID);
+
+        include $this->mollieForms->getDirPath() . 'templates/metaboxes/discountCodes.php';
     }
 
     /**
@@ -397,33 +403,33 @@ class Admin
      */
     public function saveMetaBoxes($postId)
     {
-        // verify meta box nonce
         if (!isset($_POST['rfmp_meta_box_fields_nonce']) ||
             !wp_verify_nonce($_POST['rfmp_meta_box_fields_nonce'], basename(__FILE__))) {
             return;
         }
 
-        // verify meta box nonce
         if (!isset($_POST['rfmp_meta_box_priceoptions_nonce']) ||
             !wp_verify_nonce($_POST['rfmp_meta_box_priceoptions_nonce'], basename(__FILE__))) {
             return;
         }
 
-        // verify meta box nonce
         if (!isset($_POST['rfmp_meta_box_settings_nonce']) ||
             !wp_verify_nonce($_POST['rfmp_meta_box_settings_nonce'], basename(__FILE__))) {
             return;
         }
 
-        // verify meta box nonce
         if (!isset($_POST['rfmp_meta_box_paymentmethods_nonce']) ||
             !wp_verify_nonce($_POST['rfmp_meta_box_paymentmethods_nonce'], basename(__FILE__))) {
             return;
         }
 
-        // verify meta box nonce
         if (!isset($_POST['rfmp_meta_box_emails_nonce']) ||
             !wp_verify_nonce($_POST['rfmp_meta_box_emails_nonce'], basename(__FILE__))) {
+            return;
+        }
+
+        if (!isset($_POST['rfmp_meta_box_discountcodes_nonce']) ||
+            !wp_verify_nonce($_POST['rfmp_meta_box_discountcodes_nonce'], basename(__FILE__))) {
             return;
         }
 
@@ -568,6 +574,7 @@ class Admin
         update_post_meta($postId, '_rfmp_fromemail_chargedback_merchant', $_POST['rfmp_fromemail_chargedback_merchant']);
         update_post_meta($postId, '_rfmp_toemail_chargedback_merchant', $_POST['rfmp_toemail_chargedback_merchant']);
 
+        // Price options
         $sortOrder = 0;
         foreach ($_POST['rfmp_priceoptions_new'] as $key => $new) {
             if ($new == '1') {
@@ -605,13 +612,52 @@ class Admin
                         'stock'           => $_POST['rfmp_priceoptions_stock'][$key] != '' ?
                                 $_POST['rfmp_priceoptions_stock'][$key] : null,
                         'sort_order'      => $sortOrder,
-                ],
-                        [
-                                'ID' => str_replace('po-', '', $key),
-                        ]);
+                ], [
+                        'ID' => str_replace('po-', '', $key),
+                ]);
             }
 
             $sortOrder++;
+        }
+
+        // Discount Codes
+        foreach ($_POST['rfmp_discount_id'] as $key => $id) {
+            if ($id == 0) {
+                if (empty($_POST['rfmp_discount_code'][$key])) {
+                    continue;
+                }
+
+                // new code
+                $this->db->insert($this->mollieForms->getDiscountCodesTable(), [
+                        'post_id'       => $postId,
+                        'discount_code' => $_POST['rfmp_discount_code'][$key],
+                        'discount_type' => $_POST['rfmp_discount_type'][$key],
+                        'discount'      => $_POST['rfmp_discount'][$key],
+                        'valid_from'    => $_POST['rfmp_discount_valid_from'][$key],
+                        'valid_until'   => $_POST['rfmp_discount_valid_until'][$key],
+                        'times_max'     => $_POST['rfmp_discount_times_max'][$key],
+                ]);
+            } else {
+                if (empty($_POST['rfmp_discount_code'][$key])) {
+                    $this->db->delete($this->mollieForms->getDiscountCodesTable(), [
+                            'ID' => $id,
+                    ]);
+
+                    continue;
+                }
+
+                // existing code
+                $this->db->update($this->mollieForms->getDiscountCodesTable(), [
+                        'discount_code' => $_POST['rfmp_discount_code'][$key],
+                        'discount_type' => $_POST['rfmp_discount_type'][$key],
+                        'discount'      => $_POST['rfmp_discount'][$key],
+                        'valid_from'    => $_POST['rfmp_discount_valid_from'][$key],
+                        'valid_until'   => $_POST['rfmp_discount_valid_until'][$key],
+                        'times_max'     => $_POST['rfmp_discount_times_max'][$key],
+                ], [
+                        'ID' => $id,
+                ]);
+            }
         }
     }
 
@@ -645,9 +691,12 @@ class Admin
             <form action="edit.php" style="float: right;">
                 <input type="hidden" name="post_type" value="mollie-forms">
                 <input type="hidden" name="page" value="registrations">
-                <input type="hidden" name="post" value="<?php echo esc_attr($_GET['post'] ?? '');?>">
+                <input type="hidden" name="post" value="<?php echo esc_attr($_GET['post'] ?? ''); ?>">
 
-                <input type="text" name="search" value="<?php echo esc_attr($_GET['search'] ?? '');?>" placeholder="<?php esc_html_e('Search') ?>">
+                <input type="text"
+                       name="search"
+                       value="<?php echo esc_attr($_GET['search'] ?? ''); ?>"
+                       placeholder="<?php esc_html_e('Search') ?>">
                 <input type="submit" class="button action" value="<?php esc_html_e('Search') ?>">
             </form>
 

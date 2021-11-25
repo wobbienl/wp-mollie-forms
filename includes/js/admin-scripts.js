@@ -15,12 +15,21 @@ jQuery(document).ready(function($) {
         $(this).closest('td').find('.rfmp_priceoptions_new').val("-1");
     });
 
+    $("#rfmp_discountcodes").on('click', 'td .delete', function() {
+        $(this).closest('tr').hide();
+        $(this).closest('tr').find('td:nth-child(2)').find('[name^="rfmp_discount_code"]').val('');
+    });
+
     $("#rfmp_add_field").on('click', function() {
         $("#rfmp_fields tbody").prepend($("#rfmp_template_field").html());
     });
 
     $("#rfmp_add_priceoption").on('click', function() {
         $("#rfmp_priceoptions tbody").append($("#rfmp_template_priceoption").html());
+    });
+
+    $("#rfmp_add_discountcode").on('click', function() {
+        $("#rfmp_discountcodes tbody").append($("#rfmp_template_discountcode").html());
     });
 
     $("body").on('change', '.rfmp_frequency', function() {

@@ -9,7 +9,7 @@ class MollieForms
     /**
      * Plugin version number
      */
-    const PLUGIN_VERSION = '2.4.0';
+    const PLUGIN_VERSION = '2.5.0';
 
     /**
      * Webhook URL for Mollie
@@ -26,6 +26,7 @@ class MollieForms
     const TABLE_CUSTOMERS                  = 'mollie_forms_customers';
     const TABLE_SUBSCRIPTIONS              = 'mollie_forms_subscriptions';
     const TABLE_PRICE_OPTIONS              = 'mollie_forms_price_options';
+    const TABLE_DISCOUNT_CODES             = 'mollie_forms_discount_codes';
 
     private $db;
     public  $baseName, $dirUrl, $dirPath;
@@ -86,6 +87,16 @@ class MollieForms
     public function getRegistrationPriceOptionsTable()
     {
         return $this->db->prefix . self::TABLE_REGISTRATION_PRICE_OPTIONS;
+    }
+
+    /**
+     * Discount codes table name
+     *
+     * @return string
+     */
+    public function getDiscountCodesTable()
+    {
+        return $this->db->prefix . self::TABLE_DISCOUNT_CODES;
     }
 
     /**

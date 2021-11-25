@@ -47,6 +47,11 @@ class Migrator
             $this->moveShippingCostsToPostMeta();
             $this->movePriceOptionsToDatabase();
             $this->addTotalsField();
+            $this->addDiscountCodeField();
+        }
+
+        if (get_option('mollie-forms_version') < '2.5.0') {
+            $this->addDiscountCodeField();
         }
 
         // run normal installation
@@ -187,6 +192,47 @@ class Migrator
     }
 
     /**
+     * Add total field to forms
+     */
+    private function addDiscountCodeField()
+    {
+        // add totals field to all forms
+        foreach (get_posts(['numberposts' => -1, 'post_type' => 'mollie-forms']) as $post) {
+            $fields         = [];
+            $labels         = [];
+            $values         = [];
+            $classes        = [];
+            $required       = [];
+            $field_type     = get_post_meta($post->ID, '_rfmp_fields_type', true);
+            $field_label    = get_post_meta($post->ID, '_rfmp_fields_label', true);
+            $field_value    = get_post_meta($post->ID, '_rfmp_fields_value', true);
+            $field_class    = get_post_meta($post->ID, '_rfmp_fields_class', true);
+            $field_required = get_post_meta($post->ID, '_rfmp_fields_required', true);
+            foreach ($field_type as $key => $field) {
+                if ($field == 'total') {
+                    $fields[]   = 'discount_code';
+                    $labels[]   = __('Discount code', 'mollie-forms');
+                    $values[]   = '';
+                    $classes[]  = '';
+                    $required[] = 0;
+                }
+
+                $fields[]   = $field;
+                $labels[]   = $field_label[$key];
+                $values[]   = $field_value[$key];
+                $classes[]  = $field_class[$key];
+                $required[] = $field_required[$key];
+            }
+
+            update_post_meta($post->ID, '_rfmp_fields_type', $fields);
+            update_post_meta($post->ID, '_rfmp_fields_label', $labels);
+            update_post_meta($post->ID, '_rfmp_fields_value', $values);
+            update_post_meta($post->ID, '_rfmp_fields_class', $classes);
+            update_post_meta($post->ID, '_rfmp_fields_required', $required);
+        }
+    }
+
+    /**
      * Update database tables
      */
     private function updateDatabase()
@@ -277,8 +323,8 @@ class Migrator
             sort_order        mediumint(9) DEFAULT NULL,
             UNIQUE KEY id (id)
         ) {$this->db->get_charset_collate()};";
-
         dbDelta($sqlPriceOptions);
+
         $sqlRegistrationPriceOptions = "CREATE TABLE {$this->mollieForms->getRegistrationPriceOptionsTable()} (
             id                mediumint(9) NOT NULL AUTO_INCREMENT,
             post_id           mediumint(9) NOT NULL,
@@ -296,6 +342,20 @@ class Migrator
             UNIQUE KEY id (id)
         ) {$this->db->get_charset_collate()};";
         dbDelta($sqlRegistrationPriceOptions);
+
+        $sqlDiscountCodes = "CREATE TABLE {$this->mollieForms->getDiscountCodesTable()} (
+            id                mediumint(9) NOT NULL AUTO_INCREMENT,
+            post_id           mediumint(9) NOT NULL,
+            discount_code     varchar(255) NOT NULL,
+            discount_type     varchar(255) NOT NULL,
+            discount          decimal(8,2) NOT NULL,
+            valid_from        datetime DEFAULT NULL,
+            valid_until       datetime DEFAULT NULL,
+            times_max         mediumint(9) DEFAULT NULL,
+            times_used        mediumint(9) DEFAULT 0,
+            UNIQUE KEY id (id)
+        ) {$this->db->get_charset_collate()};";
+        dbDelta($sqlDiscountCodes);
 
         update_option('mollie-forms_version', $this->mollieForms->getVersion());
     }

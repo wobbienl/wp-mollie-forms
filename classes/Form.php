@@ -3,6 +3,8 @@
 namespace MollieForms;
 
 
+use DateTime;
+
 class Form
 {
 
@@ -108,7 +110,8 @@ class Form
             }
 
             if ($labelDisplay != 'placeholder') {
-                $builder->addLabel($atts['name'], $atts['label'], isset($atts['required']));
+                $required = !($type == 'discount_code') && isset($atts['required']);
+                $builder->addLabel($atts['name'], $atts['label'], $required);
             }
 
             $builder->addField($type, $atts);
@@ -279,6 +282,7 @@ class Form
                 $totalPrice = 0.00;
                 $totalVat   = 0.00;
                 $recurring  = false;
+                $vatRateFirstPriceOption = null;
                 foreach ($priceOptions as $priceOption) {
                     $price = $priceOption['option']->price_type == 'open' ?
                         (isset($_POST['rfmp_amount_' . $postId]) ?
@@ -300,6 +304,14 @@ class Form
 
                     $totalVat   += $optionVat;
                     $totalPrice += $optionPrice;
+
+                    if ($vatRateFirstPriceOption === null) {
+                        $vatRateFirstPriceOption = $priceOption['option']->vat;
+                    }
+                }
+
+                if ($vatRateFirstPriceOption === null) {
+                    $vatRateFirstPriceOption = 21;
                 }
 
                 // calc shipping costs
@@ -344,6 +356,64 @@ class Form
                     $totalVat   += $paymentVat;
                 }
 
+                // Add field values of registration
+                foreach ($field_label as $key => $field) {
+                    if ($field_type[$key] == 'submit' || $field_type[$key] == 'total') {
+                        continue;
+                    }
+
+                    $value = isset($_POST['form_' . $postId . '_field_' . $key]) ?
+                        $_POST['form_' . $postId . '_field_' . $key] : '';
+                    if ($field_type[$key] === 'payment_methods') {
+                        $value = $_POST['rfmp_payment_method_' . $postId];
+                    } elseif ($field_type[$key] === 'priceoptions') {
+                        $value = implode(', ', $optionsDesc);
+                    }
+
+                    $search_desc[]  = '{rfmp="' . trim($field) . '"}';
+                    $replace_desc[] = $value;
+
+                    if ($field_type[$key] == 'discount_code') {
+                        $discountCode = $value;
+                    }
+                }
+
+                // Discount
+                if (isset($discountCode) && !empty($discountCode)) {
+                    $discount = $this->db->get_row("SELECT * FROM {$this->mollieForms->getDiscountCodesTable()} WHERE post_id = " . (int) $postId . " AND discount_code = '" . trim(esc_sql($discountCode)) . "'");
+
+                    if ($discount !== null) {
+                        $now = new DateTime('now', wp_timezone());
+                        $validFrom = new DateTime($discount->valid_from, wp_timezone());
+                        $validUntil = new DateTime($discount->valid_until, wp_timezone());
+
+                        if ($discount->times_max > 0 && $discount->times_used >= $discount->times_max) {
+                            // Max number of usages
+                            throw new Exception(__('The discount code has expired', 'mollie-forms'));
+                        }
+
+                        if ($now->getTimestamp() < $validFrom->getTimestamp() || $now->getTimestamp() > $validUntil->getTimestamp()) {
+                            // Not valid anymore
+                            throw new Exception(__('The discount code has expired', 'mollie-forms'));
+                        }
+
+                        $discountAmount = (float)$discount->discount;
+                        if ($discount->discount_type === 'percentage') {
+                            $discountPercentage = ((int) $discount->discount) / 100;
+                            $discountAmount = $totalPrice * $discountPercentage;
+                        }
+
+                        if ($vatSetting === 'excl') {
+                            $discountVat = ($vatRateFirstPriceOption / 100) * $discountAmount;
+                        } else {
+                            $discountVat = $discountAmount * ($vatRateFirstPriceOption / 121);
+                        }
+
+                        $totalPrice -= $discountAmount;
+                        $totalVat   -= $discountVat;
+                    }
+                }
+
                 // description
                 $search_desc  = [
                     '{rfmp="id"}',
@@ -357,22 +427,6 @@ class Form
                     implode(', ', $optionsDesc),
                     get_the_title($postId),
                 ];
-
-                // Add field values of registration
-                foreach ($field_label as $key => $field) {
-                    if ($field_type[$key] != 'submit' && $field_type[$key] != 'total') {
-                        $value = isset($_POST['form_' . $postId . '_field_' . $key]) ?
-                            $_POST['form_' . $postId . '_field_' . $key] : '';
-                        if ($field_type[$key] === 'payment_methods') {
-                            $value = $_POST['rfmp_payment_method_' . $postId];
-                        } elseif ($field_type[$key] === 'priceoptions') {
-                            $value = implode(', ', $optionsDesc);
-                        }
-
-                        $search_desc[]  = '{rfmp="' . trim($field) . '"}';
-                        $replace_desc[] = $value;
-                    }
-                }
 
                 $desc = get_post_meta($postId, '_rfmp_payment_description', true);
                 if (!$desc) {
@@ -444,6 +498,20 @@ class Form
                         'price'           => $paymentCosts,
                         'price_type'      => 'fixed',
                         'vat'             => 21,
+                        'frequency'       => 'once',
+                    ]);
+                }
+
+                if (isset($discountAmount) && $discountAmount > 0) {
+                    $this->db->insert($this->mollieForms->getRegistrationPriceOptionsTable(), [
+                        'post_id'         => $postId,
+                        'registration_id' => $registrationId,
+                        'description'     => __('Discount', 'mollie-forms'),
+                        'quantity'        => 1,
+                        'currency'        => $currency,
+                        'price'           => '-' . $discountAmount,
+                        'price_type'      => 'fixed',
+                        'vat'             => $vatRateFirstPriceOption,
                         'frequency'       => 'once',
                     ]);
                 }
@@ -535,26 +603,26 @@ class Form
                             'quantity'    => 1,
                             'unitPrice'   => [
                                 'currency' => $currency,
-                                'value'    => (string) number_format($paymentCosts, $decimals, '.', ''),
+                                'value'    => number_format($paymentCosts, $decimals, '.', ''),
                             ],
                             'totalAmount' => [
                                 'currency' => $currency,
-                                'value'    => (string) number_format($paymentCosts, $decimals, '.', ''),
+                                'value'    => number_format($paymentCosts, $decimals, '.', ''),
                             ],
                             'vatRate'     => '21.00',
                             'vatAmount'   => [
                                 'currency' => $currency,
-                                'value'    => (string) number_format($paymentVat, $decimals, '.', ''),
+                                'value'    => number_format($paymentVat, $decimals, '.', ''),
                             ],
                         ];
                     }
 
                     if (isset($shippingPrice) && $shippingPrice > 0) {
                         if ($vatSetting == 'excl') {
-                            $shippingVat   = ((float) $shippingPrice) * 0.21;
+                            $shippingVat   = $shippingPrice * 0.21;
                             $shippingPrice += $shippingVat;
                         } else {
-                            $shippingVat = ((float) $shippingPrice) * (21 / 121);
+                            $shippingVat = $shippingPrice * (21 / 121);
                         }
 
                         $orderLines[] = [
@@ -563,16 +631,37 @@ class Form
                             'quantity'    => 1,
                             'unitPrice'   => [
                                 'currency' => $currency,
-                                'value'    => (string) number_format($shippingPrice, $decimals, '.', ''),
+                                'value'    => number_format($shippingPrice, $decimals, '.', ''),
                             ],
                             'totalAmount' => [
                                 'currency' => $currency,
-                                'value'    => (string) number_format($shippingPrice, $decimals, '.', ''),
+                                'value'    => number_format($shippingPrice, $decimals, '.', ''),
                             ],
                             'vatRate'     => '21.00',
                             'vatAmount'   => [
                                 'currency' => $currency,
-                                'value'    => (string) number_format($shippingVat, $decimals, '.', ''),
+                                'value'    => number_format($shippingVat, $decimals, '.', ''),
+                            ],
+                        ];
+                    }
+
+                    if (isset($discountAmount, $discountVat) && $discountAmount > 0) {
+                        $orderLines[] = [
+                            'type'        => 'discount',
+                            'name'        => __('Discount', 'mollie-forms'),
+                            'quantity'    => 1,
+                            'unitPrice'   => [
+                                'currency' => $currency,
+                                'value'    => '-' . number_format($discountAmount, $decimals, '.', ''),
+                            ],
+                            'totalAmount' => [
+                                'currency' => $currency,
+                                'value'    => '-' . number_format($discountAmount, $decimals, '.', ''),
+                            ],
+                            'vatRate'     => number_format($vatRateFirstPriceOption, 2, '.'),
+                            'vatAmount'   => [
+                                'currency' => $currency,
+                                'value'    => '-' . number_format($discountVat, $decimals, '.', ''),
                             ],
                         ];
                     }
@@ -580,7 +669,7 @@ class Form
                     $orderData = [
                         'amount'         => [
                             'currency' => $currency,
-                            'value'    => (string) number_format($totalPrice, $decimals, '.', ''),
+                            'value'    => number_format($totalPrice, $decimals, '.', ''),
                         ],
                         'orderNumber'    => $rfmpId,
                         'lines'          => $orderLines,
@@ -594,7 +683,6 @@ class Form
                             'country'         => $addressCountry,
                         ],
                         'redirectUrl'    => $redirect . 'payment=' . $rfmpId,
-                        'webhookUrl'     => $webhook,
                         'locale'         => $locale ?: 'nl_NL',
                         'method'         => $paymentMethod,
                         'metadata'       => [
@@ -634,7 +722,7 @@ class Form
                     $paymentData = [
                         'amount'      => [
                             'currency' => $currency,
-                            'value'    => (string) number_format($totalPrice, $decimals, '.', ''),
+                            'value'    => number_format($totalPrice, $decimals, '.', ''),
                         ],
                         'description' => $desc,
                         'method'      => $paymentMethod,
@@ -676,7 +764,7 @@ class Form
             }
 
         } catch (Exception $e) {
-            echo '<p style="color: red">' . $e->getMessage() . '</p>';
+            echo '<p style="color: red">' . $e->getMessage() . ' <a href="javascript: window.history.go(-1)">' . __('Go back', 'mollie-forms') . '</a></p>';
 
             if (isset($registrationId)) {
                 // an error occurred, delete registration

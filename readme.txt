@@ -4,7 +4,7 @@ Tags: mollie,registration,form,payments,ideal,bancontact,sofort,bitcoin,belfius,
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 5.8.2
-Stable tag: 2.4.0
+Stable tag: 2.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,6 +25,7 @@ Create registration forms with payment methods of Mollie. One-time and recurring
 * Configure emails per form
 * Refund payments and cancel subscriptions in Wordpress admin
 * Style it with your own css classes.
+* Discount codes
 
 
 == Frequently Asked Questions ==
@@ -73,6 +74,10 @@ The following action hooks with parameters are available:
 
 
 == Changelog ==
+
+= 2.5.0 - 25/11/2021 =
+* Added discount codes [Read more](https://support.wobbie.nl/article/28-hoe-werken-de-kortingscodes-in-mollie-forms)
+* Use WP timezone for created_at date in e-mail variable
 
 = 2.4.0 - 23/11/2021 =
 * Added search functionality in registrations

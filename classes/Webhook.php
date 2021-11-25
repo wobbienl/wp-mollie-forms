@@ -3,6 +3,8 @@
 namespace MollieForms;
 
 
+use DateTime;
+
 class Webhook
 {
 
@@ -206,6 +208,20 @@ class Webhook
                 $fields       = $this->db->get_results("SELECT * FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE registration_id=" .
                                                        (int) $registration->id);
 
+                // update discount code
+                foreach ($fields as $field) {
+                    if ($field->type == 'discount_code') {
+                        $discount = $this->db->get_row("SELECT * FROM {$this->mollieForms->getDiscountCodesTable()} WHERE post_id =" .
+                                                       (int) $post . " AND discount_code = '" . esc_sql(trim($field->value)) . "'");
+
+                        if ($discount !== null) {
+                            $this->db->query("UPDATE {$this->mollieForms->getDiscountCodesTable()} SET times_used=times_used+1 WHERE id = " .
+                                             (int) $discount->id);
+                        }
+                        break;
+                    }
+                }
+
                 do_action('rfmp_payment_paid', $post, $registration, $fields);
             }
 
@@ -382,6 +398,7 @@ class Webhook
                                 '</strong></td><td><strong>' . $symbol . ' ' .
                                 number_format($total, $decimals, ',', '') . '</strong></td></tr></table>';
 
+        $createdAt = new DateTime($registration->created_at, wp_timezone());
 
         $data    = [];
         $search  = [
@@ -405,8 +422,7 @@ class Webhook
             $payment->id,
             $payment->method ?: '-',
             get_the_title($post),
-            date_i18n(get_option('date_format') . ' ' .
-                      get_option('time_format'), strtotime($registration->created_at)),
+            date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $createdAt->getTimestamp()),
             implode(', ', $priceOptionString),
             $priceOptionTable,
             $priceOptionTableVat,
