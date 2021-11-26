@@ -356,6 +356,18 @@ class Form
                     $totalVat   += $paymentVat;
                 }
 
+                // description
+                $search_desc  = [
+                    '{rfmp="id"}',
+                    '{rfmp="priceoption"}',
+                    '{rfmp="form_title"}',
+                ];
+                $replace_desc = [
+                    $rfmpId,
+                    implode(', ', $optionsDesc),
+                    get_the_title($postId),
+                ];
+
                 // Add field values of registration
                 foreach ($field_label as $key => $field) {
                     if ($field_type[$key] == 'submit' || $field_type[$key] == 'total') {
@@ -414,20 +426,10 @@ class Form
                     }
                 }
 
-                // description
-                $search_desc  = [
-                    '{rfmp="id"}',
-                    '{rfmp="amount"}',
-                    '{rfmp="priceoption"}',
-                    '{rfmp="form_title"}',
-                ];
-                $replace_desc = [
-                    $rfmpId,
-                    $symbol . ' ' . number_format($totalPrice, $decimals, ',', ''),
-                    implode(', ', $optionsDesc),
-                    get_the_title($postId),
-                ];
+                $search_desc[] = '{rfmp="amount"}';
+                $replace_desc[] = $symbol . ' ' . number_format($totalPrice, $decimals, ',', '');
 
+                // description
                 $desc = get_post_meta($postId, '_rfmp_payment_description', true);
                 if (!$desc) {
                     $desc = '{rfmp="priceoption"}';
@@ -575,16 +577,16 @@ class Form
                             'quantity'    => $priceOption['quantity'],
                             'unitPrice'   => [
                                 'currency' => $currency,
-                                'value'    => (string) number_format($unitPrice, $decimals, '.', ''),
+                                'value'    => number_format($unitPrice, $decimals, '.', ''),
                             ],
                             'totalAmount' => [
                                 'currency' => $currency,
-                                'value'    => (string) number_format($totalAmount, $decimals, '.', ''),
+                                'value'    => number_format($totalAmount, $decimals, '.', ''),
                             ],
-                            'vatRate'     => (string) number_format($vatRate, 2, '.', ''),
+                            'vatRate'     => number_format($vatRate, 2, '.', ''),
                             'vatAmount'   => [
                                 'currency' => $currency,
-                                'value'    => (string) number_format($vatAmount, $decimals, '.', ''),
+                                'value'    => number_format($vatAmount, $decimals, '.', ''),
                             ],
                         ];
                     }
