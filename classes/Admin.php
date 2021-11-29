@@ -96,6 +96,10 @@ class Admin
                                                          'manage_options',
                                                          'https://features.wobbie.nl',
         ];
+        $submenu['edit.php?post_type=mollie-forms'][] = [__('Donate', 'mollie-forms'),
+                                                         'manage_options',
+                                                         'https://wobbie.nl/doneren',
+        ];
     }
 
     /**
@@ -116,6 +120,8 @@ class Admin
                                   esc_html__('Feature requests', 'mollie-forms') . '</a>',
                     'add-ons'  => '<a href="edit.php?post_type=mollie-forms&page=add-ons">' .
                                   esc_html__('Add-ons', 'mollie-forms') . '</a>',
+                    'donate'   => '<a href="https://wobbie.nl/doneren" target="_blank">' .
+                                  esc_html__('Donate', 'mollie-forms') . '</a>',
             ];
 
             return array_merge($links, $row_meta);
@@ -391,7 +397,7 @@ class Admin
         wp_nonce_field(basename(__FILE__), 'rfmp_meta_box_discountcodes_nonce');
 
         $discountCodes = $this->db->get_results("SELECT * FROM {$this->mollieForms->getDiscountCodesTable()} WHERE post_id=" .
-                                               (int) $post->ID);
+                                                (int) $post->ID);
 
         include $this->mollieForms->getDirPath() . 'templates/metaboxes/discountCodes.php';
     }

@@ -1,5 +1,6 @@
 === Mollie Forms ===
 Contributors: ndijkstra
+Donate link: https://wobbie.nl/doneren
 Tags: mollie,registration,form,payments,ideal,bancontact,sofort,bitcoin,belfius,creditcard,recurring,forms,multicurrency,dollars,pounds,usd,gbp
 Requires at least: 4.4
 Requires PHP: 7.0
