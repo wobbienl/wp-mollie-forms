@@ -5,7 +5,7 @@ Tags: mollie,registration,form,payments,ideal,bancontact,sofort,bitcoin,belfius,
 Requires at least: 4.4
 Requires PHP: 7.0
 Tested up to: 5.8.2
-Stable tag: 2.5.1
+Stable tag: 2.5.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,6 +75,9 @@ The following action hooks with parameters are available:
 
 
 == Changelog ==
+
+= 2.5.2 - 06/12/2021 =
+* Fixed issue with discount code field for new forms
 
 = 2.5.1 - 26/11/2021 =
 * Fixed issue with variables in payment description

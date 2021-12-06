@@ -228,13 +228,15 @@ class Admin
                             2 => 'priceoptions',
                             3 => 'payment_methods',
                             4 => 'total',
-                            5 => 'submit',
+                            5 => 'discount_code',
+                            6 => 'submit',
             ];
             $field_label = [0 => __('Name', 'mollie-forms'),
                             1 => __('Email', 'mollie-forms'),
                             2 => '',
                             3 => __('Payment method', 'mollie-forms'),
-                            5 => __('Submit', 'mollie-forms'),
+                            5 => __('Discount code', 'mollie-forms'),
+                            6 => __('Submit', 'mollie-forms'),
             ];
         }
 
