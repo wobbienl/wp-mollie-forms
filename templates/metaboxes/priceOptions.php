@@ -58,7 +58,7 @@
                         <option value="fixed"><?php esc_html_e('Fixed', 'mollie-forms');?></option>
                         <option value="open"<?php echo ($priceOption->price_type == 'open' ? ' selected' : '');?>><?php esc_html_e('Open', 'mollie-forms');?></option>
                     </select>
-                    <input type="number" min="0.50" step="any" name="rfmp_priceoptions_price[po-<?php echo esc_attr($priceOption->id);?>]" value="<?php echo esc_attr($priceOption->price);?>" placeholder="<?php echo ($priceOption->price_type == 'open' ? _e('Minimum amount', 'mollie-forms') : _e('Amount', 'mollie-forms'));?>" style="width:70px">
+                    <input type="number" min="0.01" step="any" name="rfmp_priceoptions_price[po-<?php echo esc_attr($priceOption->id);?>]" value="<?php echo esc_attr($priceOption->price);?>" placeholder="<?php echo ($priceOption->price_type == 'open' ? _e('Minimum amount', 'mollie-forms') : _e('Amount', 'mollie-forms'));?>" style="width:70px">
                 </td>
                 <td>
                     <input type="number" min="0" name="rfmp_priceoptions_vat[po-<?php echo esc_attr($priceOption->id);?>]" value="<?php echo esc_attr($priceOption->vat);?>" style="width: 50px;">

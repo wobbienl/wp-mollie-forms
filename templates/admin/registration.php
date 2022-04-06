@@ -103,7 +103,7 @@
                 ?>
                 <tr>
                     <td class="column-subscription_id"><?php echo esc_html($subscription->subscription_id);?></td>
-                    <td class="column-created_at"><?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($subscription->created_at)));?></td>
+                    <td class="column-created_at"><?php echo esc_html(wp_date(get_option('date_format') . ' ' . get_option('time_format'), strtotime($subscription->created_at)));?></td>
                     <td class="column-sub_mode"><?php echo esc_html($subscription->sub_mode);?></td>
                     <td class="column-sub_amount"><?php echo $this->helpers->getCurrencySymbol($subscription->sub_currency ?: 'EUR') . ' ' . esc_html(number_format($subscription->sub_amount, $this->helpers->getCurrencies($subscription->sub_currency ?: 'EUR'), ',', ''));?></td>
                     <td class="column-sub_times"><?php echo esc_html($subscription->sub_times);?></td>
@@ -145,7 +145,7 @@
             <tr>
                 <td class="column-rfmp_id"><?php echo esc_html($payment->rfmp_id);?></td>
                 <td class="column-payment_id"><?php echo esc_html($payment->payment_id);?></td>
-                <td class="column-created_at"><?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($payment->created_at)));?></td>
+                <td class="column-created_at"><?php echo esc_html(wp_date(get_option('date_format') . ' ' . get_option('time_format'), strtotime($payment->created_at)));?></td>
                 <td class="column-payment_method"><?php echo esc_html($payment->payment_method);?></td>
                 <td class="column-payment_mode"><?php echo esc_html($payment->payment_mode);?></td>
                 <td class="column-payment_status"><?php echo esc_html($payment->payment_status);?></td>

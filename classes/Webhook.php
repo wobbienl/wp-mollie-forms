@@ -422,7 +422,7 @@ class Webhook
             $payment->id,
             $payment->method ?: '-',
             get_the_title($post),
-            date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $createdAt->getTimestamp()),
+            wp_date(get_option('date_format') . ' ' . get_option('time_format'), $createdAt->getTimestamp()),
             implode(', ', $priceOptionString),
             $priceOptionTable,
             $priceOptionTableVat,

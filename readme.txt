@@ -2,10 +2,10 @@
 Contributors: ndijkstra
 Donate link: https://wobbie.nl/doneren
 Tags: mollie,registration,form,payments,ideal,bancontact,sofort,bitcoin,belfius,creditcard,recurring,forms,multicurrency,dollars,pounds,usd,gbp
-Requires at least: 4.4
+Requires at least: 5.3
 Requires PHP: 7.0
-Tested up to: 5.8.2
-Stable tag: 2.5.2
+Tested up to: 5.9.3
+Stable tag: 2.5.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,6 +75,13 @@ The following action hooks with parameters are available:
 
 
 == Changelog ==
+
+= 2.5.3 - 06/04/2022 =
+* Fixed notice on registrations page
+* Fixed issue with new lines in text areas in csv export
+* Updated minimum amount of price options from 0,50 to 0,01
+* Using new wp_date function to display date/time for {rfmp="created_at"} variable
+* Now showing proper error when customer didn't select any price options
 
 = 2.5.2 - 06/12/2021 =
 * Fixed issue with discount code field for new forms

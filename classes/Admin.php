@@ -893,6 +893,11 @@ class Admin
         // get all fields for headers
         $registration = $this->db->get_row("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE post_id=" .
                                            (int) $postId . " ORDER BY id DESC LIMIT 1");
+
+		if ($registration === null) {
+			die(esc_html__('No registrations found for this form', 'mollie-forms'));
+		}
+
         $fields       = $this->db->get_results("SELECT * FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE registration_id=" .
                                                (int) $registration->id);
         foreach ($fields as $field) {
@@ -944,7 +949,9 @@ class Admin
                         $rows[] = $field->value == '1' ? __('Yes', 'mollie-forms') : __('No', 'mollie-forms');
                     }
                 } else {
-                    $rows[] = esc_html($field->value);
+	                $fieldValue = str_replace(["\r\n", "\n\r", "\n", "\r"], '', $field->value);
+
+                    $rows[] = esc_html($fieldValue);
                 }
             }
 

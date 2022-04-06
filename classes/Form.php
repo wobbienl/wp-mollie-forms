@@ -278,6 +278,10 @@ class Form
                     $optionsDesc[]  = '1x ' . $option->description;
                 }
 
+	            if (empty($priceOptions)) {
+		            throw new Exception(__('Please select at least 1 product', 'mollie-forms'));
+	            }
+
                 // calc total amounts
                 $totalPrice = 0.00;
                 $totalVat   = 0.00;

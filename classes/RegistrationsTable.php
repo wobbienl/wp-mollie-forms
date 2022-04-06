@@ -14,6 +14,8 @@ class RegistrationsTable extends \WP_List_Table
      */
     public function __construct($plugin)
     {
+		parent::__construct();
+
         $this->mollieForms = $plugin;
         $this->helpers     = new Helpers();
         $this->screen      = get_current_screen();
@@ -114,30 +116,23 @@ class RegistrationsTable extends \WP_List_Table
                 $name = $wpdb->get_row("SELECT value FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE type='name' AND registration_id=" .
                                        $item['id']);
                 return $name->value;
-                break;
             case 'total_price':
                 return $this->helpers->getCurrencySymbol($item['currency'] ?: 'EUR') . ' ' .
                        number_format($item[$column_name], $this->helpers->getCurrencies($item['currency'] ?:
                                'EUR'), ',', '');
-                break;
             case 'post_id':
                 $post = get_post($item[$column_name]);
                 return $post->post_title;
-                break;
             case 'created_at':
-                return date_i18n(get_option('date_format') . ' ' .
-                                 get_option('time_format'), strtotime($item[$column_name]));
-                break;
+                return wp_date(get_option('date_format') . ' ' . get_option('time_format'), strtotime($item[$column_name]));
             case 'price_frequency':
                 return $this->frequency_label($item[$column_name]);
-                break;
             case 'payment_status':
                 $payments = $wpdb->get_var("SELECT COUNT(*) FROM {$this->mollieForms->getPaymentsTable()} WHERE payment_status='paid' AND registration_id=" .
                                            (int) $item['id']);
                 return $payments ?
                         '<span style="color: green;">' . __('Paid', 'mollie-forms') . ' (' . $payments . 'x)</span>' :
                         '<span style="color: red;">' . __('Not paid', 'mollie-forms') . '</span>';
-                break;
             case 'subscription_status':
                 $reg = $wpdb->get_row("SELECT subs_fix FROM {$this->mollieForms->getRegistrationsTable()} WHERE id=" .
                                       $item['id']);
@@ -156,7 +151,6 @@ class RegistrationsTable extends \WP_List_Table
                 return $subscriptions ?
                         '<span style="color: green;">' . __('Active', 'mollie-forms') . ' (' . $subscriptions .
                         'x)</span>' : '<span style="color: red;">' . __('Not active', 'mollie-forms') . '</span>';
-                break;
             default:
                 return $item[$column_name];
         }
