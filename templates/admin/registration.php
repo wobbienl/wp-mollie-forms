@@ -50,17 +50,22 @@
                 $frequency   = $priceOption->frequency == 'once' ? '' : $this->helpers->getFrequencyLabel($priceOption->frequency_value . ' ' . $priceOption->frequency);
 
                 $optionPrice = $priceOption->price * $priceOption->quantity;
-                $optionVat   = ($priceOption->vat / 100) * $optionPrice;
+	            $optionVat   = ($priceOption->vat / 100) * $optionPrice;
                 $totalPrice += $optionPrice;
-                $totalVat   += $optionVat;
 
                 // add VAT to total if price is excl.
-                if ($vatSetting == 'excl')
-                {
+                if ($vatSetting == 'excl') {
+	                $optionVat   = ($priceOption->vat / 100) * $optionPrice;
+
                     $totalPrice += $optionVat;
                     $optionPrice+= $optionVat;
+                } else {
+	                $optionVat   = ($priceOption->vat / (100 + $priceOption->vat)) * $optionPrice;
                 }
-                ?>
+
+	            $totalVat += $optionVat;
+
+	            ?>
                 <tr>
                     <td><?php echo esc_html($priceOption->quantity);?>x</td>
                     <td><?php echo esc_html($priceOption->description);?></td>

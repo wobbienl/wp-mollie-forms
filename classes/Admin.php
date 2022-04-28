@@ -40,6 +40,16 @@ class Admin
 
         add_filter('plugin_row_meta', [$this, 'pluginRowMeta'], 10, 2);
         add_filter('post_row_actions', [$this, 'postActions'], 10, 2);
+
+	    add_action('admin_notices', function() {
+			$nrFormsWithSiteKey = $this->db->get_var("SELECT COUNT(*) FROM {$this->db->prefix}postmeta pmsite LEFT JOIN {$this->db->prefix}postmeta pmsec ON pmsec.post_id = pmsite.post_id WHERE pmsite.meta_key = '_rfmp_recaptcha_v3_site_key' AND pmsite.meta_value != '' AND pmsec.meta_key = '_rfmp_recaptcha_v3_secret_key' AND pmsec.meta_value = ''");
+			if ($nrFormsWithSiteKey > 0) {
+				echo '<div class="notice notice-warning is-dismissible">
+			             <p>We hebben de Google reCaptcha integratie in Mollie Forms aangepast. Om Google reCaptcha werkend te houden is het nu ook nodig de geheime sleutel in te voeren in alle formulieren die hier gebruik van maken.</p>
+			             <p>We have updated the Google reCaptcha integration in Mollie Forms. To make sure the integration keeps working, please add your secret key to all forms using Google reCaptcha.</p>
+			         </div>';
+			}
+	    });
     }
 
     /**
@@ -270,6 +280,7 @@ class Admin
         $shippingCosts       = get_post_meta($post->ID, '_rfmp_shipping_costs', true);
         $vatSetting          = get_post_meta($post->ID, '_rfmp_vat_setting', true);
         $recaptchaSiteKey    = get_post_meta($post->ID, '_rfmp_recaptcha_v3_site_key', true);
+        $recaptchaSecretKey  = get_post_meta($post->ID, '_rfmp_recaptcha_v3_secret_key', true);
 
         include $this->mollieForms->getDirPath() . 'templates/metaboxes/settings.php';
     }
@@ -466,6 +477,7 @@ class Admin
         update_post_meta($postId, '_rfmp_shipping_costs', $_POST['rfmp_shipping_costs']);
         update_post_meta($postId, '_rfmp_vat_setting', $_POST['rfmp_vat_setting']);
         update_post_meta($postId, '_rfmp_recaptcha_v3_site_key', $_POST['rfmp_recaptcha_v3_site_key']);
+        update_post_meta($postId, '_rfmp_recaptcha_v3_secret_key', $_POST['rfmp_recaptcha_v3_secret_key']);
 
         // Disable non-supported payment methods if non-EUR
         if ($_POST['rfmp_currency'] != 'EUR') {

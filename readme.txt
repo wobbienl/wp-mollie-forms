@@ -5,7 +5,7 @@ Tags: mollie,registration,form,payments,ideal,bancontact,sofort,bitcoin,belfius,
 Requires at least: 5.3
 Requires PHP: 7.0
 Tested up to: 5.9.3
-Stable tag: 2.5.3
+Stable tag: 2.5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,6 +75,11 @@ The following action hooks with parameters are available:
 
 
 == Changelog ==
+
+= 2.5.4 - 29/04/2022 =
+* Updated Google reCaptcha integration. Secret key is now also required to make it work
+* Fixed VAT calculation on registration page in admin
+* Fixed issue when using prices excluding VAT in combination with the Mollie Orders API
 
 = 2.5.3 - 06/04/2022 =
 * Fixed notice on registrations page

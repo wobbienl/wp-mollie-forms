@@ -208,6 +208,19 @@ class Form
 
         do_action('rfmp_form_submitted', $postId, $_POST);
 
+		$recaptchaSecretKey = get_post_meta($postId, '_rfmp_recaptcha_v3_secret_key', true);
+
+		if ($recaptchaSecretKey) {
+			$response = file_get_contents(
+				"https://www.google.com/recaptcha/api/siteverify?secret=" . $recaptchaSecretKey . "&response=" . $_POST['token']
+			);
+			$response = json_decode($response);
+
+			if ($response->success === false || $response->score <= 0.5) {
+				throw new Exception('Spam');
+			}
+		}
+
         try {
 
             if (!$apiKey) {
@@ -570,10 +583,11 @@ class Form
                         $vatRate     = $priceOption['option']->vat ?: 21;
 
                         if ($vatSetting === 'excl') {
-                            $vatAmount   = ((float) $totalAmount) * ($vatRate / 100);
+                            $vatAmount    = $totalAmount * ($vatRate / 100);
+	                        $unitPrice   += ((float) $unitPrice) * ($vatRate / 100);
                             $totalAmount += $vatAmount;
                         } else {
-                            $vatAmount = ((float) $totalAmount) * ($vatRate / ($vatRate + 100));
+                            $vatAmount = $totalAmount * ($vatRate / ($vatRate + 100));
                         }
 
                         $orderLines[] = [
@@ -689,6 +703,7 @@ class Form
                             'country'         => $addressCountry,
                         ],
                         'redirectUrl'    => $redirect . 'payment=' . $rfmpId,
+                        'webhookUrl'     => $webhook,
                         'locale'         => $locale ?: 'nl_NL',
                         'method'         => $paymentMethod,
                         'metadata'       => [

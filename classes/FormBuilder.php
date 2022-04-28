@@ -27,10 +27,16 @@ class FormBuilder
         $this->form             = '';
 
         if ($this->recaptchaSiteKey) {
-            $this->form .= '<script src="https://www.google.com/recaptcha/api.js"></script>';
+            $this->form .= '<script src="https://www.google.com/recaptcha/api.js?render=' . esc_attr($this->recaptchaSiteKey) . '"></script>';
             $this->form .= '<script>
-                                function onSubmit' . $postId . '(token) {
-                                    document.getElementById("rfmp_' . esc_js($postId) . '_submit").click();
+                                function onSubmit' . $postId . '(e) {
+                                    e.preventDefault(); 
+							        grecaptcha.ready(function() {
+							          grecaptcha.execute("' . esc_attr($this->recaptchaSiteKey) . '", {action: "submit"}).then(function(token) {
+							              document.getElementById("rfmp_' . esc_js($postId) . '_token").value = token;
+							              document.getElementById("rfmp_' . esc_js($postId) . '").submit();
+							          });
+							        });
                                 }
                             </script>';
         }
@@ -141,10 +147,8 @@ class FormBuilder
                 $html = '<br><button type="submit" ' . $this->buildAtts($atts) . '>' . $atts['label'] . '</button>';
 
                 if ($this->recaptchaSiteKey) {
-                    $html = '<br><button style="display:none;" id="rfmp_' . $this->postId . '_submit" type="submit">' .
-                            $atts['label'] . '</button>';
-                    $html .= '<button class="g-recaptcha" data-sitekey="' . esc_attr($this->recaptchaSiteKey) .
-                             '" data-callback="onSubmit' . $this->postId . '" data-action="submit" ' .
+					$html = '<input type="hidden" id="rfmp_' . $this->postId . '_token" name="token" value="">';
+                    $html .= '<br><button type="button" onclick="onSubmit' . $this->postId . '(event)" data-action="submit" ' .
                              $this->buildAtts($atts) . '>' . $atts['label'] . '</button>';
                 }
                 break;

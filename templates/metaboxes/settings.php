@@ -218,6 +218,15 @@
             </td>
         </tr>
 
+        <tr valign="top">
+            <th scope="row" class="titledesc">
+                <label for="rfmp_recaptcha_v3_secret_key"><?php esc_html_e('Google reCAPTCHA v3 Secret Key', 'mollie-forms');?></label>
+            </th>
+            <td class="forminp forminp-text">
+                <input name="rfmp_recaptcha_v3_secret_key" id="rfmp_recaptcha_v3_secret_key" value="<?php echo esc_attr($recaptchaSecretKey);?>" type="text" style="width: 350px">
+            </td>
+        </tr>
+
         </tbody>
     </table>
 </div>
