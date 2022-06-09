@@ -4,7 +4,7 @@ Donate link: https://wobbie.nl/doneren
 Tags: mollie,registration,form,payments,ideal,bancontact,sofort,bitcoin,belfius,creditcard,recurring,forms,multicurrency,dollars,pounds,usd,gbp
 Requires at least: 5.3
 Requires PHP: 7.0
-Tested up to: 5.9.3
+Tested up to: 6.0
 Stable tag: 2.5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -75,6 +75,10 @@ The following action hooks with parameters are available:
 
 
 == Changelog ==
+
+= 2.5.5 - 09/06/2022 =
+* Fix required fields check when reCaptcha is enabled
+* Use wp_remote_request instead of file_get_contents for reCaptcha
 
 = 2.5.4 - 29/04/2022 =
 * Updated Google reCaptcha integration. Secret key is now also required to make it work

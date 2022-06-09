@@ -211,10 +211,15 @@ class Form
 		$recaptchaSecretKey = get_post_meta($postId, '_rfmp_recaptcha_v3_secret_key', true);
 
 		if ($recaptchaSecretKey) {
-			$response = file_get_contents(
-				"https://www.google.com/recaptcha/api/siteverify?secret=" . $recaptchaSecretKey . "&response=" . $_POST['token']
+			$response = wp_remote_request(
+				"https://www.google.com/recaptcha/api/siteverify?secret=" . $recaptchaSecretKey . "&response=" . $_POST['token'],
+				[
+					'method'     => 'GET',
+					'timeout'    => 45,
+					'blocking'   => true,
+				]
 			);
-			$response = json_decode($response);
+			$response = json_decode($response['body']);
 
 			if ($response->success === false || $response->score <= 0.5) {
 				throw new Exception('Spam');
@@ -398,6 +403,11 @@ class Form
                     } elseif ($field_type[$key] === 'priceoptions') {
                         $value = implode(', ', $optionsDesc);
                     }
+
+					$required = get_post_meta($postId, '_rfmp_fields_required', true);
+					if ($field_type[$key] != 'discount_code' && $required[$key] && empty($value)) {
+						throw new Exception(sprintf(__( '%s is a required field', 'mollie-forms'), $field));
+					}
 
                     $search_desc[]  = '{rfmp="' . trim($field) . '"}';
                     $replace_desc[] = $value;
