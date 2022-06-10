@@ -5,7 +5,7 @@ Tags: mollie,registration,form,payments,ideal,bancontact,sofort,bitcoin,belfius,
 Requires at least: 5.3
 Requires PHP: 7.0
 Tested up to: 6.0
-Stable tag: 2.5.5
+Stable tag: 2.5.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,9 @@ The following action hooks with parameters are available:
 
 == Changelog ==
 
+= 2.5.6 - 09/06/2022 =
+* Added check for minimum amount for open amount price options when reCaptcha is enabled
+
 = 2.5.5 - 09/06/2022 =
 * Fix required fields check when reCaptcha is enabled
 * Use wp_remote_request instead of file_get_contents for reCaptcha
@@ -99,7 +102,7 @@ The following action hooks with parameters are available:
 * Fixed issue with variables in payment description
 
 = 2.5.0 - 25/11/2021 =
-* Added discount codes [Read more](https://support.wobbie.nl/article/28-hoe-werken-de-kortingscodes-in-mollie-forms)
+* Added discount codes [Read more](https://support.wobbie.nl/help/hoe-werken-de-kortingscodes-in-mollie-forms)
 * Use WP timezone for created_at date in e-mail variable
 
 = 2.4.0 - 23/11/2021 =

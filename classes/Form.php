@@ -311,6 +311,14 @@ class Form
                             str_replace(',', '.', $_POST['rfmp_amount_' . $postId]) : 0) :
                         $priceOption['option']->price;
 
+					if ($priceOption['option']->price_type === 'open' && $price < $priceOption['option']->price) {
+						throw new Exception(sprintf(
+							__( 'The minimum amount for %s is %s', 'mollie-forms'),
+							$priceOption['option']->description,
+							$symbol . number_format($priceOption['option']->price, $decimals, ',', '')
+						));
+					}
+
                     if ($priceOption['option']->frequency != 'once') {
                         $recurring = true;
                     }
