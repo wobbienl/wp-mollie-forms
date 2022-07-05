@@ -192,7 +192,7 @@ class Migrator
     }
 
     /**
-     * Add total field to forms
+     * Add discount code field to forms
      */
     private function addDiscountCodeField()
     {
