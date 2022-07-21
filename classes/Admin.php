@@ -608,6 +608,7 @@ class Admin
                         'frequency'       => $_POST['rfmp_priceoptions_frequency'][$key],
                         'frequency_value' => $_POST['rfmp_priceoptions_frequencyval'][$key] ?: null,
                         'times'           => $_POST['rfmp_priceoptions_times'][$key] ?: null,
+                        'max_times'       => $_POST['rfmp_priceoptions_max_times'][$key] ?: '',
                         'stock'           => $_POST['rfmp_priceoptions_stock'][$key] != '' ?
                                 $_POST['rfmp_priceoptions_stock'][$key] : null,
                         'sort_order'      => $sortOrder,
@@ -629,6 +630,7 @@ class Admin
                         'frequency'       => $_POST['rfmp_priceoptions_frequency'][$key],
                         'frequency_value' => $_POST['rfmp_priceoptions_frequencyval'][$key] ?: null,
                         'times'           => $_POST['rfmp_priceoptions_times'][$key] ?: null,
+                        'max_times'       => $_POST['rfmp_priceoptions_max_times'][$key] ?: '',
                         'stock'           => $_POST['rfmp_priceoptions_stock'][$key] != '' ?
                                 $_POST['rfmp_priceoptions_stock'][$key] : null,
                         'sort_order'      => $sortOrder,

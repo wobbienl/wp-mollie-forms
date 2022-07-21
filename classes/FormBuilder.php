@@ -232,12 +232,19 @@ class FormBuilder
                 var freq = "";
                 if (0 in priceoptions) {
                     if (priceoptions[0].tagName == "INPUT") {
+                        document.querySelectorAll(".rfmp_priceoptions_times").forEach(box => {
+                            box.style.display = "none";
+                        });
+
                         for (var i = 0, length = priceoptions.length; i < length; i++) {
                             if (priceoptions[i].checked) {
+                                console.log("hello " + priceoptions[i].className);
                                 var frequency = priceoptions[i].dataset.frequency;
                                 var pricetype = priceoptions[i].dataset.pricetype;
                                 freq = priceoptions[i].dataset.freq;
-                                break;
+                                document.querySelectorAll(".rfmp_priceoptions_times." + priceoptions[i].className).forEach(box => {
+                                    box.style.display = "block";
+                                });
                             }
                         }
                     } else {
@@ -466,6 +473,7 @@ class FormBuilder
 
             // check if is list or select to add correct html
             if ($optionDisplay == 'list') {
+                
                 // list view, only 1 option
                 $html  .= '<li>
                             <label>
@@ -478,12 +486,32 @@ class FormBuilder
                                         data-price="' . $priceOption->price . '" 
                                         data-vat="' . $priceOption->vat . '" 
                                         name="rfmp_priceoptions_' . $post . '" 
+                                        class="rfmp_price_times_option_' . esc_attr($priceOption->id) . '"
                                         value="' . esc_attr($priceOption->id) . '"
                                         ' . ($formValue == $priceOption->id || $first ? ' checked' : '') . '> 
                                 ' . esc_html($priceOption->description) . ' ' .
-                          ($price || $times ? '(' . trim($price . $times) . ')' : '') . '
-                            </label>
-                          </li>';
+                          ($price ? '(' . trim($price) . ')' : '') . '
+                            <br/>';
+                            
+                            if(count($priceOption->times)) {
+                                $html .= '<div class="rfmp_priceoptions_times rfmp_price_times_option_' . esc_attr($priceOption->id) . '">';
+
+                            
+                                    for (
+                                        $amountOfTimes = $priceOption->times; 
+                                        $amountOfTimes <= $priceOption->max_times; 
+                                        $amountOfTimes++
+                                    ) {
+                                        $html .= '<label>
+                                                    <input  type="radio" 
+                                                            name="rfmp_priceoptions_' . $post . '[]" >'.
+                                                            $amountOfTimes.$this->helpers->getFrequencyLabel($frequency, false, true).
+                                                    '</label>';      
+                                    }
+                                $html .= '</div>';
+                            }
+                            
+                    $html .= '</label></li>';
                 $first = false;
             } elseif ($optionDisplay == 'table_quantity') {
                 // table view to select multiple options with quantity
@@ -512,7 +540,7 @@ class FormBuilder
             } else {
                 // dropdown view
                 $html .= '<option   data-frequency="' . esc_attr($priceOption->frequency) . '" 
-                                    data-freq="' . $this->helpers->getFrequencyLabel($frequency) . '" 
+                                    data-freq="' . $this->helpers->getFrequencyLabel($frequency,) . '" 
                                     data-pricetype="' . $priceOption->price_type . '" 
                                     data-price="' . $priceOption->price . '" 
                                     data-vat="' . $priceOption->vat . '" 
@@ -570,7 +598,6 @@ class FormBuilder
                 if (priceoption[0].tagName == "INPUT") {
                     for (var i = 0, length = priceoption.length; i < length; i++) {
                         if (priceoption[i].checked) {
-                        
                             if (priceoption[i].dataset.pricetype == "open") {
                                 var openAmount  = document.getElementsByName("rfmp_amount_' . $post . '");
                                 openAmount[0].setAttribute("min", priceoption[i].dataset.price);
@@ -578,9 +605,7 @@ class FormBuilder
                             } else {
                                 var optionPrice = parseFloat(priceoption[i].dataset.price);
                             }
-                                
                             var optionVat = (parseInt(priceoption[i].dataset.vat) / 100) * optionPrice;
-                        
                             vat += optionVat;
                             total += optionPrice;
                             subtotal += optionPrice;
