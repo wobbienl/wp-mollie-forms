@@ -281,6 +281,7 @@ class Admin
         $vatSetting          = get_post_meta($post->ID, '_rfmp_vat_setting', true);
         $recaptchaSiteKey    = get_post_meta($post->ID, '_rfmp_recaptcha_v3_site_key', true);
         $recaptchaSecretKey  = get_post_meta($post->ID, '_rfmp_recaptcha_v3_secret_key', true);
+        $recaptchaScore      = get_post_meta($post->ID, '_rfmp_recaptcha_v3_minimum_score', true) ?: MollieForms::DEFAULT_MINIMUM_RECAPTCHA_SCORE;
 
         include $this->mollieForms->getDirPath() . 'templates/metaboxes/settings.php';
     }
@@ -478,6 +479,7 @@ class Admin
         update_post_meta($postId, '_rfmp_vat_setting', $_POST['rfmp_vat_setting']);
         update_post_meta($postId, '_rfmp_recaptcha_v3_site_key', $_POST['rfmp_recaptcha_v3_site_key']);
         update_post_meta($postId, '_rfmp_recaptcha_v3_secret_key', $_POST['rfmp_recaptcha_v3_secret_key']);
+        update_post_meta($postId, '_rfmp_recaptcha_v3_minimum_score', $_POST['rfmp_recaptcha_v3_minimum_score']);
 
         // Disable non-supported payment methods if non-EUR
         if ($_POST['rfmp_currency'] != 'EUR') {
@@ -751,6 +753,22 @@ class Admin
             $this->db->delete($this->mollieForms->getRegistrationsTable(), [
                     'id' => $id,
             ]);
+
+	        $this->db->delete($this->mollieForms->getRegistrationFieldsTable(), [
+			        'registration_id' => $id,
+	        ]);
+
+	        $this->db->delete($this->mollieForms->getRegistrationPriceOptionsTable(), [
+			        'registration_id' => $id,
+	        ]);
+
+	        $this->db->delete($this->mollieForms->getPaymentsTable(), [
+			        'registration_id' => $id,
+	        ]);
+
+	        $this->db->delete($this->mollieForms->getSubscriptionsTable(), [
+			        'registration_id' => $id,
+	        ]);
 
             wp_redirect('?post_type=mollie-forms&page=registrations&msg=delete-ok');
             exit;

@@ -4,8 +4,8 @@ Donate link: https://wobbie.nl/doneren
 Tags: mollie,registration,form,payments,ideal,bancontact,sofort,bitcoin,belfius,creditcard,recurring,forms,multicurrency,dollars,pounds,usd,gbp
 Requires at least: 5.3
 Requires PHP: 7.0
-Tested up to: 6.0
-Stable tag: 2.5.6
+Tested up to: 6.1
+Stable tag: 2.5.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,10 +71,14 @@ The following action hooks with parameters are available:
 
 * PHP version 7.0 or greater
 * PHP extensions enabled: cURL, JSON
-* WordPress 4.4 or greater
-
+* WordPress 5.3 or greater
 
 == Changelog ==
+
+= 2.5.7 - 24/03/2023 =
+* Added minimum reCaptcha acceptance score setting
+* When deleting a registration, now all related rows from other tables are also deleted
+* Fixed calculation in tables with VAT
 
 = 2.5.6 - 09/06/2022 =
 * Added check for minimum amount for open amount price options when reCaptcha is enabled

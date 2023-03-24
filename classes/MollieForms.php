@@ -9,7 +9,7 @@ class MollieForms
     /**
      * Plugin version number
      */
-    const PLUGIN_VERSION = '2.5.6';
+    const PLUGIN_VERSION = '2.5.7';
 
     /**
      * Webhook URL for Mollie
@@ -27,6 +27,8 @@ class MollieForms
     const TABLE_SUBSCRIPTIONS              = 'mollie_forms_subscriptions';
     const TABLE_PRICE_OPTIONS              = 'mollie_forms_price_options';
     const TABLE_DISCOUNT_CODES             = 'mollie_forms_discount_codes';
+
+	const DEFAULT_MINIMUM_RECAPTCHA_SCORE = 0.5;
 
     private $db;
     public  $baseName, $dirUrl, $dirPath;

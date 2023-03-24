@@ -227,6 +227,20 @@
             </td>
         </tr>
 
+        <tr valign="top">
+            <th scope="row" class="titledesc">
+                <label for="rfmp_recaptcha_v3_secret_key"><?php esc_html_e('reCAPTCHA minimum acceptance score', 'mollie-forms');?></label>
+            </th>
+            <td class="forminp forminp-text">
+                <select name="rfmp_recaptcha_v3_minimum_score" id="rfmp_recaptcha_v3_minimum_score">
+                    <?php foreach([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] as $s): ?>
+                        <option <?=($recaptchaScore == $s ? 'selected' : '') ?>><?=$s ?></option>
+                    <?php endforeach ?>
+                </select>
+                <br><small><?php esc_html_e('Blocks submissions with score lower than this setting', 'mollie-forms');?></small>
+            </td>
+        </tr>
+
         </tbody>
     </table>
 </div>

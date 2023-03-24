@@ -221,7 +221,8 @@ class Form
 			);
 			$response = json_decode($response['body']);
 
-			if ($response->success === false || $response->score <= 0.5) {
+			$recaptchaMinimumScore = get_post_meta($postId, '_rfmp_recaptcha_v3_minimum_score', true) ?: MollieForms::DEFAULT_MINIMUM_RECAPTCHA_SCORE;
+			if ($response->success === false || $response->score < $recaptchaMinimumScore) {
 				throw new Exception('Spam');
 			}
 		}
@@ -302,6 +303,7 @@ class Form
 
                 // calc total amounts
                 $totalPrice = 0.00;
+                $totalPriceExclVat = 0.00;
                 $totalVat   = 0.00;
                 $recurring  = false;
                 $vatRateFirstPriceOption = null;
@@ -334,6 +336,7 @@ class Form
 
                     $totalVat   += $optionVat;
                     $totalPrice += $optionPrice;
+	                $totalPriceExclVat += $optionPrice;
 
                     if ($vatRateFirstPriceOption === null) {
                         $vatRateFirstPriceOption = $priceOption['option']->vat;
@@ -357,6 +360,7 @@ class Form
                     }
 
                     $totalPrice += $shippingPrice;
+	                $totalPriceExclVat += $shippingPrice;
                     $totalVat   += $shippingVat;
                 }
 
@@ -383,6 +387,7 @@ class Form
                     }
 
                     $totalPrice += $paymentCosts;
+	                $totalPriceExclVat += $paymentCosts;
                     $totalVat   += $paymentVat;
                 }
 
@@ -448,12 +453,13 @@ class Form
                         if ($discount->discount_type === 'percentage') {
                             $discountPercentage = ((int) $discount->discount) / 100;
                             $discountAmount = $totalPrice * $discountPercentage;
+                            $discountAmountExclVat = $totalPriceExclVat * $discountPercentage;
                         }
 
                         if ($vatSetting === 'excl') {
                             $discountVat = ($vatRateFirstPriceOption / 100) * $discountAmount;
                         } else {
-                            $discountVat = $discountAmount * ($vatRateFirstPriceOption / 121);
+                            $discountVat = $discountAmount * ($vatRateFirstPriceOption / ($vatRateFirstPriceOption + 100));
                         }
 
                         $totalPrice -= $discountAmount;
@@ -546,7 +552,7 @@ class Form
                         'description'     => __('Discount', 'mollie-forms'),
                         'quantity'        => 1,
                         'currency'        => $currency,
-                        'price'           => '-' . $discountAmount,
+                        'price'           => '-' . ($vatSetting === 'excl' && isset($discountAmountExclVat) ? $discountAmountExclVat : $discountAmount),
                         'price_type'      => 'fixed',
                         'vat'             => $vatRateFirstPriceOption,
                         'frequency'       => 'once',
@@ -767,7 +773,7 @@ class Form
                         'method'      => $paymentMethod,
                         'locale'      => $locale,
                         'redirectUrl' => $redirect . 'payment=' . $rfmpId,
-                        'webhookUrl'  => $webhook,
+//                        'webhookUrl'  => $webhook,
                         'customerId'  => $customer->id,
                         'metadata'    => [
                             'rfmp_id' => $rfmpId,
