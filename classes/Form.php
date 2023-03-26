@@ -773,7 +773,7 @@ class Form
                         'method'      => $paymentMethod,
                         'locale'      => $locale,
                         'redirectUrl' => $redirect . 'payment=' . $rfmpId,
-//                        'webhookUrl'  => $webhook,
+                        'webhookUrl'  => $webhook,
                         'customerId'  => $customer->id,
                         'metadata'    => [
                             'rfmp_id' => $rfmpId,
