@@ -306,6 +306,7 @@ class Webhook
 
     private function sendEmail($post, $status, $registrationId, $payment, $type)
     {
+	    $status = str_replace('cancelled', 'canceled', $status);
         if (!in_array($status, ['paid', 'expired', 'canceled', 'charged_back'])) {
             return;
         }

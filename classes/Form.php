@@ -415,17 +415,31 @@ class Form
                         $value = $_POST['rfmp_payment_method_' . $postId];
                     } elseif ($field_type[$key] === 'priceoptions') {
                         $value = implode(', ', $optionsDesc);
-                    }
+                    } elseif ($field_type[$key] === 'file') {
+		                $value = $_FILES['form_' . $postId . '_field_' . $key];
+	                }
 
 					$required = get_post_meta($postId, '_rfmp_fields_required', true);
 					if ($field_type[$key] != 'discount_code' && $required[$key] && empty($value)) {
 						throw new Exception(sprintf(__( '%s is a required field', 'mollie-forms'), $field));
 					}
 
+	                if ($field_type[$key] === 'file') {
+		                if($value['size'] > wp_max_upload_size() || (isset($value['error']) && $value['error'] == 1)) {
+			                throw new Exception(sprintf(__( '%s is too large', 'mollie-forms'), $field));
+		                }
+
+		                $file_mime = mime_content_type($value['tmp_name']);
+
+		                if(!in_array($file_mime, get_allowed_mime_types())) {
+			                throw new Exception(sprintf(__( 'The file type of %s is not allowed', 'mollie-forms'), $field));
+		                }
+	                }
+
                     $search_desc[]  = '{rfmp="' . trim($field) . '"}';
                     $replace_desc[] = $value;
 
-                    if ($field_type[$key] == 'discount_code') {
+                    if ($field_type[$key] === 'discount_code') {
                         $discountCode = $value;
                     }
                 }
@@ -497,6 +511,35 @@ class Form
                             $_POST['form_' . $postId . '_field_' . $key] : '';
                         if ($field_type[$key] === 'payment_methods') {
                             $value = $_POST['rfmp_payment_method_' . $postId];
+                        } elseif ($field_type[$key] === 'file') {
+	                        $value = $_FILES['form_' . $postId . '_field_' . $key];
+
+							if (!function_exists('wp_handle_upload')) {
+								require_once(ABSPATH . 'wp-admin/includes/file.php');
+							}
+
+							if (!function_exists('wp_generate_attachment_metadata')) {
+								require_once( ABSPATH . 'wp-admin/includes/image.php' );
+							}
+
+							$_POST['mollie-forms-registration-id'] = $registrationId;
+
+	                        add_filter('upload_dir', [$this, 'my_upload_dir']);
+	                        $file = wp_handle_upload($value, array('test_form' => false));
+	                        remove_filter('upload_dir', [$this, 'my_upload_dir']);
+
+	                        $attachment = array(
+		                        'guid' => $file['url'],
+		                        'post_mime_type' => $file['type'],
+		                        'post_title' => preg_replace('/\.[^.]+$/', '', basename($file['file'])),
+		                        'post_content' => '',
+		                        'post_status' => 'inherit'
+	                        );
+	                        $attach_id = wp_insert_attachment($attachment, $file['file'], $postId);
+	                        $attach_data = wp_generate_attachment_metadata($attach_id, $file['file']);
+	                        wp_update_attachment_metadata($attach_id, $attach_data);
+
+	                        $value = $attach_id;
                         }
 
                         $this->db->insert($this->mollieForms->getRegistrationFieldsTable(), [
@@ -873,5 +916,14 @@ class Form
             }
         }
     }
+
+	function my_upload_dir($upload) {
+		$upload['subdir'] = '/mollie-forms/' . esc_attr($_POST['mollie-forms-post'] . '/' . $_POST['mollie-forms-registration-id']);
+		$upload['path']   = $upload['basedir'] . $upload['subdir'];
+		$upload['url']    = $upload['baseurl'] . $upload['subdir'];
+
+		return $upload;
+
+	}
 
 }

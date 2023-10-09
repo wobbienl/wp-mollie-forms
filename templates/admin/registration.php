@@ -12,6 +12,10 @@
                     <?php } else { ?>
                         <td class="value column-value"><?php echo $row->value == '1' ? __('Yes', 'mollie-forms') : __('No', 'mollie-forms');?></td>
                     <?php } ?>
+                <?php } elseif ($row->type === 'file') {
+                    $file = wp_get_attachment_url($row->value);
+                    ?>
+                    <td class="value column-value"><a href="<?php echo nl2br(esc_html('upload.php?item=' . $row->value));?>" target="_blank"><?php echo nl2br(esc_html($file));?></a></td>
                 <?php } else { ?>
                     <td class="value column-value"><?php echo nl2br(esc_html($row->value));?></td>
                 <?php } ?>

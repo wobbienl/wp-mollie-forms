@@ -41,7 +41,7 @@ class FormBuilder
                             </script>';
         }
 
-        $this->form .= '<form method="post" id="rfmp_' . esc_attr($postId) . '" class="' . esc_attr($class) . '">';
+        $this->form .= '<form enctype="multipart/form-data" data-mollie-forms="' . esc_attr($this->mollieForms->getVersion()) . '" method="post" id="rfmp_' . esc_attr($postId) . '" class="' . esc_attr($class) . '">';
         $this->form .= wp_nonce_field('mollie-forms', 'mollie_forms_' . $this->postId . '_nonce', true, false);
         $this->form .= '<input type="hidden" name="mollie-forms-post" value="' . $this->postId . '">';
     }
@@ -152,6 +152,9 @@ class FormBuilder
                              $this->buildAtts($atts) . '>' . $atts['label'] . '</button>';
                 }
                 break;
+            case 'file':
+	            $html = '<input type="file" ' . $this->buildAtts($atts) . '>';
+	            break;
             case 'payment_methods':
                 $html = $this->getPaymentMethods($atts);
                 break;

@@ -9,6 +9,7 @@
                 <option value="checkbox"><?php esc_html_e('Checkbox', 'mollie-forms');?></option>
                 <option value="radio"><?php esc_html_e('Radio buttons', 'mollie-forms');?></option>
                 <option value="date"><?php esc_html_e('Date', 'mollie-forms');?></option>
+                <option value="file"><?php esc_html_e('File', 'mollie-forms');?></option>
                 <option value="text-only"><?php esc_html_e('Text', 'mollie-forms');?></option>
             </select>
         </td>
@@ -186,6 +187,7 @@
                             <option value="dropdown"<?php echo ($type == 'dropdown' ? ' selected' : '');?>><?php esc_html_e('Dropdown', 'mollie-forms');?></option>
                             <option value="radio"<?php echo ($type == 'radio' ? ' selected' : '');?>><?php esc_html_e('Radio buttons', 'mollie-forms');?></option>
                             <option value="date"<?php echo ($type == 'date' ? ' selected' : '');?>><?php esc_html_e('Date', 'mollie-forms');?></option>
+                            <option value="file"<?php echo ($type == 'file' ? ' selected' : '');?>><?php esc_html_e('File', 'mollie-forms');?></option>
                             <option value="text-only"<?php echo ($type == 'text-only' ? ' selected' : '');?>><?php esc_html_e('Text', 'mollie-forms');?></option>
                         </select>
                     </td>
