@@ -263,14 +263,13 @@ class Webhook
                         $optionTotal += $optionVat;
                     }
 
-
                     $optionFrequency = ($priceOption->frequency_value ?: 1) . ' ' . $priceOption->frequency;
 
                     // create Mollie subscription
                     $subscription = $mollie->post('customers/' . $registration->customer_id . '/subscriptions', [
                         "amount"      => [
                             "currency" => $optionCurrency,
-                            "value"    => (string) number_format($optionTotal, $this->helpers->getCurrencies($optionCurrency), '.', ''),
+                            "value"    => number_format($optionTotal, $this->helpers->getCurrencies($optionCurrency), '.', ''),
                         ],
                         "interval"    => $optionFrequency,
                         "times"       => $priceOption->times > 0 ? ($priceOption->times - 1) : null,
@@ -306,8 +305,8 @@ class Webhook
 
     private function sendEmail($post, $status, $registrationId, $payment, $type)
     {
-	    $status = str_replace('cancelled', 'canceled', $status);
-        if (!in_array($status, ['paid', 'expired', 'canceled', 'charged_back'])) {
+	    $status = str_replace('canceled', 'cancelled', $status);
+        if (!in_array($status, ['paid', 'expired', 'cancelled', 'charged_back'])) {
             return;
         }
 

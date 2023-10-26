@@ -5,7 +5,7 @@ Tags: mollie,registration,form,payments,ideal,bancontact,sofort,bitcoin,belfius,
 Requires at least: 5.3
 Requires PHP: 7.0
 Tested up to: 6.3.1
-Stable tag: 2.6.0
+Stable tag: 2.6.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,9 @@ The following action hooks with parameters are available:
 * WordPress 5.3 or greater
 
 == Changelog ==
+
+= 2.6.1 - 26/10/2023 =
+* Fix webhook for cancelled payments
 
 = 2.6.0 - 09/10/2023 =
 * File uploads added as form field
