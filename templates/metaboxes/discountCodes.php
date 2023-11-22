@@ -90,12 +90,12 @@
                                value="<?php echo esc_attr($discountCode->discount) ?>">
                     </td>
                     <td>
-                        <input type="datetime-local"
+                        <input type="datetime-local" required
                                name="rfmp_discount_valid_from[]"
                                value="<?php echo esc_attr($validFrom->format('Y-m-d\TH:i')) ?>">
                     </td>
                     <td>
-                        <input type="datetime-local"
+                        <input type="datetime-local" required
                                name="rfmp_discount_valid_until[]"
                                value="<?php echo esc_attr($validUntil->format('Y-m-d\TH:i')) ?>">
                     </td>

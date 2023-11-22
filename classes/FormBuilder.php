@@ -472,7 +472,7 @@ class FormBuilder
                 // list view, only 1 option
                 $html  .= '<li>
                             <label>
-                                <input  type="radio" 
+                                <input type="radio" 
                                         onchange="mollie_forms_recurring_methods_' . $post . '();mollie_forms_' .
                           $post . '_totals();" 
                                         data-frequency="' . esc_attr($priceOption->frequency) . '" 
@@ -492,7 +492,7 @@ class FormBuilder
                 // table view to select multiple options with quantity
                 if ($priceOption->price_type != 'open') {
                     $html .= '<tr>
-                            <td style="width: 80px;">
+                            <td style="min-width: 150px;">
                                 <input  type="number"
                                         name="rfmp_priceoptions_' . $post . '_quantity[' . $priceOption->id . ']"
                                         class="rfmp_priceoptions_' . $post . '_quantity"

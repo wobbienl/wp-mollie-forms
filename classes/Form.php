@@ -210,24 +210,23 @@ class Form
 
 		$recaptchaSecretKey = get_post_meta($postId, '_rfmp_recaptcha_v3_secret_key', true);
 
-		if ($recaptchaSecretKey) {
-			$response = wp_remote_request(
-				"https://www.google.com/recaptcha/api/siteverify?secret=" . $recaptchaSecretKey . "&response=" . $_POST['token'],
-				[
-					'method'     => 'GET',
-					'timeout'    => 45,
-					'blocking'   => true,
-				]
-			);
-			$response = json_decode($response['body']);
-
-			$recaptchaMinimumScore = get_post_meta($postId, '_rfmp_recaptcha_v3_minimum_score', true) ?: MollieForms::DEFAULT_MINIMUM_RECAPTCHA_SCORE;
-			if ($response->success === false || $response->score < $recaptchaMinimumScore) {
-				throw new Exception('Spam');
-			}
-		}
-
         try {
+            if ($recaptchaSecretKey) {
+                $response = wp_remote_request(
+                    "https://www.google.com/recaptcha/api/siteverify?secret=" . $recaptchaSecretKey . "&response=" . $_POST['token'],
+                    [
+                        'method'     => 'GET',
+                        'timeout'    => 45,
+                        'blocking'   => true,
+                    ]
+                );
+                $response = json_decode($response['body']);
+
+                $recaptchaMinimumScore = get_post_meta($postId, '_rfmp_recaptcha_v3_minimum_score', true) ?: MollieForms::DEFAULT_MINIMUM_RECAPTCHA_SCORE;
+                if ($response->success === false || $response->score < $recaptchaMinimumScore) {
+                    throw new Exception('Spam');
+                }
+            }
 
             if (!$apiKey) {
                 echo '<p style="color: red">' . esc_html__('No API-key set', 'mollie-forms') . '</p>';
@@ -852,8 +851,6 @@ class Form
             }
 
         } catch (Exception $e) {
-            echo '<p style="color: red">' . $e->getMessage() . ' <a href="javascript: window.history.go(-1)">' . __('Go back', 'mollie-forms') . '</a></p>';
-
             if (isset($registrationId)) {
                 // an error occurred, delete registration
                 $this->db->delete($this->mollieForms->getRegistrationsTable(), [
@@ -863,18 +860,12 @@ class Form
 
             if (isset($customerId)) {
                 // an error occurred, delete customer
-                if (isset($mollie) && isset($customer) && isset($customer->id)) {
-                    try {
-                        $mollie->delete('customers/' . $customer->id);
-                    } catch (Exception $e) {
-                        // ignore
-                    }
-                }
-
                 $this->db->delete($this->mollieForms->getCustomersTable(), [
                     'ID' => $customerId,
                 ]);
             }
+
+            return '<p style="color: red">' . $e->getMessage() . ' <a href="javascript: window.history.go(-1)">' . __('Go back', 'mollie-forms') . '</a></p>';
         }
     }
 
