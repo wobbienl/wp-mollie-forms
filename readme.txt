@@ -4,8 +4,8 @@ Donate link: https://wobbie.nl/doneren
 Tags: mollie,registration,form,payments,ideal,bancontact,sofort,bitcoin,belfius,creditcard,recurring,forms,multicurrency,dollars,pounds,usd,gbp
 Requires at least: 5.3
 Requires PHP: 7.0
-Tested up to: 6.4.1
-Stable tag: 2.6.2
+Tested up to: 6.4.2
+Stable tag: 2.6.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,11 @@ The following action hooks with parameters are available:
 * WordPress 5.3 or greater
 
 == Changelog ==
+
+= 2.6.3 - 14/12/2023 =
+* Fix error when no file selected to upload
+* Fix validation for recurring authorization checkbox when reCaptcha is enabled
+* Fix where sometimes the webhook is later than the redirect
 
 = 2.6.2 - 22/11/2023 =
 * Fix width of table column priceoptions

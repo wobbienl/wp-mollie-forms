@@ -363,6 +363,10 @@ class Form
                     $totalVat   += $shippingVat;
                 }
 
+	            if ($recurring && $_POST['rfmp_checkbox_' . $postId] != 1) {
+		            throw new Exception(__('Please give authorization to collect from your account', 'mollie-forms'));
+	            }
+
                 // extra payment method costs
                 $paymentMethod = $_POST['rfmp_payment_method_' . $postId];
                 $paymentCosts  = 0;
@@ -423,7 +427,7 @@ class Form
 						throw new Exception(sprintf(__( '%s is a required field', 'mollie-forms'), $field));
 					}
 
-	                if ($field_type[$key] === 'file') {
+	                if ($field_type[$key] === 'file' && !empty($_FILES['form_' . $postId . '_field_' . $key]['tmp_name'])) {
 		                if($value['size'] > wp_max_upload_size() || (isset($value['error']) && $value['error'] == 1)) {
 			                throw new Exception(sprintf(__( '%s is too large', 'mollie-forms'), $field));
 		                }
@@ -433,6 +437,8 @@ class Form
 		                if(!in_array($file_mime, get_allowed_mime_types())) {
 			                throw new Exception(sprintf(__( 'The file type of %s is not allowed', 'mollie-forms'), $field));
 		                }
+
+						$value = $value['tmp_name'];
 	                }
 
                     $search_desc[]  = '{rfmp="' . trim($field) . '"}';
@@ -510,7 +516,7 @@ class Form
                             $_POST['form_' . $postId . '_field_' . $key] : '';
                         if ($field_type[$key] === 'payment_methods') {
                             $value = $_POST['rfmp_payment_method_' . $postId];
-                        } elseif ($field_type[$key] === 'file') {
+                        } elseif ($field_type[$key] === 'file' && !empty($_FILES['form_' . $postId . '_field_' . $key]['tmp_name'])) {
 	                        $value = $_FILES['form_' . $postId . '_field_' . $key];
 
 							if (!function_exists('wp_handle_upload')) {
@@ -877,6 +883,7 @@ class Form
      */
     private function processRedirect($postId, $rfmpId)
     {
+	    $apiKey          = get_post_meta($postId, '_rfmp_api_key', true);
         $successClass    = get_post_meta($postId, '_rfmp_class_success', true);
         $errorClass      = get_post_meta($postId, '_rfmp_class_error', true);
         $successMessage  = get_post_meta($postId, '_rfmp_msg_success', true);
@@ -885,20 +892,35 @@ class Form
         $successRedirect = get_post_meta($postId, '_rfmp_redirect_success', true);
         $errorRedirect   = get_post_meta($postId, '_rfmp_redirect_error', true);
 
-        $payment      = $this->db->get_row("SELECT * FROM {$this->mollieForms->getPaymentsTable()} WHERE rfmp_id='" .
-                                           esc_sql($rfmpId) . "'");
-        $registration = $this->db->get_row("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE id='" .
-                                           esc_sql($payment->registration_id) . "'");
+		$mollie = new MollieApi($apiKey);
+
+        $payment      = $this->db->get_row("SELECT * FROM {$this->mollieForms->getPaymentsTable()} WHERE rfmp_id='" . esc_sql($rfmpId) . "'");
+        $registration = $this->db->get_row("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE id='" . esc_sql($payment->registration_id) . "'");
         if ($payment == null || $registration == null) {
             echo '<p class="' . esc_attr($errorClass) . '">' . esc_html__('No payment found', 'mollie-forms') . '</p>';
         } elseif ($registration->post_id == $postId) {
-            if ($payment->payment_status == 'paid' || $payment->payment_status == 'authorized') {
+			try {
+				$id = $payment->payment_id;
+				if (substr($id, 0, 3) == 'ord') {
+					$order = $mollie->get('orders/' . $id . '?embed=payments');
+					foreach ($order->_embedded->payments as $p) {
+						$molliePayment = $p;
+						break;
+					}
+				} else {
+					$molliePayment = $mollie->get('payments/' . $id);
+				}
+			} catch (Exception $e) {
+				return '<p class="' . esc_attr($errorClass) . '">' . esc_html($e->getMessage()) . '</p>';
+			}
+
+            if (isset($molliePayment) && ($molliePayment->status == 'paid' || $molliePayment->status == 'authorized')) {
                 if ($afterPayment == 'redirect') {
                     return wp_redirect($successRedirect);
                 } else {
                     return '<p class="' . esc_attr($successClass) . '">' . esc_html($successMessage) . '</p>';
                 }
-            } elseif ($payment->payment_status != 'open') {
+            } elseif ($molliePayment->status != 'open') {
                 if ($afterPayment == 'redirect') {
                     return wp_redirect($errorRedirect);
                 } else {
