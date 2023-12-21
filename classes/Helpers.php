@@ -366,7 +366,7 @@ class Helpers
      *
      * @return string
      */
-    public function getFrequencyLabel($frequency, $withOneOff = false)
+    public function getFrequencyLabel($frequency, $withOneOff = false, $forPriceOptionLabel = false)
     {
         $words        = [
             'days',
@@ -389,21 +389,21 @@ class Helpers
                 break;
             case '1 months':
             case '1 month':
-                $return = __('per month', 'mollie-forms');
+                $return = $forPriceOptionLabel ? __(' month', 'mollie-forms') : __('per month', 'mollie-forms');
                 break;
             case '3 months':
-                $return = __('each quarter', 'mollie-forms');
+                $return = $forPriceOptionLabel ? __(' quarter', 'mollie-forms') : __('each quarter', 'mollie-forms');
                 break;
             case '12 months':
-                $return = __('per year', 'mollie-forms');
+                $return = $forPriceOptionLabel ? __(' year', 'mollie-forms') : __('per year', 'mollie-forms');
                 break;
             case '1 weeks':
             case '1 week':
-                $return = __('per week', 'mollie-forms');
+                $return = $forPriceOptionLabel ? __(' week', 'mollie-forms') : __('per week', 'mollie-forms');
                 break;
             case '1 days':
             case '1 day':
-                $return = __('per day', 'mollie-forms');
+                $return = $forPriceOptionLabel ? __(' day', 'mollie-forms') : __('per day', 'mollie-forms');
                 break;
             default:
                 $return = __('each', 'mollie-forms') . ' ' . str_replace($words, $translations, $frequency);

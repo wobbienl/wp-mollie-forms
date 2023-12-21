@@ -192,7 +192,7 @@ class Migrator
     }
 
     /**
-     * Add total field to forms
+     * Add discount code field to forms
      */
     private function addDiscountCodeField()
     {
@@ -319,6 +319,7 @@ class Migrator
             frequency         varchar(255) ,
             frequency_value   varchar(255) ,
             times             mediumint(9) ,
+            max_times             mediumint(9) ,
             stock             mediumint(9) DEFAULT NULL,
             sort_order        mediumint(9) DEFAULT NULL,
             UNIQUE KEY id (id)

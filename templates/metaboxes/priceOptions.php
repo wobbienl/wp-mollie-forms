@@ -26,6 +26,7 @@
         </td>
         <td>
             <input type="number" name="rfmp_priceoptions_times[]" style="width: 50px;display:none;">
+            <input type="number" name="rfmp_priceoptions_max_times[]" style="width: 50px;display:none;">
         </td>
         <td width="1%">
             <a href="javascript: void(0);" class="delete"><?php esc_html_e('Delete', 'mollie-forms');?></a>
@@ -44,7 +45,7 @@
             <th><?php esc_html_e('VAT', 'mollie-forms');?> %</th>
             <th><?php esc_html_e('Stock', 'mollie-forms');?> <a href="#" style="cursor: help;" title="<?php esc_html_e('Leave empty if you don\'t want to activate stock management', 'mollie-forms');?>">?</a></th>
             <th><?php esc_html_e('Frequency', 'mollie-forms');?></th>
-            <th><?php esc_html_e('Times', 'mollie-forms');?> <a href="#" style="cursor: help;" title="<?php esc_html_e('The number of times including the first payment. Leave empty or set to 0 for an on-going subscription', 'mollie-forms');?>">?</a></th>
+            <th><?php esc_html_e('(Min./Max.) times', 'mollie-forms');?> <a href="#" style="cursor: help;" title="<?php esc_html_e('The (minimum/maximum) number of times including the first payment. Leave (both) empty or set to 0 for an on-going subscription', 'mollie-forms');?>">?</a></th>
             <th></th>
         </tr>
         </thead>
@@ -77,6 +78,7 @@
                 </td>
                 <td>
                     <input type="number" name="rfmp_priceoptions_times[po-<?php echo esc_attr($priceOption->id);?>]" value="<?php echo esc_attr($priceOption->times);?>" style="width: 50px;<?php echo ($priceOption->frequency == 'once' ? 'display:none;' : '');?>">
+                    <input type="number" name="rfmp_priceoptions_max_times[po-<?php echo esc_attr($priceOption->id);?>]" value="<?php echo !empty($priceOption->max_times) ? esc_attr($priceOption->max_times) : ''; ?>" style="width: 50px;<?php echo ($priceOption->frequency == 'once' ? 'display:none;' : '');?>">
                 </td>
                 <td width="1%">
                     <a href="javascript: void(0);" class="delete"><?php esc_html_e('Delete', 'mollie-forms');?></a>
