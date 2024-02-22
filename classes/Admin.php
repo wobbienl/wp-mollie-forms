@@ -905,6 +905,10 @@ class Admin
     {
         $postId = $_GET['post'];
 
+	    if (!current_user_can('edit_post', $postId)) {
+		    return;
+	    }
+
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename=registrations.csv');
         $output = fopen('php://output', 'w');
@@ -993,6 +997,10 @@ class Admin
     public function duplicateForm()
     {
         $postId = $_GET['post'];
+
+	    if (!current_user_can('edit_post', $postId)) {
+		    return;
+	    }
 
         $title   = get_the_title($postId);
         $oldPost = get_post($postId);
