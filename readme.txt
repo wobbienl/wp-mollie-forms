@@ -1,11 +1,11 @@
 === Mollie Forms ===
 Contributors: ndijkstra
 Donate link: https://wobbie.nl/doneren
-Tags: mollie,registration,form,payments,ideal,bancontact,sofort,bitcoin,belfius,creditcard,recurring,forms,multicurrency,dollars,pounds,usd,gbp
+Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 5.3
 Requires PHP: 7.0
-Tested up to: 6.4.2
-Stable tag: 2.6.4
+Tested up to: 6.4.3
+Stable tag: 2.6.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,6 +74,9 @@ The following action hooks with parameters are available:
 * WordPress 5.3 or greater
 
 == Changelog ==
+
+= 2.6.5 - 12/03/2024 =
+* Update readme
 
 = 2.6.4 - 22/02/2024 =
 * Security fixes
