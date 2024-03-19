@@ -3,7 +3,10 @@
  * @var object $method
  * @var string $currency
  */
+
+if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
+
 
 <input type="hidden" value="0" name="rfmp_payment_method[<?php echo $method->id ?>]">
 <label>
@@ -19,15 +22,15 @@
 
 <br>
 
-<?php echo esc_html_e('Surcharge:', 'mollie-forms') ?>
+<?php esc_html_e('Surcharge:', 'mollie-forms') ?>
 
 <span style="font-size: 14px;"><?php echo $this->helpers->getCurrencySymbol($currency ?: 'EUR') ?></span>
-<input type="number" step="any" min="0" name="rfmp_payment_method_fixed[<?php echo $method->id ?>]"
+<input type="number" step="any" min="0" name="rfmp_payment_method_fixed[<?php echo esc_attr($method->id) ?>]"
        value="<?php echo esc_attr($fixed[$method->id] ?? '') ?>" style="width: 70px;">
 
 <span style="font-size: 14px;">+</span>
 
-<input type="number" step="any" min="0" name="rfmp_payment_method_variable[<?php echo $method->id ?>]"
+<input type="number" step="any" min="0" name="rfmp_payment_method_variable[<?php echo esc_attr($method->id) ?>]"
          value="<?php echo esc_attr($variable[$method->id] ?? '') ?>" style="width: 50px;">
 <span style="font-size: 14px;">%</span>
 

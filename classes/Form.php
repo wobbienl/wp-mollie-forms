@@ -180,7 +180,7 @@ class Form
         $goal = (int) $goal - $total;
 
         if ($goal <= 0) {
-            return __($atts['text'], 'mollie-forms');
+            return esc_html($atts['text']);
         }
 
         $currency = get_post_meta($post->ID, '_rfmp_currency', true) ?: 'EUR';
@@ -205,8 +205,6 @@ class Form
         $webhook  = get_home_url(null, $this->mollieForms->getWebhookUrl() . $postId);
         $redirect = (is_ssl() ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $redirect .= strstr($redirect, '?') ? '&' : '?';
-
-        do_action('rfmp_form_submitted', $postId, $_POST);
 
 		$recaptchaSecretKey = get_post_meta($postId, '_rfmp_recaptcha_v3_secret_key', true);
 
@@ -233,6 +231,8 @@ class Form
             } else {
                 $mollie = new MollieApi($apiKey);
                 $rfmpId = uniqid('rfmp-' . $postId . '-');
+
+	            do_action('rfmp_form_submitted', $postId, $rfmpId);
 
                 $field_type  = get_post_meta($postId, '_rfmp_fields_type', true);
                 $field_label = get_post_meta($postId, '_rfmp_fields_label', true);

@@ -9,7 +9,7 @@ class MollieForms
     /**
      * Plugin version number
      */
-    const PLUGIN_VERSION = '2.6.5';
+    const PLUGIN_VERSION = '2.6.6';
 
     /**
      * Webhook URL for Mollie
@@ -189,35 +189,35 @@ class MollieForms
     public function registerPostType()
     {
         $labels = [
-            'name'                  => _x('Mollie Forms', 'Registration Forms General Name', 'mollie-forms'),
-            'singular_name'         => _x('Mollie Form', 'Registration Form Singular Name', 'mollie-forms'),
-            'menu_name'             => __('Mollie Forms', 'mollie-forms'),
-            'name_admin_bar'        => __('Registration Form', 'mollie-forms'),
-            'archives'              => __('Item Archives', 'mollie-forms'),
-            'parent_item_colon'     => __('Parent Item:', 'mollie-forms'),
-            'all_items'             => __('All Forms', 'mollie-forms'),
-            'add_new_item'          => __('Add New Form', 'mollie-forms'),
-            'add_new'               => __('Add New', 'mollie-forms'),
-            'new_item'              => __('New Form', 'mollie-forms'),
-            'edit_item'             => __('Edit Form', 'mollie-forms'),
-            'update_item'           => __('Update Form', 'mollie-forms'),
-            'view_item'             => __('View Form', 'mollie-forms'),
-            'search_items'          => __('Search Form', 'mollie-forms'),
-            'not_found'             => __('Not found', 'mollie-forms'),
-            'not_found_in_trash'    => __('Not found in Trash', 'mollie-forms'),
-            'featured_image'        => __('Featured Image', 'mollie-forms'),
-            'set_featured_image'    => __('Set featured image', 'mollie-forms'),
-            'remove_featured_image' => __('Remove featured image', 'mollie-forms'),
-            'use_featured_image'    => __('Use as featured image', 'mollie-forms'),
-            'insert_into_item'      => __('Insert into form', 'mollie-forms'),
-            'uploaded_to_this_item' => __('Uploaded to this form', 'mollie-forms'),
-            'items_list'            => __('Forms list', 'mollie-forms'),
-            'items_list_navigation' => __('Forms list navigation', 'mollie-forms'),
-            'filter_items_list'     => __('Filter forms list', 'mollie-forms'),
+            'name'                  => esc_html_x('Mollie Forms', 'Registration Forms General Name', 'mollie-forms'),
+            'singular_name'         => esc_html_x('Mollie Form', 'Registration Form Singular Name', 'mollie-forms'),
+            'menu_name'             => esc_html__('Mollie Forms', 'mollie-forms'),
+            'name_admin_bar'        => esc_html__('Registration Form', 'mollie-forms'),
+            'archives'              => esc_html__('Item Archives', 'mollie-forms'),
+            'parent_item_colon'     => esc_html__('Parent Item:', 'mollie-forms'),
+            'all_items'             => esc_html__('All Forms', 'mollie-forms'),
+            'add_new_item'          => esc_html__('Add New Form', 'mollie-forms'),
+            'add_new'               => esc_html__('Add New', 'mollie-forms'),
+            'new_item'              => esc_html__('New Form', 'mollie-forms'),
+            'edit_item'             => esc_html__('Edit Form', 'mollie-forms'),
+            'update_item'           => esc_html__('Update Form', 'mollie-forms'),
+            'view_item'             => esc_html__('View Form', 'mollie-forms'),
+            'search_items'          => esc_html__('Search Form', 'mollie-forms'),
+            'not_found'             => esc_html__('Not found', 'mollie-forms'),
+            'not_found_in_trash'    => esc_html__('Not found in Trash', 'mollie-forms'),
+            'featured_image'        => esc_html__('Featured Image', 'mollie-forms'),
+            'set_featured_image'    => esc_html__('Set featured image', 'mollie-forms'),
+            'remove_featured_image' => esc_html__('Remove featured image', 'mollie-forms'),
+            'use_featured_image'    => esc_html__('Use as featured image', 'mollie-forms'),
+            'insert_into_item'      => esc_html__('Insert into form', 'mollie-forms'),
+            'uploaded_to_this_item' => esc_html__('Uploaded to this form', 'mollie-forms'),
+            'items_list'            => esc_html__('Forms list', 'mollie-forms'),
+            'items_list_navigation' => esc_html__('Forms list navigation', 'mollie-forms'),
+            'filter_items_list'     => esc_html__('Filter forms list', 'mollie-forms'),
         ];
         $args   = [
-            'label'              => __('Mollie Forms', 'mollie-forms'),
-            'description'        => __('Mollie Forms', 'mollie-forms'),
+            'label'              => esc_html__('Mollie Forms', 'mollie-forms'),
+            'description'        => esc_html__('Mollie Forms', 'mollie-forms'),
             'labels'             => $labels,
             'supports'           => [],
             'taxonomies'         => [],

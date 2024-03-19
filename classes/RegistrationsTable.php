@@ -68,10 +68,10 @@ class RegistrationsTable extends \WP_List_Table
 
         $where = [];
         if (isset($_GET['post']) && !empty($_GET['post'])) {
-            $where[] = 'r.post_id="' . esc_sql($_GET['post']) . '"';
+            $where[] = 'r.post_id="' . esc_sql(sanitize_text_field($_GET['post'])) . '"';
         }
         if (isset($_GET['search']) && !empty($_GET['search'])) {
-            $where[] = '(r.description LIKE "%' . esc_sql($_GET['search']) . '%" OR rf.value LIKE "%' . esc_sql($_GET['search']) . '%")';
+            $where[] = '(r.description LIKE "%' . esc_sql(sanitize_text_field($_GET['search'])) . '%" OR rf.value LIKE "%' . esc_sql(sanitize_text_field($_GET['search'])) . '%")';
         }
 
         if (!empty($where)) {

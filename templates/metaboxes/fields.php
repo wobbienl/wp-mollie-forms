@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; ?>
+
 <script id="rfmp_template_field" type="text/template">
     <tr>
         <td class="sort"></td>

@@ -154,7 +154,7 @@ class Admin
         wp_enqueue_style('mollie-forms_admin_styles', $this->mollieForms->getDirUrl() .
                                                       'includes/css/admin-styles.css', [], $this->mollieForms->getVersion());
 
-        wp_register_style('jQueryUI', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
+        wp_register_style('jQueryUI', $this->mollieForms->getDirUrl() . 'includes/css/jquery-ui.css');
         wp_enqueue_style('jQueryUI');
     }
 
@@ -294,8 +294,7 @@ class Admin
     public function metaBoxPriceOptions($post)
     {
         wp_nonce_field(basename(__FILE__), 'rfmp_meta_box_priceoptions_nonce');
-        $priceOptions = $this->db->get_results("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE post_id=" .
-                                               (int) $post->ID . " ORDER BY sort_order ASC");
+        $priceOptions = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE post_id=%d ORDER BY sort_order ASC", $post->ID));
 
         include $this->mollieForms->getDirPath() . 'templates/metaboxes/priceOptions.php';
     }
@@ -410,8 +409,7 @@ class Admin
     {
         wp_nonce_field(basename(__FILE__), 'rfmp_meta_box_discountcodes_nonce');
 
-        $discountCodes = $this->db->get_results("SELECT * FROM {$this->mollieForms->getDiscountCodesTable()} WHERE post_id=" .
-                                                (int) $post->ID);
+        $discountCodes = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getDiscountCodesTable()} WHERE post_id=%d", $post->ID));
 
         include $this->mollieForms->getDirPath() . 'templates/metaboxes/discountCodes.php';
     }
@@ -424,32 +422,32 @@ class Admin
     public function saveMetaBoxes($postId)
     {
         if (!isset($_POST['rfmp_meta_box_fields_nonce']) ||
-            !wp_verify_nonce($_POST['rfmp_meta_box_fields_nonce'], basename(__FILE__))) {
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['rfmp_meta_box_fields_nonce'])), basename(__FILE__))) {
             return;
         }
 
         if (!isset($_POST['rfmp_meta_box_priceoptions_nonce']) ||
-            !wp_verify_nonce($_POST['rfmp_meta_box_priceoptions_nonce'], basename(__FILE__))) {
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['rfmp_meta_box_priceoptions_nonce'])), basename(__FILE__))) {
             return;
         }
 
         if (!isset($_POST['rfmp_meta_box_settings_nonce']) ||
-            !wp_verify_nonce($_POST['rfmp_meta_box_settings_nonce'], basename(__FILE__))) {
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['rfmp_meta_box_settings_nonce'])), basename(__FILE__))) {
             return;
         }
 
         if (!isset($_POST['rfmp_meta_box_paymentmethods_nonce']) ||
-            !wp_verify_nonce($_POST['rfmp_meta_box_paymentmethods_nonce'], basename(__FILE__))) {
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['rfmp_meta_box_paymentmethods_nonce'])), basename(__FILE__))) {
             return;
         }
 
         if (!isset($_POST['rfmp_meta_box_emails_nonce']) ||
-            !wp_verify_nonce($_POST['rfmp_meta_box_emails_nonce'], basename(__FILE__))) {
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['rfmp_meta_box_emails_nonce'])), basename(__FILE__))) {
             return;
         }
 
         if (!isset($_POST['rfmp_meta_box_discountcodes_nonce']) ||
-            !wp_verify_nonce($_POST['rfmp_meta_box_discountcodes_nonce'], basename(__FILE__))) {
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['rfmp_meta_box_discountcodes_nonce'])), basename(__FILE__))) {
             return;
         }
 
@@ -459,27 +457,27 @@ class Admin
         }
 
         // Store custom fields
-        update_post_meta($postId, '_rfmp_api_key', $_POST['rfmp_api_key']);
-        update_post_meta($postId, '_rfmp_api_type', $_POST['rfmp_api_type']);
-        update_post_meta($postId, '_rfmp_label_display', $_POST['rfmp_label_display']);
-        update_post_meta($postId, '_rfmp_payment_methods_display', $_POST['rfmp_payment_methods_display']);
-        update_post_meta($postId, '_rfmp_priceoptions_display', $_POST['rfmp_priceoptions_display']);
-        update_post_meta($postId, '_rfmp_after_payment', $_POST['rfmp_after_payment']);
-        update_post_meta($postId, '_rfmp_redirect_success', $_POST['rfmp_redirect_success']);
-        update_post_meta($postId, '_rfmp_redirect_error', $_POST['rfmp_redirect_error']);
-        update_post_meta($postId, '_rfmp_class_success', $_POST['rfmp_class_success']);
-        update_post_meta($postId, '_rfmp_class_error', $_POST['rfmp_class_error']);
-        update_post_meta($postId, '_rfmp_payment_description', $_POST['rfmp_payment_description']);
-        update_post_meta($postId, '_rfmp_msg_success', $_POST['rfmp_msg_success']);
-        update_post_meta($postId, '_rfmp_msg_error', $_POST['rfmp_msg_error']);
-        update_post_meta($postId, '_rfmp_class_form', $_POST['rfmp_class_form']);
-        update_post_meta($postId, '_rfmp_locale', $_POST['rfmp_locale']);
-        update_post_meta($postId, '_rfmp_currency', $_POST['rfmp_currency']);
-        update_post_meta($postId, '_rfmp_shipping_costs', $_POST['rfmp_shipping_costs']);
-        update_post_meta($postId, '_rfmp_vat_setting', $_POST['rfmp_vat_setting']);
-        update_post_meta($postId, '_rfmp_recaptcha_v3_site_key', $_POST['rfmp_recaptcha_v3_site_key']);
-        update_post_meta($postId, '_rfmp_recaptcha_v3_secret_key', $_POST['rfmp_recaptcha_v3_secret_key']);
-        update_post_meta($postId, '_rfmp_recaptcha_v3_minimum_score', $_POST['rfmp_recaptcha_v3_minimum_score']);
+        update_post_meta($postId, '_rfmp_api_key', sanitize_text_field($_POST['rfmp_api_key']));
+        update_post_meta($postId, '_rfmp_api_type', sanitize_text_field($_POST['rfmp_api_type']));
+        update_post_meta($postId, '_rfmp_label_display', sanitize_text_field($_POST['rfmp_label_display']));
+        update_post_meta($postId, '_rfmp_payment_methods_display', sanitize_text_field($_POST['rfmp_payment_methods_display']));
+        update_post_meta($postId, '_rfmp_priceoptions_display', sanitize_text_field($_POST['rfmp_priceoptions_display']));
+        update_post_meta($postId, '_rfmp_after_payment', sanitize_text_field($_POST['rfmp_after_payment']));
+        update_post_meta($postId, '_rfmp_redirect_success', sanitize_text_field($_POST['rfmp_redirect_success']));
+        update_post_meta($postId, '_rfmp_redirect_error', sanitize_text_field($_POST['rfmp_redirect_error']));
+        update_post_meta($postId, '_rfmp_class_success', sanitize_text_field($_POST['rfmp_class_success']));
+        update_post_meta($postId, '_rfmp_class_error', sanitize_text_field($_POST['rfmp_class_error']));
+        update_post_meta($postId, '_rfmp_payment_description', sanitize_text_field($_POST['rfmp_payment_description']));
+        update_post_meta($postId, '_rfmp_msg_success', sanitize_text_field($_POST['rfmp_msg_success']));
+        update_post_meta($postId, '_rfmp_msg_error', sanitize_text_field($_POST['rfmp_msg_error']));
+        update_post_meta($postId, '_rfmp_class_form', sanitize_text_field($_POST['rfmp_class_form']));
+        update_post_meta($postId, '_rfmp_locale', sanitize_text_field($_POST['rfmp_locale']));
+        update_post_meta($postId, '_rfmp_currency', sanitize_text_field($_POST['rfmp_currency']));
+        update_post_meta($postId, '_rfmp_shipping_costs', sanitize_text_field($_POST['rfmp_shipping_costs']));
+        update_post_meta($postId, '_rfmp_vat_setting', sanitize_text_field($_POST['rfmp_vat_setting']));
+        update_post_meta($postId, '_rfmp_recaptcha_v3_site_key', sanitize_text_field($_POST['rfmp_recaptcha_v3_site_key']));
+        update_post_meta($postId, '_rfmp_recaptcha_v3_secret_key', sanitize_text_field($_POST['rfmp_recaptcha_v3_secret_key']));
+        update_post_meta($postId, '_rfmp_recaptcha_v3_minimum_score', sanitize_text_field($_POST['rfmp_recaptcha_v3_minimum_score']));
 
         // Disable non-supported payment methods if non-EUR
         if ($_POST['rfmp_currency'] != 'EUR') {
@@ -540,61 +538,61 @@ class Admin
             }
         }
 
-        update_post_meta($postId, '_rfmp_fields_type', $_POST['rfmp_fields_type']);
-        update_post_meta($postId, '_rfmp_fields_label', $_POST['rfmp_fields_label']);
-        update_post_meta($postId, '_rfmp_fields_value', $_POST['rfmp_fields_value']);
-        update_post_meta($postId, '_rfmp_fields_class', $_POST['rfmp_fields_class']);
-        update_post_meta($postId, '_rfmp_fields_required', $_POST['rfmp_fields_required']);
+        update_post_meta($postId, '_rfmp_fields_type', sanitize_text_field($_POST['rfmp_fields_type']));
+        update_post_meta($postId, '_rfmp_fields_label', sanitize_text_field($_POST['rfmp_fields_label']));
+        update_post_meta($postId, '_rfmp_fields_value', sanitize_text_field($_POST['rfmp_fields_value']));
+        update_post_meta($postId, '_rfmp_fields_class', sanitize_text_field($_POST['rfmp_fields_class']));
+        update_post_meta($postId, '_rfmp_fields_required', sanitize_text_field($_POST['rfmp_fields_required']));
 
-        update_post_meta($postId, '_rfmp_payment_method', $_POST['rfmp_payment_method']);
-        update_post_meta($postId, '_rfmp_payment_method_fixed', $_POST['rfmp_payment_method_fixed']);
-        update_post_meta($postId, '_rfmp_payment_method_variable', $_POST['rfmp_payment_method_variable']);
+        update_post_meta($postId, '_rfmp_payment_method', sanitize_text_field($_POST['rfmp_payment_method']));
+        update_post_meta($postId, '_rfmp_payment_method_fixed', sanitize_text_field($_POST['rfmp_payment_method_fixed']));
+        update_post_meta($postId, '_rfmp_payment_method_variable', sanitize_text_field($_POST['rfmp_payment_method_variable']));
 
-        update_post_meta($postId, '_rfmp_enabled_paid_customer', $_POST['rfmp_enabled_paid_customer']);
-        update_post_meta($postId, '_rfmp_email_paid_customer', $_POST['rfmp_email_paid_customer']);
-        update_post_meta($postId, '_rfmp_subject_paid_customer', $_POST['rfmp_subject_paid_customer']);
-        update_post_meta($postId, '_rfmp_fromname_paid_customer', $_POST['rfmp_fromname_paid_customer']);
-        update_post_meta($postId, '_rfmp_fromemail_paid_customer', $_POST['rfmp_fromemail_paid_customer']);
-        update_post_meta($postId, '_rfmp_enabled_expired_customer', $_POST['rfmp_enabled_expired_customer']);
-        update_post_meta($postId, '_rfmp_email_expired_customer', $_POST['rfmp_email_expired_customer']);
-        update_post_meta($postId, '_rfmp_subject_expired_customer', $_POST['rfmp_subject_expired_customer']);
-        update_post_meta($postId, '_rfmp_fromname_expired_customer', $_POST['rfmp_fromname_expired_customer']);
-        update_post_meta($postId, '_rfmp_fromemail_expired_customer', $_POST['rfmp_fromemail_expired_customer']);
-        update_post_meta($postId, '_rfmp_enabled_cancelled_customer', $_POST['rfmp_enabled_cancelled_customer']);
-        update_post_meta($postId, '_rfmp_email_cancelled_customer', $_POST['rfmp_email_cancelled_customer']);
-        update_post_meta($postId, '_rfmp_subject_cancelled_customer', $_POST['rfmp_subject_cancelled_customer']);
-        update_post_meta($postId, '_rfmp_fromname_cancelled_customer', $_POST['rfmp_fromname_cancelled_customer']);
-        update_post_meta($postId, '_rfmp_fromemail_cancelled_customer', $_POST['rfmp_fromemail_cancelled_customer']);
-        update_post_meta($postId, '_rfmp_enabled_chargedback_customer', $_POST['rfmp_enabled_chargedback_customer']);
-        update_post_meta($postId, '_rfmp_email_chargedback_customer', $_POST['rfmp_email_chargedback_customer']);
-        update_post_meta($postId, '_rfmp_subject_chargedback_customer', $_POST['rfmp_subject_chargedback_customer']);
-        update_post_meta($postId, '_rfmp_fromname_chargedback_customer', $_POST['rfmp_fromname_chargedback_customer']);
-        update_post_meta($postId, '_rfmp_fromemail_chargedback_customer', $_POST['rfmp_fromemail_chargedback_customer']);
+        update_post_meta($postId, '_rfmp_enabled_paid_customer', sanitize_text_field($_POST['rfmp_enabled_paid_customer']));
+        update_post_meta($postId, '_rfmp_email_paid_customer', sanitize_textarea_field($_POST['rfmp_email_paid_customer']));
+        update_post_meta($postId, '_rfmp_subject_paid_customer', sanitize_text_field($_POST['rfmp_subject_paid_customer']));
+        update_post_meta($postId, '_rfmp_fromname_paid_customer', sanitize_text_field($_POST['rfmp_fromname_paid_customer']));
+        update_post_meta($postId, '_rfmp_fromemail_paid_customer', sanitize_email($_POST['rfmp_fromemail_paid_customer']));
+        update_post_meta($postId, '_rfmp_enabled_expired_customer', sanitize_text_field($_POST['rfmp_enabled_expired_customer']));
+        update_post_meta($postId, '_rfmp_email_expired_customer', sanitize_textarea_field($_POST['rfmp_email_expired_customer']));
+        update_post_meta($postId, '_rfmp_subject_expired_customer', sanitize_text_field($_POST['rfmp_subject_expired_customer']));
+        update_post_meta($postId, '_rfmp_fromname_expired_customer', sanitize_text_field($_POST['rfmp_fromname_expired_customer']));
+        update_post_meta($postId, '_rfmp_fromemail_expired_customer', sanitize_email($_POST['rfmp_fromemail_expired_customer']));
+        update_post_meta($postId, '_rfmp_enabled_cancelled_customer', sanitize_text_field($_POST['rfmp_enabled_cancelled_customer']));
+        update_post_meta($postId, '_rfmp_email_cancelled_customer', sanitize_textarea_field($_POST['rfmp_email_cancelled_customer']));
+        update_post_meta($postId, '_rfmp_subject_cancelled_customer', sanitize_text_field($_POST['rfmp_subject_cancelled_customer']));
+        update_post_meta($postId, '_rfmp_fromname_cancelled_customer', sanitize_text_field($_POST['rfmp_fromname_cancelled_customer']));
+        update_post_meta($postId, '_rfmp_fromemail_cancelled_customer', sanitize_email($_POST['rfmp_fromemail_cancelled_customer']));
+        update_post_meta($postId, '_rfmp_enabled_chargedback_customer', sanitize_text_field($_POST['rfmp_enabled_chargedback_customer']));
+        update_post_meta($postId, '_rfmp_email_chargedback_customer', sanitize_textarea_field($_POST['rfmp_email_chargedback_customer']));
+        update_post_meta($postId, '_rfmp_subject_chargedback_customer', sanitize_text_field($_POST['rfmp_subject_chargedback_customer']));
+        update_post_meta($postId, '_rfmp_fromname_chargedback_customer', sanitize_text_field($_POST['rfmp_fromname_chargedback_customer']));
+        update_post_meta($postId, '_rfmp_fromemail_chargedback_customer', sanitize_email($_POST['rfmp_fromemail_chargedback_customer']));
 
-        update_post_meta($postId, '_rfmp_enabled_paid_merchant', $_POST['rfmp_enabled_paid_merchant']);
-        update_post_meta($postId, '_rfmp_email_paid_merchant', $_POST['rfmp_email_paid_merchant']);
-        update_post_meta($postId, '_rfmp_subject_paid_merchant', $_POST['rfmp_subject_paid_merchant']);
-        update_post_meta($postId, '_rfmp_fromname_paid_merchant', $_POST['rfmp_fromname_paid_merchant']);
-        update_post_meta($postId, '_rfmp_fromemail_paid_merchant', $_POST['rfmp_fromemail_paid_merchant']);
-        update_post_meta($postId, '_rfmp_toemail_paid_merchant', $_POST['rfmp_toemail_paid_merchant']);
-        update_post_meta($postId, '_rfmp_enabled_expired_merchant', $_POST['rfmp_enabled_expired_merchant']);
-        update_post_meta($postId, '_rfmp_email_expired_merchant', $_POST['rfmp_email_expired_merchant']);
-        update_post_meta($postId, '_rfmp_subject_expired_merchant', $_POST['rfmp_subject_expired_merchant']);
-        update_post_meta($postId, '_rfmp_fromname_expired_merchant', $_POST['rfmp_fromname_expired_merchant']);
-        update_post_meta($postId, '_rfmp_fromemail_expired_merchant', $_POST['rfmp_fromemail_expired_merchant']);
-        update_post_meta($postId, '_rfmp_toemail_expired_merchant', $_POST['rfmp_toemail_expired_merchant']);
-        update_post_meta($postId, '_rfmp_enabled_cancelled_merchant', $_POST['rfmp_enabled_cancelled_merchant']);
-        update_post_meta($postId, '_rfmp_email_cancelled_merchant', $_POST['rfmp_email_cancelled_merchant']);
-        update_post_meta($postId, '_rfmp_subject_cancelled_merchant', $_POST['rfmp_subject_cancelled_merchant']);
-        update_post_meta($postId, '_rfmp_fromname_cancelled_merchant', $_POST['rfmp_fromname_cancelled_merchant']);
-        update_post_meta($postId, '_rfmp_fromemail_cancelled_merchant', $_POST['rfmp_fromemail_cancelled_merchant']);
-        update_post_meta($postId, '_rfmp_toemail_cancelled_merchant', $_POST['rfmp_toemail_cancelled_merchant']);
-        update_post_meta($postId, '_rfmp_enabled_chargedback_merchant', $_POST['rfmp_enabled_chargedback_merchant']);
-        update_post_meta($postId, '_rfmp_email_chargedback_merchant', $_POST['rfmp_email_chargedback_merchant']);
-        update_post_meta($postId, '_rfmp_subject_chargedback_merchant', $_POST['rfmp_subject_chargedback_merchant']);
-        update_post_meta($postId, '_rfmp_fromname_chargedback_merchant', $_POST['rfmp_fromname_chargedback_merchant']);
-        update_post_meta($postId, '_rfmp_fromemail_chargedback_merchant', $_POST['rfmp_fromemail_chargedback_merchant']);
-        update_post_meta($postId, '_rfmp_toemail_chargedback_merchant', $_POST['rfmp_toemail_chargedback_merchant']);
+        update_post_meta($postId, '_rfmp_enabled_paid_merchant', sanitize_text_field($_POST['rfmp_enabled_paid_merchant']));
+        update_post_meta($postId, '_rfmp_email_paid_merchant', sanitize_textarea_field($_POST['rfmp_email_paid_merchant']));
+        update_post_meta($postId, '_rfmp_subject_paid_merchant', sanitize_text_field($_POST['rfmp_subject_paid_merchant']));
+        update_post_meta($postId, '_rfmp_fromname_paid_merchant', sanitize_text_field($_POST['rfmp_fromname_paid_merchant']));
+        update_post_meta($postId, '_rfmp_fromemail_paid_merchant', sanitize_email($_POST['rfmp_fromemail_paid_merchant']));
+        update_post_meta($postId, '_rfmp_toemail_paid_merchant', sanitize_email($_POST['rfmp_toemail_paid_merchant']));
+        update_post_meta($postId, '_rfmp_enabled_expired_merchant', sanitize_text_field($_POST['rfmp_enabled_expired_merchant']));
+        update_post_meta($postId, '_rfmp_email_expired_merchant', sanitize_textarea_field($_POST['rfmp_email_expired_merchant']));
+        update_post_meta($postId, '_rfmp_subject_expired_merchant', sanitize_text_field($_POST['rfmp_subject_expired_merchant']));
+        update_post_meta($postId, '_rfmp_fromname_expired_merchant', sanitize_text_field($_POST['rfmp_fromname_expired_merchant']));
+        update_post_meta($postId, '_rfmp_fromemail_expired_merchant', sanitize_email($_POST['rfmp_fromemail_expired_merchant']));
+        update_post_meta($postId, '_rfmp_toemail_expired_merchant', sanitize_email($_POST['rfmp_toemail_expired_merchant']));
+        update_post_meta($postId, '_rfmp_enabled_cancelled_merchant', sanitize_text_field($_POST['rfmp_enabled_cancelled_merchant']));
+        update_post_meta($postId, '_rfmp_email_cancelled_merchant', sanitize_textarea_field($_POST['rfmp_email_cancelled_merchant']));
+        update_post_meta($postId, '_rfmp_subject_cancelled_merchant', sanitize_text_field($_POST['rfmp_subject_cancelled_merchant']));
+        update_post_meta($postId, '_rfmp_fromname_cancelled_merchant', sanitize_text_field($_POST['rfmp_fromname_cancelled_merchant']));
+        update_post_meta($postId, '_rfmp_fromemail_cancelled_merchant', sanitize_email($_POST['rfmp_fromemail_cancelled_merchant']));
+        update_post_meta($postId, '_rfmp_toemail_cancelled_merchant', sanitize_email($_POST['rfmp_toemail_cancelled_merchant']));
+        update_post_meta($postId, '_rfmp_enabled_chargedback_merchant', sanitize_text_field($_POST['rfmp_enabled_chargedback_merchant']));
+        update_post_meta($postId, '_rfmp_email_chargedback_merchant', sanitize_textarea_field($_POST['rfmp_email_chargedback_merchant']));
+        update_post_meta($postId, '_rfmp_subject_chargedback_merchant', sanitize_text_field($_POST['rfmp_subject_chargedback_merchant']));
+        update_post_meta($postId, '_rfmp_fromname_chargedback_merchant', sanitize_text_field($_POST['rfmp_fromname_chargedback_merchant']));
+        update_post_meta($postId, '_rfmp_fromemail_chargedback_merchant', sanitize_email($_POST['rfmp_fromemail_chargedback_merchant']));
+        update_post_meta($postId, '_rfmp_toemail_chargedback_merchant', sanitize_email($_POST['rfmp_toemail_chargedback_merchant']));
 
         // Price options
         $sortOrder = 0;
@@ -713,11 +711,11 @@ class Admin
             <form action="edit.php" style="float: right;">
                 <input type="hidden" name="post_type" value="mollie-forms">
                 <input type="hidden" name="page" value="registrations">
-                <input type="hidden" name="post" value="<?php echo esc_attr($_GET['post'] ?? ''); ?>">
+                <input type="hidden" name="post" value="<?php echo esc_attr(sanitize_text_field($_GET['post'] ?? '')); ?>">
 
                 <input type="text"
                        name="search"
-                       value="<?php echo esc_attr($_GET['search'] ?? ''); ?>"
+                       value="<?php echo esc_attr(sanitize_text_field($_GET['search'] ?? '')); ?>"
                        placeholder="<?php esc_html_e('Search') ?>">
                 <input type="submit" class="button action" value="<?php esc_html_e('Search') ?>">
             </form>
@@ -742,14 +740,13 @@ class Admin
 
         $id = (int) $_GET['view'];
 
-        $registration = $this->db->get_row("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE id=" .
-                                           $id);
+        $registration = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE id=%d", $id));
         if ($registration == null) {
             return esc_html__('Registration not found', 'mollie-forms');
         }
 
         // Delete registration
-        if (isset($_GET['delete']) && check_admin_referer('delete-reg_' . $_GET['view'])) {
+        if (isset($_GET['delete']) && check_admin_referer('delete-reg_' . $id)) {
             $this->db->delete($this->mollieForms->getRegistrationsTable(), [
                     'id' => $id,
             ]);
@@ -788,7 +785,7 @@ class Admin
         $vatSetting = get_post_meta($registration->post_id, '_rfmp_vat_setting', true);
 
         // Get all subscriptions
-        $allSubs = $mollie->all('customers/' . $registration->customer_id . '/subscriptions');
+        $allSubs = $mollie->all('customers/' . sanitize_text_field($registration->customer_id) . '/subscriptions');
         foreach ($allSubs as $sub) {
             $this->db->update($subsTable, [
                     'sub_status' => $sub->status,
@@ -797,40 +794,36 @@ class Admin
             ]);
         }
 
-        $fields        = $this->db->get_results("SELECT * FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE registration_id=" .
-                                                $id);
-        $subscriptions = $this->db->get_results("SELECT * FROM {$subsTable} WHERE registration_id=" . $id);
-        $payments      = $this->db->get_results("SELECT * FROM {$this->mollieForms->getPaymentsTable()} WHERE registration_id=" .
-                                                $id);
-        $priceOptions  = $this->db->get_results("SELECT * FROM {$this->mollieForms->getRegistrationPriceOptionsTable()} WHERE registration_id=" .
-                                                $id);
+        $fields        = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE registration_id=%d", $id));
+        $subscriptions = $this->db->get_results($this->db->prepare("SELECT * FROM {$subsTable} WHERE registration_id=%d", $id));
+        $payments      = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getPaymentsTable()} WHERE registration_id=%d", $id));
+        $priceOptions  = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationPriceOptionsTable()} WHERE registration_id=%d", $id));
 
         // Cancel subscription
         if (isset($_GET['cancel']) && check_admin_referer('cancel-sub_' . $_GET['cancel'])) {
             try {
-                $mollie->delete('customers/' . $registration->customer_id . '/subscriptions/' . $_GET['cancel']);
+                $mollie->delete('customers/' . sanitize_text_field($registration->customer_id) . '/subscriptions/' . sanitize_text_field($_GET['cancel']));
                 $this->db->update($subsTable, [
                         'sub_status' => 'cancelled',
                 ], [
                         'subscription_id' => $_GET['cancel'],
                 ]);
 
-                wp_redirect('?post_type=' . $_REQUEST['post_type'] . '&page=' . $_REQUEST['page'] . '&view=' .
-                            $_REQUEST['view'] . '&msg=cancel-ok');
+                wp_redirect('?post_type=' . $_REQUEST['post_type'] . '&page=' . $_REQUEST['page'] . '&view=' . $_REQUEST['view'] . '&msg=cancel-ok');
             } catch (Exception $e) {
-                echo '<div class="error notice">' . $e->getMessage() . '</div>';
+                echo '<div class="error notice">' . esc_html($e->getMessage()) . '</div>';
             }
         }
 
         // Refund payment
-        if (isset($_GET['refund']) && check_admin_referer('refund-payment_' . $_GET['refund'])) {
+        if (isset($_GET['refund']) && check_admin_referer('refund-payment_' . esc_html($_GET['refund']))) {
             try {
                 if (substr($_GET['refund'], 0, 3) == 'ord') {
                     $mollie->post('orders/' . $_GET['refund'] . '/refunds', [
                             'lines' => [],
                     ]);
                 } else {
-                    $payment = $mollie->get('payments/' . $_GET['refund']);
+                    $payment = $mollie->get('payments/' . sanitize_text_field($_GET['refund']));
                     $mollie->post('payments/' . $payment->id . '/refunds', [
                             'amount' => [
                                     'currency' => $payment->amount->currency,
@@ -883,13 +876,13 @@ class Admin
     {
         ?>
         <div class="wrap">
-            <h2><?php _e('Add-ons', 'mollie-forms'); ?></h2>
+            <h2><?php esc_html_e('Add-ons', 'mollie-forms'); ?></h2>
 
             <ul class="products">
                 <li class="product">
                     <a href="https://wobbie.nl/downloads/mailchimp-for-mollie-forms/" target="_blank">
-                        <h2><?php _e('Mailchimp', 'mollie-forms'); ?></h2>
-                        <p><?php _e('Add people to your Mailchimp mailing list.', 'mollie-forms'); ?></p>
+                        <h2><?php esc_html_e('Mailchimp', 'mollie-forms'); ?></h2>
+                        <p><?php esc_html_e('Add people to your Mailchimp mailing list.', 'mollie-forms'); ?></p>
                     </a>
                 </li>
             </ul>
@@ -925,15 +918,13 @@ class Admin
         ];
 
         // get all fields for headers
-        $registration = $this->db->get_row("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE post_id=" .
-                                           (int) $postId . " ORDER BY id DESC LIMIT 1");
+        $registration = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE post_id=%d ORDER BY id DESC LIMIT 1", $postId));
 
 		if ($registration === null) {
 			die(esc_html__('No registrations found for this form', 'mollie-forms'));
 		}
 
-        $fields       = $this->db->get_results("SELECT * FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE registration_id=" .
-                                               (int) $registration->id);
+        $fields       = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE registration_id=%d", $registration->id));
         foreach ($fields as $field) {
             $headers[] = esc_html($field->field);
         }
@@ -942,14 +933,11 @@ class Admin
         fputcsv($output, $headers);
 
         // make all registration rows
-        $registrations = $this->db->get_results("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE post_id=" .
-                                                (int) $postId . " ORDER BY id DESC");
+        $registrations = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE post_id=%d ORDER BY id DESC", $postId));
         foreach ($registrations as $registration) {
-            $paymentsPaid = $this->db->get_var("SELECT COUNT(*) FROM {$this->mollieForms->getPaymentsTable()} WHERE payment_status='paid' AND registration_id=" .
-                                               (int) $registration->id);
+            $paymentsPaid = $this->db->get_var($this->db->prepare("SELECT COUNT(*) FROM {$this->mollieForms->getPaymentsTable()} WHERE payment_status='paid' AND registration_id=%d", $registration->id));
 
-            $priceOptions = $this->db->get_results("SELECT * FROM {$this->mollieForms->getRegistrationPriceOptionsTable()} WHERE registration_id=" .
-                                                   (int) $registration->id);
+            $priceOptions = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationPriceOptionsTable()} WHERE registration_id=%d", $registration->id));
             $options      = [];
             foreach ($priceOptions as $priceOption) {
                 $currency  = $priceOption->currency ?: 'EUR';
@@ -973,8 +961,7 @@ class Admin
                     implode(' | ', $options),
             ];
 
-            $fields = $this->db->get_results("SELECT * FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE registration_id=" .
-                                             (int) $registration->id);
+            $fields = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE registration_id=%d", $registration->id));
             foreach ($fields as $field) {
                 if ($field->type == 'checkbox') {
                     if ($field->value == '') {
@@ -1020,8 +1007,7 @@ class Admin
 
         $newPostId = wp_insert_post($post);
 
-        $post_meta_infos = $this->db->get_results("SELECT meta_key, meta_value FROM {$this->db->postmeta} WHERE post_id=" .
-                                                  (int) $oldPost->ID);
+        $post_meta_infos = $this->db->get_results($this->db->prepare("SELECT meta_key, meta_value FROM {$this->db->postmeta} WHERE post_id=%d", $oldPost->ID));
         if (count($post_meta_infos) != 0) {
             $sql_query = "INSERT INTO {$this->db->postmeta} (post_id, meta_key, meta_value) ";
             foreach ($post_meta_infos as $meta_info) {
@@ -1039,8 +1025,7 @@ class Admin
             }
         }
 
-        $priceOptions = $this->db->get_results("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE post_id=" .
-                                               (int) $oldPost->ID . " ORDER BY sort_order ASC");
+        $priceOptions = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE post_id=%d ORDER BY sort_order ASC", $oldPost->ID));
         foreach ($priceOptions as $priceOption) {
             $this->db->insert($this->mollieForms->getPriceOptionsTable(), [
                     'post_id'         => $newPostId,

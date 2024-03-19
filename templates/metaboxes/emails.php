@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; ?>
+
 <div class='inside'>
     <div id="rfmp_tabs">
         <ul>

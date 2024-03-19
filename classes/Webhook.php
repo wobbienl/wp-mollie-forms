@@ -90,10 +90,7 @@ class Webhook
             $apiKey = get_post_meta($post, '_rfmp_api_key', true);
             $id     = $_POST['id'];
 
-            $webhook = get_home_url(null, $this->mollieForms->getWebhookUrl() . $post);
-
-            $currency = get_post_meta($post, '_rfmp_currency', true) ?: 'EUR';
-
+            $webhook    = get_home_url(null, $this->mollieForms->getWebhookUrl() . $post);
             $vatSetting = get_post_meta($post, '_rfmp_vat_setting', true);
 
             $mollie = new MollieApi($apiKey);

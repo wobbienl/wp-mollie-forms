@@ -1,3 +1,5 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; ?>
+
 <div class='inside'>
     <table class="form-table">
         <tbody>
@@ -234,7 +236,7 @@
             <td class="forminp forminp-text">
                 <select name="rfmp_recaptcha_v3_minimum_score" id="rfmp_recaptcha_v3_minimum_score">
                     <?php foreach([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] as $s): ?>
-                        <option <?=($recaptchaScore == $s ? 'selected' : '') ?>><?=$s ?></option>
+                        <option <?php echo ($recaptchaScore == $s ? 'selected' : '') ?>><?php echo esc_html($s) ?></option>
                     <?php endforeach ?>
                 </select>
                 <br><small><?php esc_html_e('Blocks submissions with score lower than this setting', 'mollie-forms');?></small>
