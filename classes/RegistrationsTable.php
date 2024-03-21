@@ -66,27 +66,43 @@ class RegistrationsTable extends \WP_List_Table
         $sortable              = [];
         $this->_column_headers = [$columns, $hidden, $sortable];
 
-        $where = [];
-        if (isset($_GET['post']) && !empty($_GET['post'])) {
-            $where[] = 'r.post_id="' . esc_sql(sanitize_text_field($_GET['post'])) . '"';
-        }
-        if (isset($_GET['search']) && !empty($_GET['search'])) {
-            $where[] = '(r.description LIKE "%' . esc_sql(sanitize_text_field($_GET['search'])) . '%" OR rf.value LIKE "%' . esc_sql(sanitize_text_field($_GET['search'])) . '%")';
-        }
+        if (isset($_GET['post'], $_GET['search']) && !empty($_GET['post']) && !empty($_GET['search'])) {
+	        check_admin_referer( 'search-mollie-forms-registrations' );
 
-        if (!empty($where)) {
-            $where = " WHERE " . implode(' AND ', $where);
+            $registrations = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT r.* FROM {$this->mollieForms->getRegistrationsTable()} r LEFT JOIN {$this->mollieForms->getRegistrationFieldsTable()} rf ON rf.registration_id = r.id WHERE r.post_id=%d AND (r.description LIKE CONCAT('%', %s, '%') OR rf.value LIKE CONCAT('%', %s, '%')) GROUP BY r.id ORDER BY r.id DESC",
+                    esc_sql(sanitize_text_field($_GET['post'])),
+                    esc_sql(sanitize_text_field($_GET['search'])),
+                    esc_sql(sanitize_text_field($_GET['search']))
+                ),
+                ARRAY_A
+            );
+        } elseif (isset($_GET['post']) && !empty($_GET['post'])) {
+	        check_admin_referer( 'search-mollie-forms-registrations' );
+	        $registrations = $wpdb->get_results(
+		        $wpdb->prepare(
+			        "SELECT r.* FROM {$this->mollieForms->getRegistrationsTable()} r WHERE r.post_id=%d GROUP BY r.id ORDER BY r.id DESC",
+			        esc_sql(sanitize_text_field($_GET['post'])),
+		        ),
+		        ARRAY_A
+	        );
+        } elseif (isset($_GET['search']) && !empty($_GET['search'])) {
+	        check_admin_referer( 'search-mollie-forms-registrations' );
+	        $registrations = $wpdb->get_results(
+		        $wpdb->prepare(
+			        "SELECT r.* FROM {$this->mollieForms->getRegistrationsTable()} r LEFT JOIN {$this->mollieForms->getRegistrationFieldsTable()} rf ON rf.registration_id = r.id WHERE (r.description LIKE CONCAT('%', %s, '%') OR rf.value LIKE CONCAT('%', %s, '%')) GROUP BY r.id ORDER BY r.id DESC",
+			        esc_sql(sanitize_text_field($_GET['search'])),
+			        esc_sql(sanitize_text_field($_GET['search']))
+		        ),
+		        ARRAY_A
+	        );
         } else {
-            $where = '';
+	        $registrations = $wpdb->get_results(
+                    "SELECT r.* FROM {$this->mollieForms->getRegistrationsTable()} r LEFT JOIN {$this->mollieForms->getRegistrationFieldsTable()} rf ON rf.registration_id = r.id GROUP BY r.id ORDER BY r.id DESC",
+		        ARRAY_A
+	        );
         }
-
-        $registrations = $wpdb->get_results(
-            "SELECT r.* FROM " . $this->mollieForms->getRegistrationsTable() . " r" .
-            (isset($_GET['search']) ? " LEFT JOIN " . $this->mollieForms->getRegistrationFieldsTable() . " rf ON rf.registration_id = r.id" : "") .
-            $where .
-            " GROUP BY r.id ORDER BY r.id DESC",
-            ARRAY_A
-        );
 
         $per_page     = 25;
         $current_page = $this->get_pagenum();
@@ -113,8 +129,7 @@ class RegistrationsTable extends \WP_List_Table
         global $wpdb;
         switch ($column_name) {
             case 'customer':
-                $name = $wpdb->get_row("SELECT value FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE type='name' AND registration_id=" .
-                                       $item['id']);
+                $name = $wpdb->get_row($wpdb->prepare("SELECT value FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE type='name' AND registration_id=%d", $item['id']));
                 return $name->value;
             case 'total_price':
                 return $this->helpers->getCurrencySymbol($item['currency'] ?: 'EUR') . ' ' .
@@ -128,22 +143,19 @@ class RegistrationsTable extends \WP_List_Table
             case 'price_frequency':
                 return $this->frequency_label($item[$column_name]);
             case 'payment_status':
-                $payments = $wpdb->get_var("SELECT COUNT(*) FROM {$this->mollieForms->getPaymentsTable()} WHERE payment_status='paid' AND registration_id=" .
-                                           (int) $item['id']);
+                $payments = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$this->mollieForms->getPaymentsTable()} WHERE payment_status='paid' AND registration_id=%d", $item['id']));
                 return $payments ?
                         '<span style="color: green;">' . __('Paid', 'mollie-forms') . ' (' . $payments . 'x)</span>' :
                         '<span style="color: red;">' . __('Not paid', 'mollie-forms') . '</span>';
             case 'subscription_status':
-                $reg = $wpdb->get_row("SELECT subs_fix FROM {$this->mollieForms->getRegistrationsTable()} WHERE id=" .
-                                      $item['id']);
+                $reg = $wpdb->get_row($wpdb->prepare("SELECT subs_fix FROM {$this->mollieForms->getRegistrationsTable()} WHERE id=%d", $item['id']));
                 if ($reg->subs_fix) {
                     $subsTable = $this->mollieForms->getSubscriptionsTable();
                 } else {
                     $subsTable = $this->mollieForms->getCustomersTable();
                 }
 
-                $subscriptions = $wpdb->get_var("SELECT COUNT(*) FROM " . $subsTable .
-                                                " WHERE sub_status='active' AND registration_id=" . (int) $item['id']);
+                $subscriptions = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$subsTable} WHERE sub_status='active' AND registration_id=%d", $item['id']));
                 if ($item['price_frequency'] == 'once') {
                     return '';
                 }

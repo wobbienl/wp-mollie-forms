@@ -8,10 +8,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 
 
-<input type="hidden" value="0" name="rfmp_payment_method[<?php echo $method->id ?>]">
+<input type="hidden" value="0" name="rfmp_payment_method[<?php echo esc_attr($method->id) ?>]">
 <label>
     <input type="checkbox"
-           name="rfmp_payment_method[<?php echo $method->id ?>]"
+           name="rfmp_payment_method[<?php echo esc_attr($method->id) ?>]"
             <?php echo isset($active[$method->id]) && $active[$method->id] ? 'checked' : '' ?>
            value="1">
     <img style="vertical-align:middle;display:inline-block;width:25px;"
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 <?php esc_html_e('Surcharge:', 'mollie-forms') ?>
 
-<span style="font-size: 14px;"><?php echo $this->helpers->getCurrencySymbol($currency ?: 'EUR') ?></span>
+<span style="font-size: 14px;"><?php echo esc_html($this->helpers->getCurrencySymbol($currency ?: 'EUR')) ?></span>
 <input type="number" step="any" min="0" name="rfmp_payment_method_fixed[<?php echo esc_attr($method->id) ?>]"
        value="<?php echo esc_attr($fixed[$method->id] ?? '') ?>" style="width: 70px;">
 

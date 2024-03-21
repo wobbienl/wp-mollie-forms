@@ -121,7 +121,7 @@
                     <td class="column-sub_interval"><?php echo esc_html($this->helpers->getFrequencyLabel($subscription->sub_interval));?></td>
                     <td class="column-sub_description"><?php echo esc_html($subscription->sub_description);?></td>
                     <td class="column-sub_status"><?php echo esc_html($subscription->sub_status);?></td>
-                    <td class="column-cancel"><?php if ($subscription->sub_status == 'active') { ?><a href="<?php echo $url_cancel;?>" style="color:#a00;"><?php esc_html_e('Cancel', 'mollie-forms');?></a><?php } ?></td>
+                    <td class="column-cancel"><?php if ($subscription->sub_status == 'active') { ?><a href="<?php echo esc_url($url_cancel);?>" style="color:#a00;"><?php esc_html_e('Cancel', 'mollie-forms');?></a><?php } ?></td>
                 </tr>
             <?php } ?>
             </tbody>
@@ -162,7 +162,7 @@
                 <td class="column-payment_status"><?php echo esc_html($payment->payment_status);?></td>
                 <td class="column-amount"><?php echo esc_html($this->helpers->getCurrencySymbol($payment->currency ?: 'EUR') . ' ' . number_format($payment->amount, $this->helpers->getCurrencies($payment->currency ?: 'EUR'), ',', ''));?></td>
                 <td><?php echo (isset($mollie_payment, $mollie_payment->details->consumerName) ? esc_html($mollie_payment->details->consumerName) . '<br>' . esc_html($mollie_payment->details->consumerAccount) : '');?></td>
-                <td class="column-cancel"><?php if ($payment->payment_status == 'paid') { ?><a href="<?php echo $url_refund;?>" style="color:#a00;"><?php esc_html_e('Refund', 'mollie-forms');?></a><?php } ?></td>
+                <td class="column-cancel"><?php if ($payment->payment_status == 'paid') { ?><a href="<?php echo esc_url($url_refund);?>" style="color:#a00;"><?php esc_html_e('Refund', 'mollie-forms');?></a><?php } ?></td>
             </tr>
         <?php } ?>
         </tbody>

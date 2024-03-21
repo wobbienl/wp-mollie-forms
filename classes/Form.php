@@ -314,7 +314,8 @@ class Form
 
 					if ($priceOption['option']->price_type === 'open' && $price < $priceOption['option']->price) {
 						throw new Exception(sprintf(
-							__( 'The minimum amount for %s is %s', 'mollie-forms'),
+						/* translators: %1$s is the description, %2$s is the price */
+						esc_html__( 'The minimum amount for %1$s is %2$s', 'mollie-forms'),
 							$priceOption['option']->description,
 							$symbol . number_format($priceOption['option']->price, $decimals, ',', '')
 						));
@@ -424,18 +425,21 @@ class Form
 
 					$required = get_post_meta($postId, '_rfmp_fields_required', true);
 					if ($field_type[$key] != 'discount_code' && $required[$key] && empty($value)) {
-						throw new Exception(sprintf(__( '%s is a required field', 'mollie-forms'), $field));
+						/* translators: %s is the field label */
+						throw new Exception(sprintf(esc_html__( '%s is a required field', 'mollie-forms'), $field));
 					}
 
 	                if ($field_type[$key] === 'file' && !empty($_FILES['form_' . $postId . '_field_' . $key]['tmp_name'])) {
 		                if($value['size'] > wp_max_upload_size() || (isset($value['error']) && $value['error'] == 1)) {
-			                throw new Exception(sprintf(__( '%s is too large', 'mollie-forms'), $field));
+			                /* translators: %s is the field label */
+			                throw new Exception(sprintf(esc_html__( '%s is too large', 'mollie-forms'), $field));
 		                }
 
 		                $file_mime = mime_content_type($value['tmp_name']);
 
 		                if(!in_array($file_mime, get_allowed_mime_types())) {
-			                throw new Exception(sprintf(__( 'The file type of %s is not allowed', 'mollie-forms'), $field));
+			                /* translators: %s is the field label */
+			                throw new Exception(sprintf(esc_html__( 'The file type of %s is not allowed', 'mollie-forms'), $field));
 		                }
 
 						$value = $value['tmp_name'];

@@ -145,17 +145,27 @@ class Admin
      */
     public function loadScripts()
     {
-        wp_enqueue_script('mollie-forms_admin_scripts', $this->mollieForms->getDirUrl() .
-                                                        'includes/js/admin-scripts.js', ['jquery',
-                                                                                         'jquery-ui-core',
-                                                                                         'jquery-ui-sortable',
-                                                                                         'jquery-ui-tabs',
-        ], $this->mollieForms->getVersion());
-        wp_enqueue_style('mollie-forms_admin_styles', $this->mollieForms->getDirUrl() .
-                                                      'includes/css/admin-styles.css', [], $this->mollieForms->getVersion());
+	    wp_enqueue_script(
+		    'mollie-forms_admin_scripts',
+		    $this->mollieForms->getDirUrl() . 'includes/js/admin-scripts.js',
+		    [ 'jquery', 'jquery-ui-core', 'jquery-ui-sortable', 'jquery-ui-tabs' ],
+		    $this->mollieForms->getVersion(),
+		    [ 'in_footer' => true ]
+	    );
+	    wp_enqueue_style(
+		    'mollie-forms_admin_styles',
+		    $this->mollieForms->getDirUrl() . 'includes/css/admin-styles.css',
+		    [],
+		    $this->mollieForms->getVersion()
+	    );
 
-        wp_register_style('jQueryUI', $this->mollieForms->getDirUrl() . 'includes/css/jquery-ui.css');
-        wp_enqueue_style('jQueryUI');
+	    wp_register_style(
+		    'jQueryUI',
+		    $this->mollieForms->getDirUrl() . 'includes/css/jquery-ui.css',
+		    [],
+		    $this->mollieForms->getVersion()
+	    );
+	    wp_enqueue_style( 'jQueryUI', '', [], $this->mollieForms->getVersion() );
     }
 
     /**
@@ -401,7 +411,7 @@ class Admin
             }
 
         } catch (Exception $e) {
-            echo '<p style="color: red">' . $e->getMessage() . '</p>';
+            echo '<p style="color: red">' . esc_html(sanitize_text_field($e->getMessage())) . '</p>';
         }
     }
 
@@ -701,14 +711,15 @@ class Admin
                     break;
             }
 
-            echo $msg ?? '';
+            echo esc_html($msg ?? '');
         }
         ?>
         <div class="wrap">
             <h2><?php esc_html_e('Registrations', 'mollie-forms');
-                echo(isset($post) ? ' <small>(' . $post->post_title . ')</small>' : ''); ?></h2>
+                echo(isset($post) ? ' <small>(' . esc_html($post->post_title) . ')</small>' : ''); ?></h2>
 
             <form action="edit.php" style="float: right;">
+                <?php wp_nonce_field( 'search-mollie-forms-registrations' ); ?>
                 <input type="hidden" name="post_type" value="mollie-forms">
                 <input type="hidden" name="page" value="registrations">
                 <input type="hidden" name="post" value="<?php echo esc_attr(sanitize_text_field($_GET['post'] ?? '')); ?>">
@@ -863,7 +874,7 @@ class Admin
                     break;
             }
 
-            echo isset($msg) ? $msg : '';
+            echo isset($msg) ? esc_html($msg) : '';
         }
 
         include $this->mollieForms->getDirPath() . 'templates/admin/registration.php';

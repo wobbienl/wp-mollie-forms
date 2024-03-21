@@ -196,7 +196,7 @@
                     <td><input type="text" name="rfmp_fields_label[]" value="<?php echo esc_attr(isset($field_label[$key]) ? $field_label[$key] : '');?>" style="width:100%"></td>
                     <td><input style="<?php echo ($type != 'dropdown' && $type != 'radio' ? 'display:none;' : '');?>width:100%;" class="rfmp_value" type="text" name="rfmp_fields_value[]" value="<?php echo esc_attr($field_value[$key]);?>" placeholder="value1|value2|value3"></td>
                     <td><input type="text" name="rfmp_fields_class[]" value="<?php echo esc_attr(isset($field_class[$key]) ? $field_class[$key] : '');?>" style="width:100%"></td>
-                    <td><input type="hidden" name="rfmp_fields_required[]" value="0"><input type="checkbox" value="1" name="rfmp_fields_required[<?php echo $key;?>]"<?php echo (isset($field_required[$key]) && $field_required[$key] ? ' checked' : '');?>></td>
+                    <td><input type="hidden" name="rfmp_fields_required[]" value="0"><input type="checkbox" value="1" name="rfmp_fields_required[<?php echo esc_attr($key);?>]"<?php echo (isset($field_required[$key]) && $field_required[$key] ? ' checked' : '');?>></td>
                     <td width="1%"><a href="javascript: void(0);" class="delete"><?php esc_html_e('Delete', 'mollie-forms');?></a></td>
                 </tr>
             <?php } ?>

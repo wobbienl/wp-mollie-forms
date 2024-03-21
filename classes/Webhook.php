@@ -71,7 +71,7 @@ class Webhook
             ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($query->query_vars['__rfmpapi'])) ||
             ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($query->query_vars['mollie-forms']))
         ) {
-            echo $this->handleRequest($query);
+            echo esc_html($this->handleRequest($query));
             exit;
         }
     }
@@ -272,7 +272,7 @@ class Webhook
                         "times"       => $priceOption->times > 0 ? ($priceOption->times - 1) : null,
                         "description" => $priceOption->quantity . 'x ' . $priceOption->description,
                         "webhookUrl"  => $webhook . '&sub=' . $subId,
-                        "startDate"   => date('Y-m-d', strtotime("+" . $optionFrequency, strtotime(date('Y-m-d')))),
+                        "startDate"   => gmdate('Y-m-d', strtotime("+" . $optionFrequency, strtotime(gmdate('Y-m-d')))),
                     ]);
 
                     // update subscription in database with Mollie data

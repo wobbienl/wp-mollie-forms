@@ -114,7 +114,7 @@ class MollieApi
         $response = wp_remote_request($url, $args);
 
         if (is_wp_error($response)) {
-            throw new Exception($response->get_error_message());
+            throw new Exception(esc_html(sanitize_text_field($response->get_error_message())));
         }
 
         return $this->parseResponse($response);
@@ -136,7 +136,7 @@ class MollieApi
 
         // API error
         if (isset($object->status) && isset($object->title) && isset($object->detail)) {
-            throw new Exception("Mollie error: " . $object->title . " - " . $object->detail);
+            throw new Exception("Mollie error: " . esc_html(sanitize_text_field($object->title . " - " . $object->detail)));
         }
 
         return $object;

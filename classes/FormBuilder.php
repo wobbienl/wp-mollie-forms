@@ -465,6 +465,7 @@ class FormBuilder
 
             // if option has number of times, show label
             $times = $priceOption->times > 0 ?
+	            /* translators: %s is the number of times */
                 '; ' . sprintf(esc_html__('Stops after %s times', 'mollie-forms'), $priceOption->times) : '';
 
             // check if is list or select to add correct html
