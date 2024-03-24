@@ -72,16 +72,11 @@ class Migrator
      */
     private function renameDatabaseTables()
     {
-        $this->db->query("RENAME TABLE " . $this->db->prefix . "rfmp_registrations TO " .
-                         $this->mollieForms->getRegistrationsTable());
-        $this->db->query("RENAME TABLE " . $this->db->prefix . "rfmp_registration_fields TO " .
-                         $this->mollieForms->getRegistrationFieldsTable());
-        $this->db->query("RENAME TABLE " . $this->db->prefix . "rfmp_payments TO " .
-                         $this->mollieForms->getPaymentsTable());
-        $this->db->query("RENAME TABLE " . $this->db->prefix . "rfmp_customers TO " .
-                         $this->mollieForms->getCustomersTable());
-        $this->db->query("RENAME TABLE " . $this->db->prefix . "rfmp_subscriptions TO " .
-                         $this->mollieForms->getSubscriptionsTable());
+        $this->db->query("RENAME TABLE " . $this->db->prefix . "rfmp_registrations TO " . $this->mollieForms->getRegistrationsTable());
+        $this->db->query("RENAME TABLE " . $this->db->prefix . "rfmp_registration_fields TO " . $this->mollieForms->getRegistrationFieldsTable());
+        $this->db->query("RENAME TABLE " . $this->db->prefix . "rfmp_payments TO " . $this->mollieForms->getPaymentsTable());
+        $this->db->query("RENAME TABLE " . $this->db->prefix . "rfmp_customers TO " . $this->mollieForms->getCustomersTable());
+        $this->db->query("RENAME TABLE " . $this->db->prefix . "rfmp_subscriptions TO " . $this->mollieForms->getSubscriptionsTable());
     }
 
     /**
@@ -135,14 +130,14 @@ class Migrator
             $sortOrder = 0;
             foreach ($option_desc as $key => $desc) {
                 $this->db->insert($this->mollieForms->getPriceOptionsTable(), [
-                    'post_id'         => $post->ID,
-                    'description'     => $desc,
-                    'price'           => $option_price[$key],
-                    'price_type'      => $option_pricetype[$key],
-                    'frequency'       => $option_frequency[$key],
-                    'frequency_value' => $option_frequencyval[$key],
-                    'times'           => $option_times[$key],
-                    'sort_order'      => $sortOrder,
+                    'post_id'         => sanitize_text_field($post->ID),
+                    'description'     => sanitize_text_field($desc),
+                    'price'           => sanitize_text_field($option_price[$key]),
+                    'price_type'      => sanitize_text_field($option_pricetype[$key]),
+                    'frequency'       => sanitize_text_field($option_frequency[$key]),
+                    'frequency_value' => sanitize_text_field($option_frequencyval[$key]),
+                    'times'           => sanitize_text_field($option_times[$key]),
+                    'sort_order'      => sanitize_text_field($sortOrder),
                 ]);
 
                 $sortOrder++;

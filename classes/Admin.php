@@ -611,15 +611,14 @@ class Admin
                 // new row
                 $this->db->insert($this->mollieForms->getPriceOptionsTable(), [
                         'post_id'         => $postId,
-                        'description'     => $_POST['rfmp_priceoptions_desc'][$key],
-                        'price'           => $_POST['rfmp_priceoptions_price'][$key] ?: null,
-                        'price_type'      => $_POST['rfmp_priceoptions_pricetype'][$key],
-                        'vat'             => $_POST['rfmp_priceoptions_vat'][$key] ?: null,
-                        'frequency'       => $_POST['rfmp_priceoptions_frequency'][$key],
-                        'frequency_value' => $_POST['rfmp_priceoptions_frequencyval'][$key] ?: null,
-                        'times'           => $_POST['rfmp_priceoptions_times'][$key] ?: null,
-                        'stock'           => $_POST['rfmp_priceoptions_stock'][$key] != '' ?
-                                $_POST['rfmp_priceoptions_stock'][$key] : null,
+                        'description'     => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_desc'][$key])),
+                        'price'           => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_price'][$key])) ?: null,
+                        'price_type'      => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_pricetype'][$key])),
+                        'vat'             => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_vat'][$key])) ?: null,
+                        'frequency'       => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_frequency'][$key])),
+                        'frequency_value' => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_frequencyval'][$key])) ?: null,
+                        'times'           => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_times'][$key])) ?: null,
+                        'stock'           => $_POST['rfmp_priceoptions_stock'][$key] != '' ? esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_stock'][$key])) : null,
                         'sort_order'      => $sortOrder,
                 ]);
             } elseif ($new == '-1') {
@@ -632,15 +631,14 @@ class Admin
             } else {
                 // existing row
                 $this->db->update($this->mollieForms->getPriceOptionsTable(), [
-                        'description'     => $_POST['rfmp_priceoptions_desc'][$key],
-                        'price'           => $_POST['rfmp_priceoptions_price'][$key] ?: null,
-                        'price_type'      => $_POST['rfmp_priceoptions_pricetype'][$key],
-                        'vat'             => $_POST['rfmp_priceoptions_vat'][$key] ?: null,
-                        'frequency'       => $_POST['rfmp_priceoptions_frequency'][$key],
-                        'frequency_value' => $_POST['rfmp_priceoptions_frequencyval'][$key] ?: null,
-                        'times'           => $_POST['rfmp_priceoptions_times'][$key] ?: null,
-                        'stock'           => $_POST['rfmp_priceoptions_stock'][$key] != '' ?
-                                $_POST['rfmp_priceoptions_stock'][$key] : null,
+                        'description'     => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_desc'][$key])),
+                        'price'           => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_price'][$key])) ?: null,
+                        'price_type'      => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_pricetype'][$key])),
+                        'vat'             => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_vat'][$key])) ?: null,
+                        'frequency'       => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_frequency'][$key])),
+                        'frequency_value' => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_frequencyval'][$key])) ?: null,
+                        'times'           => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_times'][$key])) ?: null,
+                        'stock'           => $_POST['rfmp_priceoptions_stock'][$key] != '' ? esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_stock'][$key])) : null,
                         'sort_order'      => $sortOrder,
                 ], [
                         'ID' => str_replace('po-', '', $key),
@@ -660,17 +658,17 @@ class Admin
                 // new code
                 $this->db->insert($this->mollieForms->getDiscountCodesTable(), [
                         'post_id'       => $postId,
-                        'discount_code' => $_POST['rfmp_discount_code'][$key],
-                        'discount_type' => $_POST['rfmp_discount_type'][$key],
-                        'discount'      => $_POST['rfmp_discount'][$key],
-                        'valid_from'    => $_POST['rfmp_discount_valid_from'][$key],
-                        'valid_until'   => $_POST['rfmp_discount_valid_until'][$key],
-                        'times_max'     => $_POST['rfmp_discount_times_max'][$key],
+                        'discount_code' => esc_sql(sanitize_text_field($_POST['rfmp_discount_code'][$key])),
+                        'discount_type' => esc_sql(sanitize_text_field($_POST['rfmp_discount_type'][$key])),
+                        'discount'      => esc_sql(sanitize_text_field($_POST['rfmp_discount'][$key])),
+                        'valid_from'    => esc_sql(sanitize_text_field($_POST['rfmp_discount_valid_from'][$key])),
+                        'valid_until'   => esc_sql(sanitize_text_field($_POST['rfmp_discount_valid_until'][$key])),
+                        'times_max'     => esc_sql(sanitize_text_field($_POST['rfmp_discount_times_max'][$key])),
                 ]);
             } else {
                 if (empty($_POST['rfmp_discount_code'][$key])) {
                     $this->db->delete($this->mollieForms->getDiscountCodesTable(), [
-                            'ID' => $id,
+                            'ID' => (int)$id,
                     ]);
 
                     continue;
@@ -678,14 +676,14 @@ class Admin
 
                 // existing code
                 $this->db->update($this->mollieForms->getDiscountCodesTable(), [
-                        'discount_code' => $_POST['rfmp_discount_code'][$key],
-                        'discount_type' => $_POST['rfmp_discount_type'][$key],
-                        'discount'      => $_POST['rfmp_discount'][$key],
-                        'valid_from'    => $_POST['rfmp_discount_valid_from'][$key],
-                        'valid_until'   => $_POST['rfmp_discount_valid_until'][$key],
-                        'times_max'     => $_POST['rfmp_discount_times_max'][$key],
+                        'discount_code' => esc_sql(sanitize_text_field($_POST['rfmp_discount_code'][$key])),
+                        'discount_type' => esc_sql(sanitize_text_field($_POST['rfmp_discount_type'][$key])),
+                        'discount'      => esc_sql(sanitize_text_field($_POST['rfmp_discount'][$key])),
+                        'valid_from'    => esc_sql(sanitize_text_field($_POST['rfmp_discount_valid_from'][$key])),
+                        'valid_until'   => esc_sql(sanitize_text_field($_POST['rfmp_discount_valid_until'][$key])),
+                        'times_max'     => esc_sql(sanitize_text_field($_POST['rfmp_discount_times_max'][$key])),
                 ], [
-                        'ID' => $id,
+                        'ID' => (int)$id,
                 ]);
             }
         }

@@ -27,13 +27,13 @@ class RegistrationsTable extends \WP_List_Table
     function get_columns()
     {
         $columns                        = [];
-        $columns['created_at']          = __('Date/time', 'mollie-forms');
-        $columns['post_id']             = __('Form', 'mollie-forms');
-        $columns['customer']            = __('Customer', 'mollie-forms');
-        $columns['total_price']         = __('Total price', 'mollie-forms');
-        $columns['payment_status']      = __('Payment status', 'mollie-forms');
-        $columns['subscription_status'] = __('Subscription status', 'mollie-forms');
-        $columns['description']         = __('Description', 'mollie-forms');
+        $columns['created_at']          = esc_html__('Date/time', 'mollie-forms');
+        $columns['post_id']             = esc_html__('Form', 'mollie-forms');
+        $columns['customer']            = esc_html__('Customer', 'mollie-forms');
+        $columns['total_price']         = esc_html__('Total price', 'mollie-forms');
+        $columns['payment_status']      = esc_html__('Payment status', 'mollie-forms');
+        $columns['subscription_status'] = esc_html__('Subscription status', 'mollie-forms');
+        $columns['description']         = esc_html__('Description', 'mollie-forms');
         $columns['actions']             = '';
 
         return $columns;
@@ -47,8 +47,7 @@ class RegistrationsTable extends \WP_List_Table
     function column_actions($item)
     {
         $url_view   = 'edit.php?post_type=mollie-forms&page=registration&view=' . $item['id'];
-        $url_delete = wp_nonce_url('edit.php?post_type=mollie-forms&page=registration&view=' . $item['id'] .
-                                   '&delete=true', 'delete-reg_' . $item['id']);
+        $url_delete = wp_nonce_url('edit.php?post_type=mollie-forms&page=registration&view=' . $item['id'] . '&delete=true', 'delete-reg_' . $item['id']);
         return sprintf('<a href="%s">' . esc_html__('View', 'mollie-forms') .
                        '</a> <a href="%s" style="color:#a00;" onclick="return confirm(\'' .
                        esc_html__('Are you sure?', 'mollie-forms') . '\');">' . esc_html__('Delete', 'mollie-forms') .
@@ -132,9 +131,7 @@ class RegistrationsTable extends \WP_List_Table
                 $name = $wpdb->get_row($wpdb->prepare("SELECT value FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE type='name' AND registration_id=%d", $item['id']));
                 return $name->value;
             case 'total_price':
-                return $this->helpers->getCurrencySymbol($item['currency'] ?: 'EUR') . ' ' .
-                       number_format($item[$column_name], $this->helpers->getCurrencies($item['currency'] ?:
-                               'EUR'), ',', '');
+                return $this->helpers->getCurrencySymbol($item['currency'] ?: 'EUR') . ' ' . number_format($item[$column_name], $this->helpers->getCurrencies($item['currency'] ?: 'EUR'), ',', '');
             case 'post_id':
                 $post = get_post($item[$column_name]);
                 return $post->post_title;
@@ -145,8 +142,8 @@ class RegistrationsTable extends \WP_List_Table
             case 'payment_status':
                 $payments = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$this->mollieForms->getPaymentsTable()} WHERE payment_status='paid' AND registration_id=%d", $item['id']));
                 return $payments ?
-                        '<span style="color: green;">' . __('Paid', 'mollie-forms') . ' (' . $payments . 'x)</span>' :
-                        '<span style="color: red;">' . __('Not paid', 'mollie-forms') . '</span>';
+                        '<span style="color: green;">' . esc_html__('Paid', 'mollie-forms') . ' (' . $payments . 'x)</span>' :
+                        '<span style="color: red;">' . esc_html__('Not paid', 'mollie-forms') . '</span>';
             case 'subscription_status':
                 $reg = $wpdb->get_row($wpdb->prepare("SELECT subs_fix FROM {$this->mollieForms->getRegistrationsTable()} WHERE id=%d", $item['id']));
                 if ($reg->subs_fix) {
@@ -161,8 +158,8 @@ class RegistrationsTable extends \WP_List_Table
                 }
 
                 return $subscriptions ?
-                        '<span style="color: green;">' . __('Active', 'mollie-forms') . ' (' . $subscriptions .
-                        'x)</span>' : '<span style="color: red;">' . __('Not active', 'mollie-forms') . '</span>';
+                        '<span style="color: green;">' . esc_html__('Active', 'mollie-forms') . ' (' . $subscriptions .
+                        'x)</span>' : '<span style="color: red;">' . esc_html__('Not active', 'mollie-forms') . '</span>';
             default:
                 return $item[$column_name];
         }

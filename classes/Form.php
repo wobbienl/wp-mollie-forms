@@ -87,7 +87,7 @@ class Form
             $atts = [
                 'name'  => $name,
                 'id'    => $name,
-                'value' => isset($_POST[$name]) ? $_POST[$name] : (isset($_GET[$name]) ? $_GET[$name] : ''),
+                'value' => sanitize_text_field(isset($_POST[$name]) ? $_POST[$name] : (isset($_GET[$name]) ? $_GET[$name] : '')),
                 'label' => $label[$key],
                 'class' => $class[$key],
             ];
@@ -136,16 +136,14 @@ class Form
                 return 'Form with ID ' . $formId . ' not found';
             }
 
-            $total += $this->db->get_var("SELECT SUM(payments.amount) FROM {$this->mollieForms->getPaymentsTable()} payments INNER JOIN {$this->mollieForms->getRegistrationsTable()} registrations ON payments.registration_id = registrations.id AND registrations.post_id='" .
-                                         esc_sql($post->ID) .
-                                         "' WHERE payments.payment_status='paid' AND payments.payment_mode='live'");
+            $total += $this->db->get_var($this->db->prepare("SELECT SUM(payments.amount) FROM {$this->mollieForms->getPaymentsTable()} payments INNER JOIN {$this->mollieForms->getRegistrationsTable()} registrations ON payments.registration_id = registrations.id AND registrations.post_id=%d WHERE payments.payment_status='paid' AND payments.payment_mode='live'", $post->ID));
         }
 
         $currency = get_post_meta($post->ID, '_rfmp_currency', true) ?: 'EUR';
         $decimals = $this->helpers->getCurrencies($currency);
         $symbol   = $this->helpers->getCurrencySymbol($currency);
 
-        return $symbol . ' ' . number_format($total, $decimals, ',', '.');
+        return esc_html($symbol . ' ' . number_format($total, $decimals, ',', '.'));
     }
 
     /**
@@ -160,22 +158,20 @@ class Form
         $atts = shortcode_atts([
             'id'   => '',
             'goal' => '',
-            'text' => __('Goal reached!', 'mollie-forms'),
+            'text' => esc_html__('Goal reached!', 'mollie-forms'),
         ], $atts);
         $post = get_post($atts['id']);
         $goal = $atts['goal'];
 
         if (!$post->ID) {
-            return __('Form not found', 'mollie-forms');
+            return esc_html__('Form not found', 'mollie-forms');
         }
 
         if ($goal < 0) {
-            return __('Goal must be higher then 0', 'mollie-forms');
+            return esc_html__('Goal must be higher then 0', 'mollie-forms');
         }
 
-        $total = $this->db->get_var("SELECT SUM(payments.amount) FROM {$this->mollieForms->getPaymentsTable()} payments INNER JOIN {$this->mollieForms->getRegistrationsTable()} registrations ON payments.registration_id = registrations.id AND registrations.post_id='" .
-                                    esc_sql($post->ID) .
-                                    "' WHERE payments.payment_status='paid' AND payments.payment_mode='live'");
+        $total = $this->db->get_var($this->db->prepare("SELECT SUM(payments.amount) FROM {$this->mollieForms->getPaymentsTable()} payments INNER JOIN {$this->mollieForms->getRegistrationsTable()} registrations ON payments.registration_id = registrations.id AND registrations.post_id=%d WHERE payments.payment_status='paid' AND payments.payment_mode='live'", $post->ID));
 
         $goal = (int) $goal - $total;
 
@@ -187,7 +183,7 @@ class Form
         $decimals = $this->helpers->getCurrencies($currency);
         $symbol   = $this->helpers->getCurrencySymbol($currency);
 
-        return $symbol . ' ' . number_format($goal, $decimals, ',', '.');
+        return esc_html($symbol . ' ' . number_format($goal, $decimals, ',', '.'));
     }
 
     /**
@@ -211,7 +207,7 @@ class Form
         try {
             if ($recaptchaSecretKey) {
                 $response = wp_remote_request(
-                    "https://www.google.com/recaptcha/api/siteverify?secret=" . $recaptchaSecretKey . "&response=" . $_POST['token'],
+                    "https://www.google.com/recaptcha/api/siteverify?secret=" . $recaptchaSecretKey . "&response=" . sanitize_text_field($_POST['token']),
                     [
                         'method'     => 'GET',
                         'timeout'    => 45,
@@ -251,17 +247,17 @@ class Form
 
                 // Create customer at Mollie
                 $customer = $mollie->post('customers', [
-                    'name'  => $name_field_value,
-                    'email' => $email_field_value,
+                    'name'  => sanitize_text_field($name_field_value),
+                    'email' => sanitize_text_field($email_field_value),
                 ]);
 
                 // create customer in database
                 $this->db->insert($this->mollieForms->getCustomersTable(), [
                     'created_at'  => current_time('mysql', 1),
-                    'post_id'     => $postId,
-                    'customer_id' => $customer->id,
-                    'name'        => $customer->name,
-                    'email'       => $customer->email,
+                    'post_id'     => esc_sql(sanitize_text_field($postId)),
+                    'customer_id' => esc_sql(sanitize_text_field($customer->id)),
+                    'name'        => esc_sql(sanitize_text_field($customer->name)),
+                    'email'       => esc_sql(sanitize_text_field($customer->email)),
                 ]);
                 $customerId = $this->db->insert_id;
 
@@ -277,8 +273,7 @@ class Form
                             continue;
                         }
 
-                        $option         = $this->db->get_row("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE id=" .
-                                                             (int) $optionId);
+                        $option         = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE id=%d", $optionId));
                         $priceOptions[] = [
                             'option'   => $option,
                             'quantity' => $quantity,
@@ -287,8 +282,7 @@ class Form
                     }
                 } else {
                     // single price option
-                    $option         = $this->db->get_row("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE id=" .
-                                                         (int) $_POST['rfmp_priceoptions_' . $postId]);
+                    $option         = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE id=%d", $_POST['rfmp_priceoptions_' . $postId]));
                     $priceOptions[] = [
                         'option'   => $option,
                         'quantity' => 1,
@@ -297,7 +291,7 @@ class Form
                 }
 
 	            if (empty($priceOptions)) {
-		            throw new Exception(__('Please select at least 1 product', 'mollie-forms'));
+		            throw new Exception(esc_html__('Please select at least 1 product', 'mollie-forms'));
 	            }
 
                 // calc total amounts
@@ -365,7 +359,7 @@ class Form
                 }
 
 	            if ($recurring && $_POST['rfmp_checkbox_' . $postId] != 1) {
-		            throw new Exception(__('Please give authorization to collect from your account', 'mollie-forms'));
+		            throw new Exception(esc_html__('Please give authorization to collect from your account', 'mollie-forms'));
 	            }
 
                 // extra payment method costs
@@ -455,7 +449,7 @@ class Form
 
                 // Discount
                 if (isset($discountCode) && !empty($discountCode)) {
-                    $discount = $this->db->get_row("SELECT * FROM {$this->mollieForms->getDiscountCodesTable()} WHERE post_id = " . (int) $postId . " AND discount_code = '" . trim(esc_sql($discountCode)) . "'");
+                    $discount = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getDiscountCodesTable()} WHERE post_id = %d AND discount_code = %s", $postId, trim($discountCode)));
 
                     if ($discount !== null) {
                         $now = new DateTime('now', wp_timezone());
@@ -464,12 +458,12 @@ class Form
 
                         if ($discount->times_max > 0 && $discount->times_used >= $discount->times_max) {
                             // Max number of usages
-                            throw new Exception(__('The discount code has expired', 'mollie-forms'));
+                            throw new Exception(esc_html__('The discount code has expired', 'mollie-forms'));
                         }
 
                         if ($now->getTimestamp() < $validFrom->getTimestamp() || $now->getTimestamp() > $validUntil->getTimestamp()) {
                             // Not valid anymore
-                            throw new Exception(__('The discount code has expired', 'mollie-forms'));
+                            throw new Exception(esc_html__('The discount code has expired', 'mollie-forms'));
                         }
 
                         $discountAmount = (float)$discount->discount;
@@ -503,11 +497,11 @@ class Form
 
                 // create registration
                 $this->db->insert($this->mollieForms->getRegistrationsTable(), [
-                    'post_id'     => $postId,
+                    'post_id'     => sanitize_text_field($postId),
                     'created_at'  => current_time('mysql', 1),
-                    'customer_id' => $customer->id,
-                    'currency'    => $currency,
-                    'description' => $desc,
+                    'customer_id' => sanitize_text_field($customer->id),
+                    'currency'    => sanitize_text_field($currency),
+                    'description' => sanitize_text_field($desc),
                     'subs_fix'    => 1,
                 ]);
                 $registrationId = $this->db->insert_id;
@@ -552,10 +546,10 @@ class Form
                         }
 
                         $this->db->insert($this->mollieForms->getRegistrationFieldsTable(), [
-                            'registration_id' => $registrationId,
-                            'field'           => $field,
-                            'value'           => $value,
-                            'type'            => $field_type[$key],
+                            'registration_id' => sanitize_text_field($registrationId),
+                            'field'           => sanitize_text_field($field),
+                            'value'           => sanitize_text_field($value),
+                            'type'            => sanitize_text_field($field_type[$key]),
                         ]);
                     }
                 }
@@ -568,29 +562,29 @@ class Form
                         $priceOption['option']->price;
 
                     $this->db->insert($this->mollieForms->getRegistrationPriceOptionsTable(), [
-                        'post_id'         => $postId,
-                        'registration_id' => $registrationId,
-                        'price_option_id' => $priceOption['option']->id,
-                        'description'     => $priceOption['option']->description,
-                        'quantity'        => $priceOption['quantity'],
-                        'currency'        => $currency,
-                        'price'           => $price,
-                        'price_type'      => $priceOption['option']->price_type,
-                        'vat'             => $priceOption['option']->vat,
-                        'frequency'       => $priceOption['option']->frequency,
-                        'frequency_value' => $priceOption['option']->frequency_value,
-                        'times'           => $priceOption['option']->times,
+                        'post_id'         => sanitize_text_field($postId),
+                        'registration_id' => sanitize_text_field($registrationId),
+                        'price_option_id' => sanitize_text_field($priceOption['option']->id),
+                        'description'     => sanitize_text_field($priceOption['option']->description),
+                        'quantity'        => sanitize_text_field($priceOption['quantity']),
+                        'currency'        => sanitize_text_field($currency),
+                        'price'           => sanitize_text_field($price),
+                        'price_type'      => sanitize_text_field($priceOption['option']->price_type),
+                        'vat'             => sanitize_text_field($priceOption['option']->vat),
+                        'frequency'       => sanitize_text_field($priceOption['option']->frequency),
+                        'frequency_value' => sanitize_text_field($priceOption['option']->frequency_value),
+                        'times'           => sanitize_text_field($priceOption['option']->times),
                     ]);
                 }
 
                 if ($paymentCosts > 0) {
                     $this->db->insert($this->mollieForms->getRegistrationPriceOptionsTable(), [
-                        'post_id'         => $postId,
-                        'registration_id' => $registrationId,
-                        'description'     => __('Payment costs', 'mollie-forms'),
+                        'post_id'         => sanitize_text_field($postId),
+                        'registration_id' => sanitize_text_field($registrationId),
+                        'description'     => esc_html__('Payment costs', 'mollie-forms'),
                         'quantity'        => 1,
-                        'currency'        => $currency,
-                        'price'           => $paymentCosts,
+                        'currency'        => sanitize_text_field($currency),
+                        'price'           => sanitize_text_field($paymentCosts),
                         'price_type'      => 'fixed',
                         'vat'             => 21,
                         'frequency'       => 'once',
@@ -599,26 +593,26 @@ class Form
 
                 if (isset($discountAmount) && $discountAmount > 0) {
                     $this->db->insert($this->mollieForms->getRegistrationPriceOptionsTable(), [
-                        'post_id'         => $postId,
-                        'registration_id' => $registrationId,
-                        'description'     => __('Discount', 'mollie-forms'),
+                        'post_id'         => sanitize_text_field($postId),
+                        'registration_id' => sanitize_text_field($registrationId),
+                        'description'     => esc_html__('Discount', 'mollie-forms'),
                         'quantity'        => 1,
-                        'currency'        => $currency,
+                        'currency'        => sanitize_text_field($currency),
                         'price'           => '-' . ($vatSetting === 'excl' && isset($discountAmountExclVat) ? $discountAmountExclVat : $discountAmount),
                         'price_type'      => 'fixed',
-                        'vat'             => $vatRateFirstPriceOption,
+                        'vat'             => sanitize_text_field($vatRateFirstPriceOption),
                         'frequency'       => 'once',
                     ]);
                 }
 
                 if (isset($shippingPrice) && $shippingPrice > 0) {
                     $this->db->insert($this->mollieForms->getRegistrationPriceOptionsTable(), [
-                        'post_id'         => $postId,
-                        'registration_id' => $registrationId,
-                        'description'     => __('Shipping costs', 'mollie-forms'),
+                        'post_id'         => sanitize_text_field($postId),
+                        'registration_id' => sanitize_text_field($registrationId),
+                        'description'     => esc_html__('Shipping costs', 'mollie-forms'),
                         'quantity'        => 1,
-                        'currency'        => $currency,
-                        'price'           => $shippingPrice,
+                        'currency'        => sanitize_text_field($currency),
+                        'price'           => sanitize_text_field($shippingPrice),
                         'price_type'      => 'fixed',
                         'vat'             => 21,
                         'frequency'       => 'once',
@@ -802,14 +796,14 @@ class Form
                     // create registration payment
                     $this->db->insert($this->mollieForms->getPaymentsTable(), [
                         'created_at'      => current_time('mysql', 1),
-                        'registration_id' => $registrationId,
-                        'payment_id'      => $order->id,
-                        'payment_method'  => $paymentMethod,
-                        'payment_mode'    => $order->mode,
+                        'registration_id' => sanitize_text_field($registrationId),
+                        'payment_id'      => sanitize_text_field($order->id),
+                        'payment_method'  => sanitize_text_field($paymentMethod),
+                        'payment_mode'    => sanitize_text_field($order->mode),
                         'payment_status'  => 'open',
-                        'currency'        => $order->amount->currency,
-                        'amount'          => $order->amount->value,
-                        'rfmp_id'         => $rfmpId,
+                        'currency'        => sanitize_text_field($order->amount->currency),
+                        'amount'          => sanitize_text_field($order->amount->value),
+                        'rfmp_id'         => sanitize_text_field($rfmpId),
                     ]);
 
                     wp_redirect($order->_links->checkout->href);
@@ -845,14 +839,14 @@ class Form
                     // create registration payment
                     $this->db->insert($this->mollieForms->getPaymentsTable(), [
                         'created_at'      => current_time('mysql', 1),
-                        'registration_id' => $registrationId,
-                        'payment_id'      => $payment->id,
-                        'payment_method'  => $payment->method,
-                        'payment_mode'    => $payment->mode,
-                        'payment_status'  => $payment->status,
-                        'currency'        => $payment->amount->currency,
-                        'amount'          => $payment->amount->value,
-                        'rfmp_id'         => $rfmpId,
+                        'registration_id' => sanitize_text_field($registrationId),
+                        'payment_id'      => sanitize_text_field($payment->id),
+                        'payment_method'  => sanitize_text_field($payment->method),
+                        'payment_mode'    => sanitize_text_field($payment->mode),
+                        'payment_status'  => sanitize_text_field($payment->status),
+                        'currency'        => sanitize_text_field($payment->amount->currency),
+                        'amount'          => sanitize_text_field($payment->amount->value),
+                        'rfmp_id'         => sanitize_text_field($rfmpId),
                     ]);
 
                     wp_redirect($payment->_links->checkout->href);
@@ -898,21 +892,21 @@ class Form
 
 		$mollie = new MollieApi($apiKey);
 
-        $payment      = $this->db->get_row("SELECT * FROM {$this->mollieForms->getPaymentsTable()} WHERE rfmp_id='" . esc_sql($rfmpId) . "'");
-        $registration = $this->db->get_row("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE id='" . esc_sql($payment->registration_id) . "'");
+        $payment      = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getPaymentsTable()} WHERE rfmp_id=%d", $rfmpId));
+        $registration = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE id=%d", $payment->registration_id));
         if ($payment == null || $registration == null) {
             echo '<p class="' . esc_attr($errorClass) . '">' . esc_html__('No payment found', 'mollie-forms') . '</p>';
         } elseif ($registration->post_id == $postId) {
 			try {
 				$id = $payment->payment_id;
 				if (substr($id, 0, 3) == 'ord') {
-					$order = $mollie->get('orders/' . $id . '?embed=payments');
+					$order = $mollie->get('orders/' . esc_url(sanitize_text_field($id)) . '?embed=payments');
 					foreach ($order->_embedded->payments as $p) {
 						$molliePayment = $p;
 						break;
 					}
 				} else {
-					$molliePayment = $mollie->get('payments/' . $id);
+					$molliePayment = $mollie->get('payments/' . esc_url(sanitize_text_field($id)));
 				}
 			} catch (Exception $e) {
 				return '<p class="' . esc_attr($errorClass) . '">' . esc_html($e->getMessage()) . '</p>';

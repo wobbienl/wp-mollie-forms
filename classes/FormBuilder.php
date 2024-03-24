@@ -109,9 +109,9 @@ class FormBuilder
                 $html = '<input type="date" ' . $this->buildAtts($atts) . ' style="width: 100%">';
                 break;
             case 'checkbox':
-                $html = '<input type="hidden" name="' . $atts['name'] .
+                $html = '<input type="hidden" name="' . esc_attr($atts['name']) .
                         '" value="0"><input type="checkbox" value="1" ' . $this->buildAtts($atts, ['value']) . '> ' .
-                        $this->getLabel();
+                        esc_html($this->getLabel());
                 break;
             case 'textarea':
                 $html = '<textarea ' . $this->buildAtts($atts, ['value']) . ' style="width: 100%">' .
@@ -149,7 +149,7 @@ class FormBuilder
                 if ($this->recaptchaSiteKey) {
 					$html = '<input type="hidden" id="rfmp_' . $this->postId . '_token" name="token" value="">';
                     $html .= '<br><button type="button" onclick="onSubmit' . $this->postId . '(event)" data-action="submit" ' .
-                             $this->buildAtts($atts) . '>' . $atts['label'] . '</button>';
+                             $this->buildAtts($atts) . '>' . esc_html($atts['label']) . '</button>';
                 }
                 break;
             case 'file':
@@ -173,7 +173,7 @@ class FormBuilder
         $this->form .= '<p>';
 
         if ($type != 'submit' && $type != 'checkbox' && $visible) {
-            $this->form .= $this->getLabel() . '<br>';
+            $this->form .= esc_html($this->getLabel()) . '<br>';
         }
 
         $this->form .= $html;
@@ -315,14 +315,14 @@ class FormBuilder
                         $fixedFee    = str_replace(',', '.', $fixed[$method->id]);
                         $subcharge[] = $symbol . ' ' . $fixedFee;
                     }
-                    $dataFixed = 'data-fixed="' . (isset($fixedFee) ? $fixedFee : 0) . '"';
+                    $dataFixed = 'data-fixed="' . (isset($fixedFee) ? esc_attr($fixedFee) : 0) . '"';
 
                     // label for variable fee
                     if (isset($variable[$method->id]) && $variable[$method->id]) {
                         $variableFee = str_replace(',', '.', $variable[$method->id]);
                         $subcharge[] = $variableFee . '%';
                     }
-                    $dataVariable = 'data-variable="' . (isset($variableFee) ? $variableFee : 0) . '"';
+                    $dataVariable = 'data-variable="' . (isset($variableFee) ? esc_attr($variableFee) : 0) . '"';
 
                     if ($display == 'list') {
                         // list with text and icons
@@ -338,7 +338,7 @@ class FormBuilder
                                             <img    style="vertical-align:middle;display:inline-block;" 
                                                     src="' . esc_url($method->image->svg) . '"> 
                                             ' . esc_html($method->description) .
-                                    (!empty($subcharge) ? ' (+ ' . implode(' & ', $subcharge) . ')' : '') . '
+                                    (!empty($subcharge) ? ' (+ ' . esc_html(implode(' & ', $subcharge)) . ')' : '') . '
                                         </label>
                                      </li>';
                     } elseif ($display == 'text') {
@@ -352,7 +352,7 @@ class FormBuilder
                                                 value="' . esc_attr($method->id) . '"
                                                 ' . ($formValue == $method->id || $first ? ' checked' : '') . '> 
                                         ' . esc_html($method->description) .
-                                    (!empty($subcharge) ? ' (+ ' . implode(' & ', $subcharge) . ')' : '') . '
+                                    (!empty($subcharge) ? ' (+ ' . esc_html(implode(' & ', $subcharge)) . ')' : '') . '
                                      </li>';
                     } elseif ($display == 'icons') {
                         // list with only icons
@@ -366,7 +366,7 @@ class FormBuilder
                                                 ' . ($formValue == $method->id || $first ? ' checked' : '') . '> 
                                         <img    style="vertical-align:middle;display:inline-block;" 
                                                 src="' . esc_url($method->image->svg) . '"> 
-                                        ' . (!empty($subcharge) ? ' (+ ' . implode(' & ', $subcharge) . ')' : '') . '
+                                        ' . (!empty($subcharge) ? ' (+ ' . esc_html(implode(' & ', $subcharge)) . ')' : '') . '
                                      </li>';
                     } else {
                         // dropdown
@@ -376,7 +376,7 @@ class FormBuilder
                                                 ' . (isset($dataVariable) ? $dataVariable : '') . ' 
                                                 ' . ($formValue == $method->id ? ' selected' : '') . '>
                                         ' . esc_html($method->description) .
-                                    (!empty($subcharge) ? ' (+ ' . implode(' & ', $subcharge) . ')' : '') . '
+                                    (!empty($subcharge) ? ' (+ ' . esc_html(implode(' & ', $subcharge)) . ')' : '') . '
                                      </option>';
                     }
 
@@ -390,17 +390,15 @@ class FormBuilder
                 $methods .= '</select>';
             }
 
-            $methods .= '<input type="hidden" id="rfmp_checkbox_hidden_' . $post . '" name="rfmp_checkbox_hidden_' .
-                        $post . '" value="0">';
+            $methods .= '<input type="hidden" id="rfmp_checkbox_hidden_' . $post . '" name="rfmp_checkbox_hidden_' . $post . '" value="0">';
             $methods .= '<br>';
             $methods .= '<label id="rfmp_checkbox_' . $post . '" style="display:none;">
-                            <input type="checkbox" name="rfmp_checkbox_' . $post . '" value="1">
-                            ' .
-                        __('I hereby give authorization to collect the recurring amount from my account periodically.', 'mollie-forms') . '
+                            <input type="checkbox" name="rfmp_checkbox_' . $post . '" value="1">' .
+                        esc_html__('I hereby give authorization to collect the recurring amount from my account periodically.', 'mollie-forms') . '
                          </label>';
 
         } catch (Exception $e) {
-            $methods = '<p style="color: red">' . $e->getMessage() . '</p>';
+            $methods = '<p style="color: red">' . esc_html($e->getMessage()) . '</p>';
         }
 
         return $methods;
@@ -417,8 +415,7 @@ class FormBuilder
     {
         $post = $this->postId;
 
-        $priceOptions  = $this->db->get_results("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE post_id=" .
-                                                (int) $post . " ORDER BY sort_order ASC");
+        $priceOptions  = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE post_id=%d ORDER BY sort_order ASC", $post));
         $optionDisplay = get_post_meta($post, '_rfmp_priceoptions_display', true);
         $vatSetting    = get_post_meta($post, '_rfmp_vat_setting', true);
         $shippingCosts = get_post_meta($post, '_rfmp_shipping_costs', true);
@@ -477,15 +474,15 @@ class FormBuilder
                                         onchange="mollie_forms_recurring_methods_' . $post . '();mollie_forms_' .
                           $post . '_totals();" 
                                         data-frequency="' . esc_attr($priceOption->frequency) . '" 
-                                        data-freq="' . $this->helpers->getFrequencyLabel($frequency) . '" 
-                                        data-pricetype="' . $priceOption->price_type . '" 
-                                        data-price="' . $priceOption->price . '" 
-                                        data-vat="' . $priceOption->vat . '" 
+                                        data-freq="' . esc_attr($this->helpers->getFrequencyLabel($frequency)) . '" 
+                                        data-pricetype="' . esc_attr($priceOption->price_type) . '" 
+                                        data-price="' . esc_attr($priceOption->price) . '" 
+                                        data-vat="' . esc_attr($priceOption->vat) . '" 
                                         name="rfmp_priceoptions_' . $post . '" 
                                         value="' . esc_attr($priceOption->id) . '"
                                         ' . ($formValue == $priceOption->id || $first ? ' checked' : '') . '> 
                                 ' . esc_html($priceOption->description) . ' ' .
-                          ($price || $times ? '(' . trim($price . $times) . ')' : '') . '
+                          ($price || $times ? '(' . esc_html(trim($price . $times)) . ')' : '') . '
                             </label>
                           </li>';
                 $first = false;
@@ -498,32 +495,31 @@ class FormBuilder
                                         name="rfmp_priceoptions_' . $post . '_quantity[' . $priceOption->id . ']"
                                         class="rfmp_priceoptions_' . $post . '_quantity"
                                         data-frequency="' . esc_attr($priceOption->frequency) . '" 
-                                        data-freq="' . $this->helpers->getFrequencyLabel($frequency) . '" 
-                                        data-price="' . $priceOption->price . '" 
-                                        data-vat="' . $priceOption->vat . '" 
+                                        data-freq="' . esc_attr($this->helpers->getFrequencyLabel($frequency)) . '" 
+                                        data-price="' . esc_attr($priceOption->price) . '" 
+                                        data-vat="' . esc_attr($priceOption->vat) . '" 
                                         onchange="mollie_forms_recurring_methods_' . $post . '();mollie_forms_' .
                              $post . '_totals();"
                                         min="0"
-                                        ' . ($priceOption->stock > 0 ? 'max="' . $priceOption->stock . '"' : '') . '
+                                        ' . ($priceOption->stock > 0 ? 'max="' . esc_attr($priceOption->stock) . '"' : '') . '
                                         value="0">
                             </td>
                             <td>
                                 <strong>' . esc_html($priceOption->description) . '</strong><br>
-                                <small>' . trim($price . $times) . '</small>
+                                <small>' . esc_html(trim($price . $times)) . '</small>
                             </td>
                           </tr>';
                 }
             } else {
                 // dropdown view
                 $html .= '<option   data-frequency="' . esc_attr($priceOption->frequency) . '" 
-                                    data-freq="' . $this->helpers->getFrequencyLabel($frequency) . '" 
-                                    data-pricetype="' . $priceOption->price_type . '" 
-                                    data-price="' . $priceOption->price . '" 
-                                    data-vat="' . $priceOption->vat . '" 
-                                    value="' . esc_attr($priceOption->id) . '"
-                                    ' . ($formValue == $priceOption->id ? ' selected' : '') . '>
+                                    data-freq="' . esc_attr($this->helpers->getFrequencyLabel($frequency)) . '" 
+                                    data-pricetype="' . esc_attr($priceOption->price_type) . '" 
+                                    data-price="' . esc_attr($priceOption->price) . '" 
+                                    data-vat="' . esc_attr($priceOption->vat) . '" 
+                                    value="' . esc_attr($priceOption->id) . '" ' . ($formValue == $priceOption->id ? ' selected' : '') . '>
                                 ' . esc_html($priceOption->description) .
-                         ($price || $times ? ' (' . trim($price . $times) . ')' : '') . '
+                         ($price || $times ? ' (' . esc_html(trim($price . $times)) . ')' : '') . '
                           </option>';
             }
         }
@@ -540,13 +536,11 @@ class FormBuilder
         $html .= '<p id="rfmp_open_amount_' . $post . '" style="display:none;">
                     <label>' . esc_html__('Amount', 'mollie-forms') . ' 
                         <span style="color:red;">*</span><br>
-                        <span class="rfmp_currency_' . $post . '">' . $symbol . '</span> 
-                        <input type="number" step="any" value="' . esc_attr($formValueAmount) .
-                 '" onchange="mollie_forms_' . $post . '_totals();" name="rfmp_amount_' . $post . '"> 
+                        <span class="rfmp_currency_' . $post . '">' . esc_html($symbol) . '</span> 
+                        <input type="number" step="any" value="' . esc_attr($formValueAmount) . '" onchange="mollie_forms_' . $post . '_totals();" name="rfmp_amount_' . $post . '"> 
                         <span id="rfmp_amount_freq_' . $post . '"></span>
                     </label>
-                    <input type="hidden" name="rfmp_amount_required_' . $post . '" id="rfmp_open_amount_required_' .
-                 $post . '" value="0">
+                    <input type="hidden" name="rfmp_amount_required_' . $post . '" id="rfmp_open_amount_required_' . $post . '" value="0">
                   </p>';
 
         $html .= '
@@ -691,27 +685,27 @@ class FormBuilder
         // display shipping costs
         if ($shippingCosts) {
             $html .= '<tr>
-                        <td>' . __('Shipping costs', 'mollie-forms') . '</td>
-                        <td>' . $symbol . ' ' . number_format(str_replace(',', '.', $shippingCosts), 2, ',', '') . '</td>
+                        <td>' . esc_html__('Shipping costs', 'mollie-forms') . '</td>
+                        <td>' . esc_html($symbol . ' ' . number_format(str_replace(',', '.', $shippingCosts), 2, ',', '')) . '</td>
                       </tr>';
         }
 
         // check if prices are excl VAT
         if ($vatSetting == 'excl') {
             $html .= '<tr id="rfmp_totals_' . $post . '_subtotal">
-                        <td>' . __('Subtotal', 'mollie-forms') . '</td>
-                        <td>' . $symbol . ' <span id="rfmp_totals_' . $post . '_subtotal_value"></span></td>
+                        <td>' . esc_html__('Subtotal', 'mollie-forms') . '</td>
+                        <td>' . esc_html($symbol) . ' <span id="rfmp_totals_' . $post . '_subtotal_value"></span></td>
                       </tr>';
 
             $html .= '<tr id="rfmp_totals_' . $post . '_vat">
-                        <td>' . __('VAT', 'mollie-forms') . '</td>
-                        <td>' . $symbol . ' <span id="rfmp_totals_' . $post . '_vat_value"></span></td>
+                        <td>' . esc_html__('VAT', 'mollie-forms') . '</td>
+                        <td>' . esc_html__($symbol) . ' <span id="rfmp_totals_' . $post . '_vat_value"></span></td>
                       </tr>';
         }
 
         $html .= '<tr id="rfmp_totals_' . $post . '_total">
-                    <td><strong>' . __('Total', 'mollie-forms') . '</strong></td>
-                    <td><strong>' . $symbol . ' <span id="rfmp_totals_' . $post . '_total_value"></span></strong></td>
+                    <td><strong>' . esc_html__('Total', 'mollie-forms') . '</strong></td>
+                    <td><strong>' . esc_html($symbol) . ' <span id="rfmp_totals_' . $post . '_total_value"></span></strong></td>
                   </tr>';
 
 

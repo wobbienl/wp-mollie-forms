@@ -277,15 +277,15 @@ class Webhook
 
                     // update subscription in database with Mollie data
                     $this->db->update($subsTable, [
-                        'subscription_id' => $subscription->id,
-                        'sub_mode'        => $subscription->mode,
-                        'sub_currency'    => $subscription->amount->currency,
-                        'sub_amount'      => $subscription->amount->value,
-                        'sub_times'       => $subscription->times,
-                        'sub_interval'    => $subscription->interval,
-                        'sub_description' => $subscription->description,
-                        'sub_method'      => $subscription->method,
-                        'sub_status'      => $subscription->status,
+                        'subscription_id' => esc_sql(sanitize_text_field($subscription->id)),
+                        'sub_mode'        => esc_sql(sanitize_text_field($subscription->mode)),
+                        'sub_currency'    => esc_sql(sanitize_text_field($subscription->amount->currency)),
+                        'sub_amount'      => esc_sql(sanitize_text_field($subscription->amount->value)),
+                        'sub_times'       => esc_sql(sanitize_text_field($subscription->times)),
+                        'sub_interval'    => esc_sql(sanitize_text_field($subscription->interval)),
+                        'sub_description' => esc_sql(sanitize_text_field($subscription->description)),
+                        'sub_method'      => esc_sql(sanitize_text_field($subscription->method)),
+                        'sub_status'      => esc_sql(sanitize_text_field($subscription->status)),
                     ], [
                         'id' => $subId,
                     ]);
@@ -296,7 +296,7 @@ class Webhook
 
         } catch (Exception $e) {
             //status_header(500);
-            return "API call failed: " . $e->getMessage();
+            return "API call failed: " . esc_html($e->getMessage());
         }
     }
 
@@ -319,19 +319,18 @@ class Webhook
         $symbol     = $this->helpers->getCurrencySymbol($currency);
         $vatSetting = get_post_meta($post, '_rfmp_vat_setting', true);
 
-        $registration = $this->db->get_row("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE id=" .
-                                           (int) $registrationId);
+        $registration = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE id=%d", $registrationId));
 
         $priceOptionString   = [];
         $priceOptionInterval = null;
         $priceOptionTable    = '<table style="width:100%"><tr><td></td><td><strong>' .
-                               __('Description', 'mollie-forms') . '</strong></td><td><strong>' .
-                               __('Price', 'mollie-forms') . '</strong></td><td><strong>' .
-                               __('Subtotal', 'mollie-forms') . '</strong></td></tr>';
+                               esc_html__('Description', 'mollie-forms') . '</strong></td><td><strong>' .
+                               esc_html__('Price', 'mollie-forms') . '</strong></td><td><strong>' .
+                               esc_html__('Subtotal', 'mollie-forms') . '</strong></td></tr>';
         $priceOptionTableVat = '<table style="width:100%"><tr><td></td><td><strong>' .
-                               __('Description', 'mollie-forms') . '</strong></td><td><strong>' .
-                               __('Price', 'mollie-forms') . '</strong></td><td><strong>' . __('VAT', 'mollie-forms') .
-                               '</strong></td><td><strong>' . __('Subtotal', 'mollie-forms') . '</strong></td></tr>';
+                               esc_html__('Description', 'mollie-forms') . '</strong></td><td><strong>' .
+                               esc_html__('Price', 'mollie-forms') . '</strong></td><td><strong>' . esc_html__('VAT', 'mollie-forms') .
+                               '</strong></td><td><strong>' . esc_html__('Subtotal', 'mollie-forms') . '</strong></td></tr>';
 
         $subtotal = 0;
         $total    = 0;
@@ -427,8 +426,7 @@ class Webhook
             $registrationId,
         ];
 
-        $fields = $this->db->get_results("SELECT * FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE registration_id=" .
-                                         (int) $registrationId);
+        $fields = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE registration_id=%d", $registrationId));
         foreach ($fields as $row) {
             if ($row->type === 'email') {
                 $data['to_email'] = $row->value;
@@ -438,7 +436,7 @@ class Webhook
             $search[]          = '{rfmp="' . trim($row->field) . '"}';
 
             if ($row->type === 'checkbox') {
-                $replace[] = $row->value === '1' ? __('Yes', 'mollie-forms') : __('No', 'mollie-forms');
+                $replace[] = $row->value === '1' ? esc_html__('Yes', 'mollie-forms') : esc_html__('No', 'mollie-forms');
             } else {
                 $replace[] = $row->value;
             }
@@ -463,7 +461,7 @@ class Webhook
             $to = $data['to_email'];
         }
 
-        $headers[] = 'From: ' . $fromname . ' <' . $fromemail[0] . '>';
+        $headers[] = 'From: ' . sanitize_text_field($fromname) . ' <' . sanitize_email($fromemail[0]) . '>';
         $headers[] = 'Content-Type: text/html; charset=UTF-8';
 
         wp_mail($to, $subject, $email, $headers);
