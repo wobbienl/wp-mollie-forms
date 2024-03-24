@@ -698,7 +698,7 @@ class Admin
         $table->prepare_items();
 
         if (isset($_GET['post'])) {
-            $post = get_post($_GET['post']);
+            $post = get_post(sanitize_text_field($_GET['post']));
         }
 
         if (isset($_GET['msg'])) {
@@ -809,31 +809,31 @@ class Admin
         $priceOptions  = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationPriceOptionsTable()} WHERE registration_id=%d", $id));
 
         // Cancel subscription
-        if (isset($_GET['cancel']) && check_admin_referer('cancel-sub_' . $_GET['cancel'])) {
+        if (isset($_GET['cancel']) && check_admin_referer('cancel-sub_' . esc_html(sanitize_text_field($_GET['cancel'])))) {
             try {
                 $mollie->delete('customers/' . sanitize_text_field($registration->customer_id) . '/subscriptions/' . sanitize_text_field($_GET['cancel']));
                 $this->db->update($subsTable, [
                         'sub_status' => 'cancelled',
                 ], [
-                        'subscription_id' => $_GET['cancel'],
+                        'subscription_id' => (int) sanitize_text_field($_GET['cancel']),
                 ]);
 
-                wp_redirect('?post_type=' . $_REQUEST['post_type'] . '&page=' . $_REQUEST['page'] . '&view=' . $_REQUEST['view'] . '&msg=cancel-ok');
+                wp_redirect('?post_type=' . esc_url(sanitize_text_field($_REQUEST['post_type'])) . '&page=' . esc_url(sanitize_text_field($_REQUEST['page'])) . '&view=' . esc_url(sanitize_text_field($_REQUEST['view'])) . '&msg=cancel-ok');
             } catch (Exception $e) {
                 echo '<div class="error notice">' . esc_html($e->getMessage()) . '</div>';
             }
         }
 
         // Refund payment
-        if (isset($_GET['refund']) && check_admin_referer('refund-payment_' . esc_html($_GET['refund']))) {
+        if (isset($_GET['refund']) && check_admin_referer('refund-payment_' . esc_html(sanitize_text_field($_GET['refund'])))) {
             try {
                 if (substr($_GET['refund'], 0, 3) == 'ord') {
-                    $mollie->post('orders/' . $_GET['refund'] . '/refunds', [
+                    $mollie->post('orders/' . esc_url(sanitize_text_field($_GET['refund'])) . '/refunds', [
                             'lines' => [],
                     ]);
                 } else {
-                    $payment = $mollie->get('payments/' . sanitize_text_field($_GET['refund']));
-                    $mollie->post('payments/' . $payment->id . '/refunds', [
+                    $payment = $mollie->get('payments/' . esc_url(sanitize_text_field($_GET['refund'])));
+                    $mollie->post('payments/' . esc_url(sanitize_text_field($payment->id)) . '/refunds', [
                             'amount' => [
                                     'currency' => $payment->amount->currency,
                                     'value'    => $payment->amount->value,
@@ -844,15 +844,15 @@ class Admin
                 $this->db->update($this->mollieForms->getPaymentsTable(), [
                         'payment_status' => 'refunded',
                 ], [
-                        'payment_id' => $_GET['refund'],
+                        'payment_id' => esc_sql(sanitize_text_field($_GET['refund'])),
                 ]);
 
-                wp_redirect('?post_type=' . $_REQUEST['post_type'] . '&page=' . $_REQUEST['page'] . '&view=' .
-                            $_REQUEST['view'] . '&msg=refund-ok');
+                wp_redirect('?post_type=' . esc_url(sanitize_text_field($_REQUEST['post_type'])) . '&page=' . esc_url(sanitize_text_field($_REQUEST['page'])) . '&view=' .
+                            esc_url(sanitize_text_field($_REQUEST['view'])) . '&msg=refund-ok');
 
             } catch (Exception $e) {
-                wp_redirect('?post_type=' . $_REQUEST['post_type'] . '&page=' . $_REQUEST['page'] . '&view=' .
-                            $_REQUEST['view'] . '&msg=refund-nok');
+                wp_redirect('?post_type=' . esc_url(sanitize_text_field($_REQUEST['post_type'])) . '&page=' . esc_url(sanitize_text_field($_REQUEST['page'])) . '&view=' .
+                            esc_url(sanitize_text_field($_REQUEST['view'])) . '&msg=refund-nok');
             }
         }
 
@@ -905,7 +905,7 @@ class Admin
      */
     public function exportRegistrations()
     {
-        $postId = $_GET['post'];
+        $postId = (int) sanitize_text_field($_GET['post']);
 
 	    if (!current_user_can('edit_post', $postId)) {
 		    return;
@@ -992,7 +992,7 @@ class Admin
 
     public function duplicateForm()
     {
-        $postId = $_GET['post'];
+        $postId = (int) sanitize_text_field($_GET['post']);
 
 	    if (!current_user_can('edit_post', $postId)) {
 		    return;

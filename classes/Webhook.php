@@ -88,7 +88,7 @@ class Webhook
         try {
             $post   = $query->query_vars['post_id'];
             $apiKey = get_post_meta($post, '_rfmp_api_key', true);
-            $id     = $_POST['id'];
+            $id     = sanitize_text_field($_POST['id']);
 
             $webhook    = get_home_url(null, $this->mollieForms->getWebhookUrl() . $post);
             $vatSetting = get_post_meta($post, '_rfmp_vat_setting', true);

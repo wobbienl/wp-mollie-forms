@@ -195,7 +195,7 @@ class FormBuilder
         $fixed     = get_post_meta($post, '_rfmp_payment_method_fixed', true);
         $variable  = get_post_meta($post, '_rfmp_payment_method_variable', true);
         $display   = get_post_meta($post, '_rfmp_payment_methods_display', true);
-        $formValue = isset($_POST['rfmp_payment_method']) ? $_POST['rfmp_payment_method'] : '';
+        $formValue = isset($_POST['rfmp_payment_method']) ? sanitize_text_field($_POST['rfmp_payment_method']) : '';
 
         $locale = get_post_meta($post, '_rfmp_locale', true) ?: null;
         if (!$locale && key_exists(get_locale(), $this->helpers->getLocales())) {
@@ -424,10 +424,10 @@ class FormBuilder
         $decimals = $this->helpers->getCurrencies($currency);
         $symbol   = $this->helpers->getCurrencySymbol($currency);
 
-        $formValue       = isset($_POST['rfmp_priceoptions_' . $post]) ? $_POST['rfmp_priceoptions_' . $post] :
-            (isset($_GET['form_' . $post . '_priceoption']) ? $_GET['form_' . $post . '_priceoption'] : '');
-        $formValueAmount = isset($_POST['rfmp_amount_' . $post]) ? $_POST['rfmp_amount_' . $post] :
-            (isset($_GET['form_' . $post . '_amount']) ? $_GET['form_' . $post . '_amount'] : '');
+        $formValue       = sanitize_text_field(isset($_POST['rfmp_priceoptions_' . $post]) ? $_POST['rfmp_priceoptions_' . $post] :
+	        (isset($_GET['form_' . $post . '_priceoption']) ? $_GET['form_' . $post . '_priceoption'] : ''));
+        $formValueAmount = sanitize_text_field(isset($_POST['rfmp_amount_' . $post]) ? $_POST['rfmp_amount_' . $post] :
+	        (isset($_GET['form_' . $post . '_amount']) ? $_GET['form_' . $post . '_amount'] : ''));
 
 
         $html  = '';

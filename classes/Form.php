@@ -66,7 +66,7 @@ class Form
         }
 
         if (isset($_GET['payment'])) {
-            return $this->processRedirect($post->ID, $_GET['payment']);
+            return $this->processRedirect($post->ID, sanitize_text_field($_GET['payment']));
         }
 
         $locale    = get_post_meta($post->ID, '_rfmp_locale', true) ?: 'nl_NL';
@@ -235,8 +235,8 @@ class Form
 
                 $name_field        = array_search('name', $field_type);
                 $email_field       = array_search('email', $field_type);
-                $name_field_value  = trim($_POST['form_' . $postId . '_field_' . $name_field]);
-                $email_field_value = trim($_POST['form_' . $postId . '_field_' . $email_field]);
+                $name_field_value  = sanitize_text_field(trim($_POST['form_' . $postId . '_field_' . $name_field]));
+                $email_field_value = sanitize_email(trim($_POST['form_' . $postId . '_field_' . $email_field]));
 
                 $locale   = get_post_meta($postId, '_rfmp_locale', true) ?: null;
                 $currency = get_post_meta($postId, '_rfmp_currency', true) ?: 'EUR';
@@ -275,19 +275,19 @@ class Form
 
                         $option         = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE id=%d", $optionId));
                         $priceOptions[] = [
-                            'option'   => $option,
+                            'option'   => sanitize_text_field($option),
                             'quantity' => $quantity,
                         ];
-                        $optionsDesc[]  = $quantity . 'x ' . $option->description;
+                        $optionsDesc[]  = sanitize_text_field($quantity . 'x ' . $option->description);
                     }
                 } else {
                     // single price option
                     $option         = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE id=%d", $_POST['rfmp_priceoptions_' . $postId]));
                     $priceOptions[] = [
-                        'option'   => $option,
+                        'option'   => sanitize_text_field($option),
                         'quantity' => 1,
                     ];
-                    $optionsDesc[]  = '1x ' . $option->description;
+                    $optionsDesc[]  = '1x ' . sanitize_text_field($option->description);
                 }
 
 	            if (empty($priceOptions)) {
@@ -303,7 +303,7 @@ class Form
                 foreach ($priceOptions as $priceOption) {
                     $price = $priceOption['option']->price_type == 'open' ?
                         (isset($_POST['rfmp_amount_' . $postId]) ?
-                            str_replace(',', '.', $_POST['rfmp_amount_' . $postId]) : 0) :
+                            str_replace(',', '.', sanitize_text_field($_POST['rfmp_amount_' . $postId])) : 0) :
                         $priceOption['option']->price;
 
 					if ($priceOption['option']->price_type === 'open' && $price < $priceOption['option']->price) {
@@ -363,7 +363,7 @@ class Form
 	            }
 
                 // extra payment method costs
-                $paymentMethod = $_POST['rfmp_payment_method_' . $postId];
+                $paymentMethod = sanitize_text_field($_POST['rfmp_payment_method_' . $postId]);
                 $paymentCosts  = 0;
                 $fixed         = get_post_meta($postId, '_rfmp_payment_method_fixed', true);
                 $variable      = get_post_meta($postId, '_rfmp_payment_method_variable', true);
@@ -408,9 +408,9 @@ class Form
                     }
 
                     $value = isset($_POST['form_' . $postId . '_field_' . $key]) ?
-                        $_POST['form_' . $postId . '_field_' . $key] : '';
+                        sanitize_text_field($_POST['form_' . $postId . '_field_' . $key]) : '';
                     if ($field_type[$key] === 'payment_methods') {
-                        $value = $_POST['rfmp_payment_method_' . $postId];
+                        $value = sanitize_text_field($_POST['rfmp_payment_method_' . $postId]);
                     } elseif ($field_type[$key] === 'priceoptions') {
                         $value = implode(', ', $optionsDesc);
                     } elseif ($field_type[$key] === 'file') {
@@ -511,9 +511,9 @@ class Form
                     if ($field_type[$key] != 'submit' && $field_type[$key] != 'total' &&
                         $field_type[$key] != 'priceoptions') {
                         $value = isset($_POST['form_' . $postId . '_field_' . $key]) ?
-                            $_POST['form_' . $postId . '_field_' . $key] : '';
+                            sanitize_text_field($_POST['form_' . $postId . '_field_' . $key]) : '';
                         if ($field_type[$key] === 'payment_methods') {
-                            $value = $_POST['rfmp_payment_method_' . $postId];
+                            $value = sanitize_text_field($_POST['rfmp_payment_method_' . $postId]);
                         } elseif ($field_type[$key] === 'file' && !empty($_FILES['form_' . $postId . '_field_' . $key]['tmp_name'])) {
 	                        $value = $_FILES['form_' . $postId . '_field_' . $key];
 
@@ -558,7 +558,7 @@ class Form
                 foreach ($priceOptions as $priceOption) {
                     $price = $priceOption['option']->price_type == 'open' ?
                         (isset($_POST['rfmp_amount_' . $postId]) ?
-                            str_replace(',', '.', $_POST['rfmp_amount_' . $postId]) : 0) :
+                            str_replace(',', '.', sanitize_text_field($_POST['rfmp_amount_' . $postId])) : 0) :
                         $priceOption['option']->price;
 
                     $this->db->insert($this->mollieForms->getRegistrationPriceOptionsTable(), [
@@ -633,13 +633,10 @@ class Form
 
                     $addressName = explode(' ', $customer->name, 2);
 
-                    $addressSN      = trim($_POST['form_' . $postId . '_field_' .
-                                                  array_search('address', $field_type)]);
-                    $addressPC      = trim($_POST['form_' . $postId . '_field_' .
-                                                  array_search('postalCode', $field_type)]);
-                    $addressCity    = trim($_POST['form_' . $postId . '_field_' . array_search('city', $field_type)]);
-                    $addressCountry = trim($_POST['form_' . $postId . '_field_' .
-                                                  array_search('country', $field_type)]);
+                    $addressSN      = trim(sanitize_text_field($_POST['form_' . $postId . '_field_' . array_search('address', $field_type)]));
+                    $addressPC      = trim(sanitize_text_field($_POST['form_' . $postId . '_field_' . array_search('postalCode', $field_type)]));
+                    $addressCity    = trim(sanitize_text_field($_POST['form_' . $postId . '_field_' . array_search('city', $field_type)]));
+                    $addressCountry = trim(sanitize_text_field($_POST['form_' . $postId . '_field_' . array_search('country', $field_type)]));
 
 
                     $orderLines = [];
@@ -647,7 +644,7 @@ class Form
 
                         $unitPrice   = $priceOption['option']->price_type == 'open' ?
                             (isset($_POST['rfmp_amount_' . $postId]) ?
-                                str_replace(',', '.', $_POST['rfmp_amount_' . $postId]) : 0) :
+                                str_replace(',', '.', sanitize_text_field($_POST['rfmp_amount_' . $postId])) : 0) :
                             $priceOption['option']->price;
                         $totalAmount = ((float) $unitPrice) * $priceOption['quantity'];
                         $vatRate     = $priceOption['option']->vat ?: 21;
@@ -869,7 +866,7 @@ class Form
                 ]);
             }
 
-            return '<p style="color: red">' . $e->getMessage() . ' <a href="javascript: window.history.go(-1)">' . __('Go back', 'mollie-forms') . '</a></p>';
+            return '<p style="color: red">' . esc_html($e->getMessage()) . ' <a href="javascript: window.history.go(-1)">' . esc_html__('Go back', 'mollie-forms') . '</a></p>';
         }
     }
 

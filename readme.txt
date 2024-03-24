@@ -5,7 +5,7 @@ Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 5.3
 Requires PHP: 7.0
 Tested up to: 6.4.3
-Stable tag: 2.6.8
+Stable tag: 2.6.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,15 +81,18 @@ The following action hooks with parameters are available:
 
 == Changelog ==
 
+= 2.6.9 - 24/03/2024 =
+* Add more escaping and sanitization
+
 = 2.6.8 - 24/03/2024 =
-* Add more escaping and sanitation
+* Add more escaping and sanitization
 
 = 2.6.7 - 21/03/2024 =
 * Add nonces to admin form actions
-* Add more escaping and sanitation
+* Add more escaping and sanitization
 
 = 2.6.6 - 19/03/2024 =
-* Added sanitation and escaping to output
+* Added sanitization and escaping to output
 * Added 3rd Party Services to readme
 
 = 2.6.5 - 12/03/2024 =
