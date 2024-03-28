@@ -110,8 +110,7 @@ class FormBuilder
                 break;
             case 'checkbox':
                 $html = '<input type="hidden" name="' . esc_attr($atts['name']) .
-                        '" value="0"><input type="checkbox" value="1" ' . $this->buildAtts($atts, ['value']) . '> ' .
-                        esc_html($this->getLabel());
+                        '" value="0"><input type="checkbox" value="1" ' . $this->buildAtts($atts, ['value']) . '> ' . $this->getLabel();
                 break;
             case 'textarea':
                 $html = '<textarea ' . $this->buildAtts($atts, ['value']) . ' style="width: 100%">' .
@@ -149,7 +148,7 @@ class FormBuilder
                 if ($this->recaptchaSiteKey) {
 					$html = '<input type="hidden" id="rfmp_' . $this->postId . '_token" name="token" value="">';
                     $html .= '<br><button type="button" onclick="onSubmit' . $this->postId . '(event)" data-action="submit" ' .
-                             $this->buildAtts($atts) . '>' . esc_html($atts['label']) . '</button>';
+                             $this->buildAtts($atts) . '>' . $atts['label'] . '</button>';
                 }
                 break;
             case 'file':
@@ -173,7 +172,7 @@ class FormBuilder
         $this->form .= '<p>';
 
         if ($type != 'submit' && $type != 'checkbox' && $visible) {
-            $this->form .= esc_html($this->getLabel()) . '<br>';
+            $this->form .= $this->getLabel() . '<br>';
         }
 
         $this->form .= $html;

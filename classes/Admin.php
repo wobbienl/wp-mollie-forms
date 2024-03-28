@@ -548,15 +548,15 @@ class Admin
             }
         }
 
-        update_post_meta($postId, '_rfmp_fields_type', sanitize_text_field($_POST['rfmp_fields_type']));
-        update_post_meta($postId, '_rfmp_fields_label', sanitize_text_field($_POST['rfmp_fields_label']));
-        update_post_meta($postId, '_rfmp_fields_value', sanitize_text_field($_POST['rfmp_fields_value']));
-        update_post_meta($postId, '_rfmp_fields_class', sanitize_text_field($_POST['rfmp_fields_class']));
-        update_post_meta($postId, '_rfmp_fields_required', sanitize_text_field($_POST['rfmp_fields_required']));
+        update_post_meta($postId, '_rfmp_fields_type', $_POST['rfmp_fields_type']);
+        update_post_meta($postId, '_rfmp_fields_label', $_POST['rfmp_fields_label']);
+        update_post_meta($postId, '_rfmp_fields_value', $_POST['rfmp_fields_value']);
+        update_post_meta($postId, '_rfmp_fields_class', $_POST['rfmp_fields_class']);
+        update_post_meta($postId, '_rfmp_fields_required', $_POST['rfmp_fields_required']);
 
-        update_post_meta($postId, '_rfmp_payment_method', sanitize_text_field($_POST['rfmp_payment_method']));
-        update_post_meta($postId, '_rfmp_payment_method_fixed', sanitize_text_field($_POST['rfmp_payment_method_fixed']));
-        update_post_meta($postId, '_rfmp_payment_method_variable', sanitize_text_field($_POST['rfmp_payment_method_variable']));
+        update_post_meta($postId, '_rfmp_payment_method', $_POST['rfmp_payment_method']);
+        update_post_meta($postId, '_rfmp_payment_method_fixed', $_POST['rfmp_payment_method_fixed']);
+        update_post_meta($postId, '_rfmp_payment_method_variable', $_POST['rfmp_payment_method_variable']);
 
         update_post_meta($postId, '_rfmp_enabled_paid_customer', sanitize_text_field($_POST['rfmp_enabled_paid_customer']));
         update_post_meta($postId, '_rfmp_email_paid_customer', sanitize_textarea_field($_POST['rfmp_email_paid_customer']));

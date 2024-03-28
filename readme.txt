@@ -81,6 +81,9 @@ The following action hooks with parameters are available:
 
 == Changelog ==
 
+= 2.6.10 - 28/03/2024 =
+* Fixed form fields display
+
 = 2.6.9 - 24/03/2024 =
 * Add more escaping and sanitization
 

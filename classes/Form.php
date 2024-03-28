@@ -73,7 +73,7 @@ class Form
         $formClass = get_post_meta($post->ID, '_rfmp_class_form', true);
         $builder   = new FormBuilder($post->ID, $formClass);
 
-        $fields = get_post_meta($post->ID, '_rfmp_fields_type', true);
+        $fields = get_post_meta($post->ID, '_rfmp_fields_type', true) ?: [];
 
         foreach ($fields as $key => $type) {
             $label        = get_post_meta($post->ID, '_rfmp_fields_label', true);
