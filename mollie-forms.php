@@ -3,7 +3,7 @@
 /*
 Plugin Name: Mollie Forms
 Description: Create registration forms with payment methods of Mollie. One-time and recurring payments are possible.
-Version: 2.6.11
+Version: 2.6.12
 Author: Wobbie.nl
 Author URI: https://wobbie.nl
 Text Domain: mollie-forms

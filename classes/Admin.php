@@ -181,13 +181,12 @@ class Admin
         if ($post->post_type == 'mollie-forms') {
             unset($actions['inline hide-if-no-js']);
             unset($actions['view']);
-            $actions['registrations'] = '<a href="edit.php?post_type=mollie-forms&page=registrations&post=' .
-                                        $post->ID . '">' . __('Registrations', 'mollie-forms') . '</a>';
+            $actions['registrations'] = '<a href="' . wp_nonce_url(admin_url('edit.php?post_type=mollie-forms&page=registrations&post=' . $post->ID), 'search-mollie-forms-registrations') . '">' . __('Registrations', 'mollie-forms') . '</a>';
             $actions['export']        = '<a href="' .
-                                        admin_url('admin-post.php?action=mollie-forms_export&post=' . $post->ID) .
+                                        wp_nonce_url(admin_url('admin-post.php?action=mollie-forms_export&post=' . $post->ID), 'search-mollie-forms-registrations') .
                                         '">' . __('Export', 'mollie-forms') . '</a>';
             $actions['duplicate']     = '<a href="' .
-                                        admin_url('admin-post.php?action=mollie-forms_duplicate&post=' . $post->ID) .
+                                        wp_nonce_url(admin_url('admin-post.php?action=mollie-forms_duplicate&post=' . $post->ID), 'duplicate-mollie-forms-form') .
                                         '">' . __('Duplicate', 'mollie-forms') . '</a>';
         }
         return $actions;

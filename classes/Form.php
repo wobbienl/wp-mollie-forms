@@ -889,7 +889,7 @@ class Form
 
 		$mollie = new MollieApi($apiKey);
 
-        $payment      = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getPaymentsTable()} WHERE rfmp_id=%d", $rfmpId));
+        $payment      = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getPaymentsTable()} WHERE rfmp_id=%s", $rfmpId));
         $registration = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationsTable()} WHERE id=%d", $payment->registration_id));
         if ($payment == null || $registration == null) {
             echo '<p class="' . esc_attr($errorClass) . '">' . esc_html__('No payment found', 'mollie-forms') . '</p>';
