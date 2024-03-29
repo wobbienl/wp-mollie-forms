@@ -275,7 +275,7 @@ class Form
 
                         $option         = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE id=%d", $optionId));
                         $priceOptions[] = [
-                            'option'   => sanitize_text_field($option),
+                            'option'   => $option,
                             'quantity' => $quantity,
                         ];
                         $optionsDesc[]  = sanitize_text_field($quantity . 'x ' . $option->description);
@@ -284,7 +284,7 @@ class Form
                     // single price option
                     $option         = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE id=%d", $_POST['rfmp_priceoptions_' . $postId]));
                     $priceOptions[] = [
-                        'option'   => sanitize_text_field($option),
+                        'option'   => $option,
                         'quantity' => 1,
                     ];
                     $optionsDesc[]  = '1x ' . sanitize_text_field($option->description);
@@ -897,13 +897,13 @@ class Form
 			try {
 				$id = $payment->payment_id;
 				if (substr($id, 0, 3) == 'ord') {
-					$order = $mollie->get('orders/' . esc_url(sanitize_text_field($id)) . '?embed=payments');
+					$order = $mollie->get('orders/' . esc_html(sanitize_text_field($id)) . '?embed=payments');
 					foreach ($order->_embedded->payments as $p) {
 						$molliePayment = $p;
 						break;
 					}
 				} else {
-					$molliePayment = $mollie->get('payments/' . esc_url(sanitize_text_field($id)));
+					$molliePayment = $mollie->get('payments/' . esc_html(sanitize_text_field($id)));
 				}
 			} catch (Exception $e) {
 				return '<p class="' . esc_attr($errorClass) . '">' . esc_html($e->getMessage()) . '</p>';

@@ -558,49 +558,49 @@ class Admin
         update_post_meta($postId, '_rfmp_payment_method_fixed', $_POST['rfmp_payment_method_fixed']);
         update_post_meta($postId, '_rfmp_payment_method_variable', $_POST['rfmp_payment_method_variable']);
 
-        update_post_meta($postId, '_rfmp_enabled_paid_customer', sanitize_text_field($_POST['rfmp_enabled_paid_customer']));
-        update_post_meta($postId, '_rfmp_email_paid_customer', sanitize_textarea_field($_POST['rfmp_email_paid_customer']));
-        update_post_meta($postId, '_rfmp_subject_paid_customer', sanitize_text_field($_POST['rfmp_subject_paid_customer']));
-        update_post_meta($postId, '_rfmp_fromname_paid_customer', sanitize_text_field($_POST['rfmp_fromname_paid_customer']));
+        update_post_meta($postId, '_rfmp_enabled_paid_customer', ($_POST['rfmp_enabled_paid_customer']));
+        update_post_meta($postId, '_rfmp_email_paid_customer', $_POST['rfmp_email_paid_customer']);
+        update_post_meta($postId, '_rfmp_subject_paid_customer', ($_POST['rfmp_subject_paid_customer']));
+        update_post_meta($postId, '_rfmp_fromname_paid_customer', ($_POST['rfmp_fromname_paid_customer']));
         update_post_meta($postId, '_rfmp_fromemail_paid_customer', sanitize_email($_POST['rfmp_fromemail_paid_customer']));
-        update_post_meta($postId, '_rfmp_enabled_expired_customer', sanitize_text_field($_POST['rfmp_enabled_expired_customer']));
-        update_post_meta($postId, '_rfmp_email_expired_customer', sanitize_textarea_field($_POST['rfmp_email_expired_customer']));
-        update_post_meta($postId, '_rfmp_subject_expired_customer', sanitize_text_field($_POST['rfmp_subject_expired_customer']));
-        update_post_meta($postId, '_rfmp_fromname_expired_customer', sanitize_text_field($_POST['rfmp_fromname_expired_customer']));
+        update_post_meta($postId, '_rfmp_enabled_expired_customer', ($_POST['rfmp_enabled_expired_customer']));
+        update_post_meta($postId, '_rfmp_email_expired_customer', ($_POST['rfmp_email_expired_customer']));
+        update_post_meta($postId, '_rfmp_subject_expired_customer', ($_POST['rfmp_subject_expired_customer']));
+        update_post_meta($postId, '_rfmp_fromname_expired_customer', ($_POST['rfmp_fromname_expired_customer']));
         update_post_meta($postId, '_rfmp_fromemail_expired_customer', sanitize_email($_POST['rfmp_fromemail_expired_customer']));
-        update_post_meta($postId, '_rfmp_enabled_cancelled_customer', sanitize_text_field($_POST['rfmp_enabled_cancelled_customer']));
-        update_post_meta($postId, '_rfmp_email_cancelled_customer', sanitize_textarea_field($_POST['rfmp_email_cancelled_customer']));
-        update_post_meta($postId, '_rfmp_subject_cancelled_customer', sanitize_text_field($_POST['rfmp_subject_cancelled_customer']));
-        update_post_meta($postId, '_rfmp_fromname_cancelled_customer', sanitize_text_field($_POST['rfmp_fromname_cancelled_customer']));
+        update_post_meta($postId, '_rfmp_enabled_cancelled_customer', ($_POST['rfmp_enabled_cancelled_customer']));
+        update_post_meta($postId, '_rfmp_email_cancelled_customer', ($_POST['rfmp_email_cancelled_customer']));
+        update_post_meta($postId, '_rfmp_subject_cancelled_customer', ($_POST['rfmp_subject_cancelled_customer']));
+        update_post_meta($postId, '_rfmp_fromname_cancelled_customer', ($_POST['rfmp_fromname_cancelled_customer']));
         update_post_meta($postId, '_rfmp_fromemail_cancelled_customer', sanitize_email($_POST['rfmp_fromemail_cancelled_customer']));
-        update_post_meta($postId, '_rfmp_enabled_chargedback_customer', sanitize_text_field($_POST['rfmp_enabled_chargedback_customer']));
-        update_post_meta($postId, '_rfmp_email_chargedback_customer', sanitize_textarea_field($_POST['rfmp_email_chargedback_customer']));
-        update_post_meta($postId, '_rfmp_subject_chargedback_customer', sanitize_text_field($_POST['rfmp_subject_chargedback_customer']));
-        update_post_meta($postId, '_rfmp_fromname_chargedback_customer', sanitize_text_field($_POST['rfmp_fromname_chargedback_customer']));
+        update_post_meta($postId, '_rfmp_enabled_chargedback_customer', ($_POST['rfmp_enabled_chargedback_customer']));
+        update_post_meta($postId, '_rfmp_email_chargedback_customer', ($_POST['rfmp_email_chargedback_customer']));
+        update_post_meta($postId, '_rfmp_subject_chargedback_customer', ($_POST['rfmp_subject_chargedback_customer']));
+        update_post_meta($postId, '_rfmp_fromname_chargedback_customer', ($_POST['rfmp_fromname_chargedback_customer']));
         update_post_meta($postId, '_rfmp_fromemail_chargedback_customer', sanitize_email($_POST['rfmp_fromemail_chargedback_customer']));
 
-        update_post_meta($postId, '_rfmp_enabled_paid_merchant', sanitize_text_field($_POST['rfmp_enabled_paid_merchant']));
-        update_post_meta($postId, '_rfmp_email_paid_merchant', sanitize_textarea_field($_POST['rfmp_email_paid_merchant']));
-        update_post_meta($postId, '_rfmp_subject_paid_merchant', sanitize_text_field($_POST['rfmp_subject_paid_merchant']));
-        update_post_meta($postId, '_rfmp_fromname_paid_merchant', sanitize_text_field($_POST['rfmp_fromname_paid_merchant']));
+        update_post_meta($postId, '_rfmp_enabled_paid_merchant', ($_POST['rfmp_enabled_paid_merchant']));
+        update_post_meta($postId, '_rfmp_email_paid_merchant', ($_POST['rfmp_email_paid_merchant']));
+        update_post_meta($postId, '_rfmp_subject_paid_merchant', ($_POST['rfmp_subject_paid_merchant']));
+        update_post_meta($postId, '_rfmp_fromname_paid_merchant', ($_POST['rfmp_fromname_paid_merchant']));
         update_post_meta($postId, '_rfmp_fromemail_paid_merchant', sanitize_email($_POST['rfmp_fromemail_paid_merchant']));
         update_post_meta($postId, '_rfmp_toemail_paid_merchant', sanitize_email($_POST['rfmp_toemail_paid_merchant']));
-        update_post_meta($postId, '_rfmp_enabled_expired_merchant', sanitize_text_field($_POST['rfmp_enabled_expired_merchant']));
-        update_post_meta($postId, '_rfmp_email_expired_merchant', sanitize_textarea_field($_POST['rfmp_email_expired_merchant']));
-        update_post_meta($postId, '_rfmp_subject_expired_merchant', sanitize_text_field($_POST['rfmp_subject_expired_merchant']));
-        update_post_meta($postId, '_rfmp_fromname_expired_merchant', sanitize_text_field($_POST['rfmp_fromname_expired_merchant']));
+        update_post_meta($postId, '_rfmp_enabled_expired_merchant', ($_POST['rfmp_enabled_expired_merchant']));
+        update_post_meta($postId, '_rfmp_email_expired_merchant', ($_POST['rfmp_email_expired_merchant']));
+        update_post_meta($postId, '_rfmp_subject_expired_merchant', ($_POST['rfmp_subject_expired_merchant']));
+        update_post_meta($postId, '_rfmp_fromname_expired_merchant', ($_POST['rfmp_fromname_expired_merchant']));
         update_post_meta($postId, '_rfmp_fromemail_expired_merchant', sanitize_email($_POST['rfmp_fromemail_expired_merchant']));
         update_post_meta($postId, '_rfmp_toemail_expired_merchant', sanitize_email($_POST['rfmp_toemail_expired_merchant']));
-        update_post_meta($postId, '_rfmp_enabled_cancelled_merchant', sanitize_text_field($_POST['rfmp_enabled_cancelled_merchant']));
-        update_post_meta($postId, '_rfmp_email_cancelled_merchant', sanitize_textarea_field($_POST['rfmp_email_cancelled_merchant']));
-        update_post_meta($postId, '_rfmp_subject_cancelled_merchant', sanitize_text_field($_POST['rfmp_subject_cancelled_merchant']));
-        update_post_meta($postId, '_rfmp_fromname_cancelled_merchant', sanitize_text_field($_POST['rfmp_fromname_cancelled_merchant']));
+        update_post_meta($postId, '_rfmp_enabled_cancelled_merchant', ($_POST['rfmp_enabled_cancelled_merchant']));
+        update_post_meta($postId, '_rfmp_email_cancelled_merchant', ($_POST['rfmp_email_cancelled_merchant']));
+        update_post_meta($postId, '_rfmp_subject_cancelled_merchant', ($_POST['rfmp_subject_cancelled_merchant']));
+        update_post_meta($postId, '_rfmp_fromname_cancelled_merchant', ($_POST['rfmp_fromname_cancelled_merchant']));
         update_post_meta($postId, '_rfmp_fromemail_cancelled_merchant', sanitize_email($_POST['rfmp_fromemail_cancelled_merchant']));
         update_post_meta($postId, '_rfmp_toemail_cancelled_merchant', sanitize_email($_POST['rfmp_toemail_cancelled_merchant']));
-        update_post_meta($postId, '_rfmp_enabled_chargedback_merchant', sanitize_text_field($_POST['rfmp_enabled_chargedback_merchant']));
-        update_post_meta($postId, '_rfmp_email_chargedback_merchant', sanitize_textarea_field($_POST['rfmp_email_chargedback_merchant']));
-        update_post_meta($postId, '_rfmp_subject_chargedback_merchant', sanitize_text_field($_POST['rfmp_subject_chargedback_merchant']));
-        update_post_meta($postId, '_rfmp_fromname_chargedback_merchant', sanitize_text_field($_POST['rfmp_fromname_chargedback_merchant']));
+        update_post_meta($postId, '_rfmp_enabled_chargedback_merchant', ($_POST['rfmp_enabled_chargedback_merchant']));
+        update_post_meta($postId, '_rfmp_email_chargedback_merchant', ($_POST['rfmp_email_chargedback_merchant']));
+        update_post_meta($postId, '_rfmp_subject_chargedback_merchant', ($_POST['rfmp_subject_chargedback_merchant']));
+        update_post_meta($postId, '_rfmp_fromname_chargedback_merchant', ($_POST['rfmp_fromname_chargedback_merchant']));
         update_post_meta($postId, '_rfmp_fromemail_chargedback_merchant', sanitize_email($_POST['rfmp_fromemail_chargedback_merchant']));
         update_post_meta($postId, '_rfmp_toemail_chargedback_merchant', sanitize_email($_POST['rfmp_toemail_chargedback_merchant']));
 
@@ -818,7 +818,7 @@ class Admin
                         'subscription_id' => (int) sanitize_text_field($_GET['cancel']),
                 ]);
 
-                wp_redirect('?post_type=' . esc_url(sanitize_text_field($_REQUEST['post_type'])) . '&page=' . esc_url(sanitize_text_field($_REQUEST['page'])) . '&view=' . esc_url(sanitize_text_field($_REQUEST['view'])) . '&msg=cancel-ok');
+                wp_redirect('?post_type=' . esc_html(sanitize_text_field($_REQUEST['post_type'])) . '&page=' . esc_html(sanitize_text_field($_REQUEST['page'])) . '&view=' . esc_html(sanitize_text_field($_REQUEST['view'])) . '&msg=cancel-ok');
             } catch (Exception $e) {
                 echo '<div class="error notice">' . esc_html($e->getMessage()) . '</div>';
             }
@@ -828,12 +828,12 @@ class Admin
         if (isset($_GET['refund']) && check_admin_referer('refund-payment_' . esc_html(sanitize_text_field($_GET['refund'])))) {
             try {
                 if (substr($_GET['refund'], 0, 3) == 'ord') {
-                    $mollie->post('orders/' . esc_url(sanitize_text_field($_GET['refund'])) . '/refunds', [
+                    $mollie->post('orders/' . esc_html(sanitize_text_field($_GET['refund'])) . '/refunds', [
                             'lines' => [],
                     ]);
                 } else {
-                    $payment = $mollie->get('payments/' . esc_url(sanitize_text_field($_GET['refund'])));
-                    $mollie->post('payments/' . esc_url(sanitize_text_field($payment->id)) . '/refunds', [
+                    $payment = $mollie->get('payments/' . esc_html(sanitize_text_field($_GET['refund'])));
+                    $mollie->post('payments/' . esc_html(sanitize_text_field($payment->id)) . '/refunds', [
                             'amount' => [
                                     'currency' => $payment->amount->currency,
                                     'value'    => $payment->amount->value,
@@ -847,12 +847,12 @@ class Admin
                         'payment_id' => esc_sql(sanitize_text_field($_GET['refund'])),
                 ]);
 
-                wp_redirect('?post_type=' . esc_url(sanitize_text_field($_REQUEST['post_type'])) . '&page=' . esc_url(sanitize_text_field($_REQUEST['page'])) . '&view=' .
-                            esc_url(sanitize_text_field($_REQUEST['view'])) . '&msg=refund-ok');
+                wp_redirect('?post_type=' . esc_html(sanitize_text_field($_REQUEST['post_type'])) . '&page=' . esc_html(sanitize_text_field($_REQUEST['page'])) . '&view=' .
+                            esc_html(sanitize_text_field($_REQUEST['view'])) . '&msg=refund-ok');
 
             } catch (Exception $e) {
-                wp_redirect('?post_type=' . esc_url(sanitize_text_field($_REQUEST['post_type'])) . '&page=' . esc_url(sanitize_text_field($_REQUEST['page'])) . '&view=' .
-                            esc_url(sanitize_text_field($_REQUEST['view'])) . '&msg=refund-nok');
+                wp_redirect('?post_type=' . esc_html(sanitize_text_field($_REQUEST['post_type'])) . '&page=' . esc_html(sanitize_text_field($_REQUEST['page'])) . '&view=' .
+                            esc_html(sanitize_text_field($_REQUEST['view'])) . '&msg=refund-nok');
             }
         }
 
