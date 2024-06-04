@@ -9,7 +9,7 @@ class MollieForms
     /**
      * Plugin version number
      */
-    const PLUGIN_VERSION = '2.6.13';
+    const PLUGIN_VERSION = '2.6.14';
 
     /**
      * Webhook URL for Mollie

@@ -5,7 +5,7 @@ Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 5.3
 Requires PHP: 7.0
 Tested up to: 6.4.3
-Stable tag: 2.6.13
+Stable tag: 2.6.14
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,9 @@ The following action hooks with parameters are available:
 * WordPress 5.3 or greater
 
 == Changelog ==
+
+= 2.6.14 - 04/06/2024 =
+* Add nonce verification for duplicating forms and exporting registrations
 
 = 2.6.13 - 13/05/2024 =
 * Fix saving multiple email addresses as receiver for emails

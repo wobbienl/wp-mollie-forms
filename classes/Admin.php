@@ -183,7 +183,7 @@ class Admin
             unset($actions['view']);
             $actions['registrations'] = '<a href="' . wp_nonce_url(admin_url('edit.php?post_type=mollie-forms&page=registrations&post=' . $post->ID), 'search-mollie-forms-registrations') . '">' . __('Registrations', 'mollie-forms') . '</a>';
             $actions['export']        = '<a href="' .
-                                        wp_nonce_url(admin_url('admin-post.php?action=mollie-forms_export&post=' . $post->ID), 'search-mollie-forms-registrations') .
+                                        wp_nonce_url(admin_url('admin-post.php?action=mollie-forms_export&post=' . $post->ID), 'export-mollie-forms-registrations') .
                                         '">' . __('Export', 'mollie-forms') . '</a>';
             $actions['duplicate']     = '<a href="' .
                                         wp_nonce_url(admin_url('admin-post.php?action=mollie-forms_duplicate&post=' . $post->ID), 'duplicate-mollie-forms-form') .
@@ -904,7 +904,11 @@ class Admin
      */
     public function exportRegistrations()
     {
-        $postId = (int) sanitize_text_field($_GET['post']);
+	    if (!isset($_REQUEST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'export-mollie-forms-registrations')) {
+		    return;
+	    }
+
+	    $postId = (int) sanitize_text_field($_GET['post']);
 
 	    if (!current_user_can('edit_post', $postId)) {
 		    return;
@@ -991,6 +995,10 @@ class Admin
 
     public function duplicateForm()
     {
+	    if (!isset($_REQUEST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'duplicate-mollie-forms-form')) {
+		    return;
+	    }
+
         $postId = (int) sanitize_text_field($_GET['post']);
 
 	    if (!current_user_can('edit_post', $postId)) {
