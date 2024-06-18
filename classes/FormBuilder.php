@@ -34,7 +34,7 @@ class FormBuilder
 							        grecaptcha.ready(function() {
 							          grecaptcha.execute("' . esc_attr($this->recaptchaSiteKey) . '", {action: "submit"}).then(function(token) {
 							              document.getElementById("rfmp_' . esc_js($postId) . '_token").value = token;
-							              document.getElementById("rfmp_' . esc_js($postId) . '").submit();
+							              document.getElementById("rfmp_' . esc_js($postId) . '_submit").click();
 							          });
 							        });
                                 }
@@ -147,6 +147,7 @@ class FormBuilder
 
                 if ($this->recaptchaSiteKey) {
 					$html = '<input type="hidden" id="rfmp_' . $this->postId . '_token" name="token" value="">';
+					$html .= '<button type="submit" style="display:none;" id="rfmp_' . $this->postId . '_submit">' . $atts['label'] . '</button>';
                     $html .= '<br><button type="button" onclick="onSubmit' . $this->postId . '(event)" data-action="submit" ' .
                              $this->buildAtts($atts) . '>' . $atts['label'] . '</button>';
                 }
