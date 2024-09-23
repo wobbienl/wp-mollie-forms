@@ -134,12 +134,16 @@ class RegistrationsTable extends \WP_List_Table
                 return $this->helpers->getCurrencySymbol($item['currency'] ?: 'EUR') . ' ' . number_format($item[$column_name], $this->helpers->getCurrencies($item['currency'] ?: 'EUR'), ',', '');
             case 'post_id':
                 $post = get_post($item[$column_name]);
-                return $post->post_title;
+                return isset($post->post_title) ? $post->post_title : '<small><i>' . esc_html__('Deleted form', 'mollie-forms') . '</i></small>';
             case 'created_at':
                 return wp_date(get_option('date_format') . ' ' . get_option('time_format'), strtotime($item[$column_name]));
             case 'price_frequency':
                 return $this->frequency_label($item[$column_name]);
             case 'payment_status':
+                if ($item['total_price'] <= 0) {
+                    return '<span style="color: orange;">' . esc_html__('No payment', 'mollie-forms') . '</span>';
+                }
+
                 $payments = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$this->mollieForms->getPaymentsTable()} WHERE payment_status='paid' AND registration_id=%d", $item['id']));
                 return $payments ?
                         '<span style="color: green;">' . esc_html__('Paid', 'mollie-forms') . ' (' . $payments . 'x)</span>' :

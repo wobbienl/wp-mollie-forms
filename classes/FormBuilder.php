@@ -80,6 +80,7 @@ class FormBuilder
     public function addField($type, array $atts = [])
     {
         $visible = true;
+	    $pId = '';
         switch ($type) {
             case 'text':
             case 'name':
@@ -156,6 +157,7 @@ class FormBuilder
 	            $html = '<input type="file" ' . $this->buildAtts($atts) . '>';
 	            break;
             case 'payment_methods':
+				$pId = 'payment_methods_' . $this->postId;
                 $html = $this->getPaymentMethods($atts);
                 break;
             case 'priceoptions':
@@ -170,7 +172,7 @@ class FormBuilder
                 $html = '';
         }
 
-        $this->form .= '<p>';
+        $this->form .= '<p ' . ($pId ? 'id="' . $pId . '"' : '') . '>';
 
         if ($type != 'submit' && $type != 'checkbox' && $visible) {
             $this->form .= $this->getLabel() . '<br>';
@@ -537,7 +539,7 @@ class FormBuilder
                     <label>' . esc_html__('Amount', 'mollie-forms') . ' 
                         <span style="color:red;">*</span><br>
                         <span class="rfmp_currency_' . $post . '">' . esc_html($symbol) . '</span> 
-                        <input type="number" step="any" value="' . esc_attr($formValueAmount) . '" onchange="mollie_forms_' . $post . '_totals();" name="rfmp_amount_' . $post . '"> 
+                        <input type="number" step="any" value="' . esc_attr($formValueAmount) . '" onchange="mollie_forms_' . $post . '_totals();" onkeyup="mollie_forms_' . $post . '_totals();" name="rfmp_amount_' . $post . '"> 
                         <span id="rfmp_amount_freq_' . $post . '"></span>
                     </label>
                     <input type="hidden" name="rfmp_amount_required_' . $post . '" id="rfmp_open_amount_required_' . $post . '" value="0">
@@ -564,19 +566,25 @@ class FormBuilder
             }
             
             if (0 in priceoption) {
+                var openAmount  = document.getElementsByName("rfmp_amount_' . $post . '");
+            
                 // single price option
                 if (priceoption[0].tagName == "INPUT") {
                     for (var i = 0, length = priceoption.length; i < length; i++) {
                         if (priceoption[i].checked) {
                         
                             if (priceoption[i].dataset.pricetype == "open") {
-                                var openAmount  = document.getElementsByName("rfmp_amount_' . $post . '");
-                                openAmount[0].setAttribute("min", priceoption[i].dataset.price);
+                                openAmount[0].setAttribute("min", isNaN(priceoption[i].dataset.price) ? 0 : priceoption[i].dataset.price);
                                 var optionPrice = parseFloat(openAmount[0].value);
                             } else {
+                                openAmount[0].removeAttribute("min");
                                 var optionPrice = parseFloat(priceoption[i].dataset.price);
                             }
-                                
+
+                            if (optionPrice <= 0 || isNaN(optionPrice)) {
+                                break;
+                            }
+                            
                             var optionVat = (parseInt(priceoption[i].dataset.vat) / 100) * optionPrice;
                         
                             vat += optionVat;
@@ -588,57 +596,64 @@ class FormBuilder
                     }
                 } else {
                     if (priceoption[0].options[priceoption[0].selectedIndex].dataset.pricetype == "open") {
-                        var openAmount  = document.getElementsByName("rfmp_amount_' . $post . '");
-                        openAmount[0].setAttribute("min", priceoption[0].options[priceoption[0].selectedIndex].dataset.price);
+                        openAmount[0].setAttribute("min", isNaN(priceoption[0].options[priceoption[0].selectedIndex].dataset.price) ? 0 : priceoption[0].options[priceoption[0].selectedIndex].dataset.price);
                         var optionPrice = parseFloat(openAmount[0].value);
                     } else {
+                        openAmount[0].removeAttribute("min");
                         var optionPrice = parseFloat(priceoption[0].options[priceoption[0].selectedIndex].dataset.price);
                     }
                             
-                    var optionVat = (parseInt(priceoption[0].options[priceoption[0].selectedIndex].dataset.vat) / 100) * optionPrice;
-                    vat   += optionVat;
-                    total += optionPrice;
-                    subtotal += optionPrice;
-                    ' . ($vatSetting == 'excl' ? 'total += optionVat;' : '') . '
+                    if (optionPrice > 0 || isNaN(optionPrice)) {
+                        var optionVat = (parseInt(priceoption[0].options[priceoption[0].selectedIndex].dataset.vat) / 100) * optionPrice;
+                        vat   += optionVat;
+                        total += optionPrice;
+                        subtotal += optionPrice;
+                        ' . ($vatSetting == 'excl' ? 'total += optionVat;' : '') . '
+                    }
                 }
             } else if (quantities) {
                 // multiple price options with quantity
                 for (var i = 0; i < quantities.length; i++) {
                     var q  = parseInt(quantities[i].value);
                     var optionPrice = parseFloat(parseFloat(quantities[i].dataset.price) * q);
-                    var optionVat = (parseInt(quantities[i].dataset.vat) / 100) * optionPrice;
-                    vat   += optionVat;
-                    total += optionPrice;
-                    subtotal += optionPrice;
-                    ' . ($vatSetting == 'excl' ? 'total += optionVat;' : '') . '
+                    
+                    if (optionPrice > 0 || isNaN(optionPrice)) {
+                        var optionVat = (parseInt(quantities[i].dataset.vat) / 100) * optionPrice;
+                        vat   += optionVat;
+                        total += optionPrice;
+                        subtotal += optionPrice;
+                        ' . ($vatSetting == 'excl' ? 'total += optionVat;' : '') . '
+                    }
                 }
             }
             
             // payment method extra costs
             var methods = document.getElementsByName("rfmp_payment_method_' . $post . '");
-            if (0 in methods) {
-                if (methods[0].tagName == "INPUT") {
-                    // radio buttons
-                    for (var i = 0; i < methods.length; i++) {
-                        if (methods[i].checked) {
-                            var methodAmount = ((parseInt(methods[i].dataset.variable) / 100) * total) + parseFloat(methods[i].dataset.fixed);
-                            var methodVat = 0.21 * methodAmount;
-                            vat   += methodVat;
-                            total += methodAmount;
-                            subtotal += methodAmount;
-                            ' . ($vatSetting == 'excl' ? 'total += methodVat;' : '') . '
-                            break;
-                        }
-                    }
-                } else {
-                    // dropdown
-                    var methodAmount = ((parseInt(methods[0].options[methods[0].selectedIndex].dataset.variable) / 100) * total) + parseFloat(methods[0].options[methods[0].selectedIndex].dataset.fixed);
-                    var methodVat = 0.21 * methodAmount;
-                    vat   += methodVat;
-                    total += methodAmount;
-                    subtotal += methodAmount;
-                    ' . ($vatSetting == 'excl' ? 'total += methodVat;' : '') . '
-                }
+            if (total > 0) {
+	            if (0 in methods) {
+	                if (methods[0].tagName == "INPUT") {
+	                    // radio buttons
+	                    for (var i = 0; i < methods.length; i++) {
+	                        if (methods[i].checked) {
+	                            var methodAmount = ((parseInt(methods[i].dataset.variable) / 100) * total) + parseFloat(methods[i].dataset.fixed);
+	                            var methodVat = 0.21 * methodAmount;
+	                            vat   += methodVat;
+	                            total += methodAmount;
+	                            subtotal += methodAmount;
+	                            ' . ($vatSetting == 'excl' ? 'total += methodVat;' : '') . '
+	                            break;
+	                        }
+	                    }
+	                } else {
+	                    // dropdown
+	                    var methodAmount = ((parseInt(methods[0].options[methods[0].selectedIndex].dataset.variable) / 100) * total) + parseFloat(methods[0].options[methods[0].selectedIndex].dataset.fixed);
+	                    var methodVat = 0.21 * methodAmount;
+	                    vat   += methodVat;
+	                    total += methodAmount;
+	                    subtotal += methodAmount;
+	                    ' . ($vatSetting == 'excl' ? 'total += methodVat;' : '') . '
+	                }
+	            }
             }
             
             // Display subtotal
@@ -660,6 +675,13 @@ class FormBuilder
             if (totalVatValue) {
                 var totalVat = vat.toFixed(2) > 0 ? vat.toFixed(2) : "0.00";
                 totalVatValue.innerHTML = totalVat.replace(".", ",");
+            }
+            
+            
+            if (total <= 0 || isNaN(total)) {
+                document.getElementById("payment_methods_' . $post . '").style.display = "none";
+            } else {
+                document.getElementById("payment_methods_' . $post . '").style.display = "block";
             }
         }
         </script>';

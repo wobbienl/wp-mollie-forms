@@ -9,7 +9,7 @@
                 <option value="fixed"><?php esc_html_e('Fixed', 'mollie-forms');?></option>
                 <option value="open"><?php esc_html_e('Open', 'mollie-forms');?></option>
             </select>
-            <input type="number" min="0.50" step="any" placeholder="<?php esc_html_e('Amount', 'mollie-forms');?>" data-ph-fixed="<?php esc_html_e('Amount', 'mollie-forms');?>" data-ph-open="<?php esc_html_e('Minimum amount', 'mollie-forms');?>" name="rfmp_priceoptions_price[]" style="width:70px">
+            <input type="number" min="0" step="any" placeholder="<?php esc_html_e('Amount', 'mollie-forms');?>" data-ph-fixed="<?php esc_html_e('Amount', 'mollie-forms');?>" data-ph-open="<?php esc_html_e('Minimum amount', 'mollie-forms');?>" name="rfmp_priceoptions_price[]" style="width:70px">
         </td>
         <td>
             <input type="number" min="0" name="rfmp_priceoptions_vat[]" style="width: 50px;">

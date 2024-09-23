@@ -376,7 +376,7 @@ class Form
                     $paymentCosts += ($variable[$paymentMethod] / 100) * $totalPrice;
                 }
 
-                if ($paymentCosts > 0) {
+                if ($paymentCosts > 0 && $totalPrice > 0) {
                     if ($vatSetting === 'excl') {
                         $paymentVat = 0.21 * $paymentCosts;
                         $totalPrice += $paymentVat;
@@ -482,6 +482,12 @@ class Form
                         $totalPrice -= $discountAmount;
                         $totalVat   -= $discountVat;
                     }
+
+					if ($totalPrice - $paymentCosts <= 0) {
+						$paymentCosts = 0;
+						$totalPrice = 0;
+						$totalVat = 0;
+					}
                 }
 
                 $search_desc[] = '{rfmp="amount"}';
@@ -577,7 +583,7 @@ class Form
                     ]);
                 }
 
-                if ($paymentCosts > 0) {
+                if ($paymentCosts > 0 && $totalPrice > 0) {
                     $this->db->insert($this->mollieForms->getRegistrationPriceOptionsTable(), [
                         'post_id'         => sanitize_text_field($postId),
                         'registration_id' => sanitize_text_field($registrationId),
@@ -627,6 +633,22 @@ class Form
                     'ID' => $registrationId,
                 ]);
 
+				if ($totalPrice <= 0) {
+					$this->db->insert($this->mollieForms->getPaymentsTable(), [
+						'created_at'      => current_time('mysql', 1),
+						'registration_id' => sanitize_text_field($registrationId),
+						'payment_id'      => '',
+						'payment_method'  => '',
+						'payment_mode'    => '',
+						'payment_status'  => '',
+						'currency'        => '',
+						'amount'          => 0,
+						'rfmp_id'         => sanitize_text_field($rfmpId),
+					]);
+
+					wp_redirect($redirect . 'payment=' . $rfmpId);
+					exit;
+				}
 
                 if ($apiType == 'orders') {
                     // create Mollie order
@@ -894,6 +916,14 @@ class Form
         if ($payment == null || $registration == null) {
             echo '<p class="' . esc_attr($errorClass) . '">' . esc_html__('No payment found', 'mollie-forms') . '</p>';
         } elseif ($registration->post_id == $postId) {
+			if (empty($payment->payment_id)) {
+				if ($afterPayment == 'redirect') {
+					return wp_redirect($successRedirect);
+				} else {
+					return '<p class="' . esc_attr($successClass) . '">' . esc_html($successMessage) . '</p>';
+				}
+			}
+
 			try {
 				$id = $payment->payment_id;
 				if (substr($id, 0, 3) == 'ord') {

@@ -786,21 +786,25 @@ class Admin
             $subsTable = $this->mollieForms->getCustomersTable();
         }
 
-        // Connect with Mollie
-        $apiKey = get_post_meta($registration->post_id, '_rfmp_api_key', true);
-        $mollie = new MollieApi($apiKey);
+        try {
+	        // Connect with Mollie
+	        $apiKey = get_post_meta($registration->post_id, '_rfmp_api_key', true);
+	        $mollie = new MollieApi($apiKey);
 
-        $vatSetting = get_post_meta($registration->post_id, '_rfmp_vat_setting', true);
+	        // Get all subscriptions
+	        $allSubs = $mollie->all('customers/' . sanitize_text_field($registration->customer_id) . '/subscriptions');
+	        foreach ($allSubs as $sub) {
+		        $this->db->update($subsTable, [
+			        'sub_status' => $sub->status,
+		        ], [
+			        'subscription_id' => $sub->id,
+		        ]);
+	        }
+        } catch (Exception $e) {
 
-        // Get all subscriptions
-        $allSubs = $mollie->all('customers/' . sanitize_text_field($registration->customer_id) . '/subscriptions');
-        foreach ($allSubs as $sub) {
-            $this->db->update($subsTable, [
-                    'sub_status' => $sub->status,
-            ], [
-                    'subscription_id' => $sub->id,
-            ]);
         }
+
+	    $vatSetting = get_post_meta($registration->post_id, '_rfmp_vat_setting', true);
 
         $fields        = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getRegistrationFieldsTable()} WHERE registration_id=%d", $id));
         $subscriptions = $this->db->get_results($this->db->prepare("SELECT * FROM {$subsTable} WHERE registration_id=%d", $id));
