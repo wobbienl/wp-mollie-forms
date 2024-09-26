@@ -433,6 +433,7 @@ class FormBuilder
 
 
         $html  = '';
+		$first = true;
         if ($optionDisplay == 'list') {
             $html .= '<ul ' . $this->buildAtts($atts, ['name', 'placeholder', 'value']) .
                      ' style="list-style-type:none;margin:0;">';
@@ -443,7 +444,9 @@ class FormBuilder
                      $post . '();mollie_forms_' . $post . '_totals();" ' .
                      $this->buildAtts($atts, ['name', 'placeholder', 'value', 'label']) . ' style="width: 100%;">';
 
-	        $html .= '<option value=""></option>';
+			if (count($priceOptions) > 1) {
+				$html .= '<option value="">-- ' . esc_html__('Choose an option', 'mollie-forms') . ' --</option>';
+			}
         }
 
         // loop through all price options
@@ -482,7 +485,7 @@ class FormBuilder
                                         data-vat="' . esc_attr($priceOption->vat) . '" 
                                         name="rfmp_priceoptions_' . $post . '" 
                                         value="' . esc_attr($priceOption->id) . '"
-                                        ' . ($formValue == $priceOption->id ? ' checked' : '') . '> 
+                                        ' . ($formValue == $priceOption->id || ($first && count($priceOptions) === 1) ? ' checked' : '') . '> 
                                 ' . esc_html($priceOption->description) . ' ' .
                           ($price || $times ? '(' . esc_html(trim($price . $times)) . ')' : '') . '
                             </label>
@@ -523,6 +526,8 @@ class FormBuilder
                          ($price || $times ? ' (' . esc_html(trim($price . $times)) . ')' : '') . '
                           </option>';
             }
+
+	        $first = false;
         }
 
         if ($optionDisplay == 'list') {
