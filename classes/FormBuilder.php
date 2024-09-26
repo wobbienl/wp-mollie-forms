@@ -262,6 +262,10 @@ class FormBuilder
                         }
                     }
                 }
+                
+                if (!frequency) {
+                    return;
+                }
 
                 var checkbox = document.getElementsByName("rfmp_checkbox_' . $post . '")[0];
                 if (frequency=="once") {
