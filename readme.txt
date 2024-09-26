@@ -81,6 +81,11 @@ The following action hooks with parameters are available:
 
 == Changelog ==
 
+= 2.7.1 - 26/09/2024 =
+* Don't show required asterisk in placeholder of discount code field
+* Don't show "Field required" error message when entering 0 as value of required field
+* Don't preselect first price option
+
 = 2.7.0 - 23/09/2024 =
 * Registrations without payment are possible
 * Fixed error when viewing registration of deleted form

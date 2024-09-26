@@ -106,11 +106,11 @@ class Form
             }
 
             if ($labelDisplay == 'placeholder' || $labelDisplay == 'both') {
-                $atts['placeholder'] = $label[$key] . ($required[$key] ? ' *' : '');
+                $atts['placeholder'] = $label[$key] . ($required[$key] && $type !== 'discount_code' ? ' *' : '');
             }
 
             if ($labelDisplay != 'placeholder') {
-                $required = !($type == 'discount_code') && isset($atts['required']);
+                $required = $type !== 'discount_code' && isset($atts['required']);
                 $builder->addLabel($atts['name'], $atts['label'], $required);
             }
 
@@ -418,7 +418,7 @@ class Form
 	                }
 
 					$required = get_post_meta($postId, '_rfmp_fields_required', true);
-					if ($field_type[$key] != 'discount_code' && $required[$key] && empty($value)) {
+					if ($field_type[$key] != 'discount_code' && $required[$key] && trim($value) === '') {
 						/* translators: %s is the field label */
 						throw new Exception(sprintf(esc_html__( '%s is a required field', 'mollie-forms'), $field));
 					}
