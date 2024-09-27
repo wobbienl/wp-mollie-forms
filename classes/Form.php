@@ -245,10 +245,6 @@ class Form
 
                 $vatSetting = get_post_meta($postId, '_rfmp_vat_setting', true);
 
-	            if (!isset($_POST['rfmp_priceoptions_' . $postId])) {
-		            throw new Exception(esc_html__('Please select at least 1 product', 'mollie-forms'));
-	            }
-
                 // Create customer at Mollie
                 $customer = $mollie->post('customers', [
                     'name'  => sanitize_text_field($name_field_value),
@@ -284,7 +280,15 @@ class Form
                         ];
                         $optionsDesc[]  = sanitize_text_field($quantity . 'x ' . $option->description);
                     }
+
+					if (empty($priceOptions)) {
+						throw new Exception(esc_html__('Please select at least 1 product', 'mollie-forms'));
+					}
                 } else {
+	                if (!isset($_POST['rfmp_priceoptions_' . $postId])) {
+		                throw new Exception(esc_html__('Please select a product', 'mollie-forms'));
+	                }
+
                     // single price option
                     $option         = $this->db->get_row($this->db->prepare("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE id=%d", $_POST['rfmp_priceoptions_' . $postId]));
                     $priceOptions[] = [

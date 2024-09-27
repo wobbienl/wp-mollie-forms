@@ -5,7 +5,7 @@ Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 5.3
 Requires PHP: 7.0
 Tested up to: 6.4.3
-Stable tag: 2.7.3
+Stable tag: 2.7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,10 @@ The following action hooks with parameters are available:
 * WordPress 5.3 or greater
 
 == Changelog ==
+
+= 2.7.4 - 27/09/2024 =
+* Fix when using price options table, authorize checkbox didn't show
+* Fix when using price options table, incorrect message about no products selected
 
 = 2.7.3 - 26/09/2024 =
 * Hide authorize checkbox until price option choice has been made

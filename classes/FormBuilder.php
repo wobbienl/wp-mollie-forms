@@ -235,6 +235,7 @@ class FormBuilder
             function mollie_forms_recurring_methods_' . $post . '() {
                 var priceoptions = document.getElementsByName("rfmp_priceoptions_' . $post . '");
                 var freq = "";
+                var frequency = "once";
                 if (0 in priceoptions) {
                     if (priceoptions[0].tagName == "INPUT") {
                         for (var i = 0, length = priceoptions.length; i < length; i++) {
@@ -261,10 +262,6 @@ class FormBuilder
                             }
                         }
                     }
-                }
-                
-                if (!frequency) {
-                    return;
                 }
 
                 var checkbox = document.getElementsByName("rfmp_checkbox_' . $post . '")[0];
@@ -622,9 +619,12 @@ class FormBuilder
             } else if (quantities) {
                 // multiple price options with quantity
                 for (var i = 0; i < quantities.length; i++) {
-                    var q  = parseInt(quantities[i].value);
-                    var optionPrice = parseFloat(parseFloat(quantities[i].dataset.price) * q);
+                    var q = parseInt(quantities[i].value);
+                    if (q <= 0 || isNaN(q)) {
+                        continue;
+                    }
                     
+                    var optionPrice = parseFloat(quantities[i].dataset.price) * q;
                     if (optionPrice > 0 || isNaN(optionPrice)) {
                         var optionVat = (parseInt(quantities[i].dataset.vat) / 100) * optionPrice;
                         vat   += optionVat;
@@ -663,7 +663,7 @@ class FormBuilder
 	                }
 	            }
             }
-            
+
             // Display subtotal
             var subtotalValue = document.getElementById("rfmp_totals_' . $post . '_subtotal_value");
             if (subtotalValue) {
