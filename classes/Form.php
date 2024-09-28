@@ -412,7 +412,7 @@ class Form
                     }
 
                     $value = isset($_POST['form_' . $postId . '_field_' . $key]) ?
-                        sanitize_text_field($_POST['form_' . $postId . '_field_' . $key]) : '';
+                        trim(sanitize_text_field($_POST['form_' . $postId . '_field_' . $key])) : '';
                     if ($field_type[$key] === 'payment_methods') {
                         $value = sanitize_text_field($_POST['rfmp_payment_method_' . $postId]);
                     } elseif ($field_type[$key] === 'priceoptions') {
@@ -422,7 +422,7 @@ class Form
 	                }
 
 					$required = get_post_meta($postId, '_rfmp_fields_required', true);
-					if ($field_type[$key] != 'discount_code' && $required[$key] && trim($value) === '') {
+					if ($field_type[$key] != 'discount_code' && $required[$key] && ($value === '' || (is_array($value) && empty($value)))) {
 						/* translators: %s is the field label */
 						throw new Exception(sprintf(esc_html__( '%s is a required field', 'mollie-forms'), $field));
 					}
