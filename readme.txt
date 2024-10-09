@@ -5,7 +5,7 @@ Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 5.3
 Requires PHP: 7.0
 Tested up to: 6.4.3
-Stable tag: 2.7.5
+Stable tag: 2.7.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,9 @@ The following action hooks with parameters are available:
 * WordPress 5.3 or greater
 
 == Changelog ==
+
+= 2.7.6 - 09/10/2024 =
+* Hide authorize checkbox until price option choice has been made when using lists
 
 = 2.7.5 - 28/09/2024 =
 * Fixed Uncaught TypeError: trim()

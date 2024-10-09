@@ -172,14 +172,14 @@ class FormBuilder
                 $html = '';
         }
 
-        $this->form .= '<p ' . ($pId ? 'id="' . $pId . '"' : '') . '>';
+        $this->form .= '<div class="mollie_forms_field_row" style="margin:10px 0" ' . ($pId ? 'id="' . $pId . '"' : '') . '>';
 
         if ($type != 'submit' && $type != 'checkbox' && $visible) {
             $this->form .= $this->getLabel() . '<br>';
         }
 
         $this->form .= $html;
-        $this->form .= '</p>';
+        $this->form .= '</div>';
     }
 
     /**
@@ -240,21 +240,21 @@ class FormBuilder
                     if (priceoptions[0].tagName == "INPUT") {
                         for (var i = 0, length = priceoptions.length; i < length; i++) {
                             if (priceoptions[i].checked) {
-                                var frequency = priceoptions[i].dataset.frequency;
+                                frequency = priceoptions[i].dataset.frequency;
                                 var pricetype = priceoptions[i].dataset.pricetype;
                                 freq = priceoptions[i].dataset.freq;
                                 break;
                             }
                         }
                     } else {
-                        var frequency = priceoptions[0].options[priceoptions[0].selectedIndex].dataset.frequency;
+                        frequency = priceoptions[0].options[priceoptions[0].selectedIndex].dataset.frequency ? priceoptions[0].options[priceoptions[0].selectedIndex].dataset.frequency : "once";
                         var pricetype = priceoptions[0].options[priceoptions[0].selectedIndex].dataset.pricetype;
                         freq = priceoptions[0].options[priceoptions[0].selectedIndex].dataset.freq;
                     }
                 } else {
                     var quantities = document.getElementsByClassName("rfmp_priceoptions_' . $post . '_quantity");
                     var pricetype = "fixed";
-                    var frequency = "once";
+                    frequency = "once";
                     for (var i = 0, length = quantities.length; i < length; i++) {
                         if (quantities[i].value > 0) {
                             if (quantities[i].dataset.frequency != "once") {
