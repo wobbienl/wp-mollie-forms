@@ -516,6 +516,10 @@ class Form
                 ]);
                 $registrationId = $this->db->insert_id;
 
+				if (!$registrationId) {
+					throw new Exception(esc_html($this->db->last_error ?: $this->db->last_query));
+				}
+
                 // Add field values of registration
                 foreach ($field_label as $key => $field) {
                     if ($field_type[$key] != 'submit' && $field_type[$key] != 'total' &&
