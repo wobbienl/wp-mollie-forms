@@ -396,11 +396,9 @@ class Admin
             } else {
                 $mollie = new MollieApi($api_key);
 
-                // use billingCountry "DE" to show all methods
                 $methods = $mollie->all('methods', [
                         'locale'         => $locale,
                         'resource'       => $api_type,
-                        'billingCountry' => 'DE',
                         'includeWallets' => 'applepay',
                 ]);
 
