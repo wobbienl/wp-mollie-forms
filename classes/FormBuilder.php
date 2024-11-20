@@ -123,8 +123,7 @@ class FormBuilder
 
                 if (isset($atts['options']) && is_array($atts['options'])) {
                     foreach ($atts['options'] as $option) {
-                        $html .= '<option ' . (isset($atts['value']) && $atts['value'] == $option ? ' selected' : '') .
-                                 '>' . esc_html($option) . '</option>';
+                        $html .= '<option ' . (isset($atts['value']) && $atts['value'] == $option ? ' selected' : '') . '>' . esc_html($option) . '</option>';
                     }
                 }
 
@@ -137,8 +136,7 @@ class FormBuilder
                     foreach ($atts['options'] as $option) {
                         $html .= '<label><input type="radio" ' . $this->buildAtts($atts, ['value']) . ' value="' .
                                  esc_attr($option) . '" ' .
-                                 (isset($atts['value']) && $atts['value'] == $option ? ' selected' : '') . '>' .
-                                 esc_html($option) . '</label>';
+                                 (isset($atts['value']) && $atts['value'] == $option ? ' selected' : '') . '>' . esc_html($option) . '</label>';
                     }
                 }
 
@@ -760,7 +758,11 @@ class FormBuilder
 
         $html = [];
         foreach ($atts as $key => $value) {
-            if (!in_array($key, $unset)) {
+	        if ($key === 'options' || is_array($value)) {
+		        continue;
+	        }
+
+            if (!in_array($key, $unset) && !is_array($value)) {
                 $html[] = esc_html($key) . (isset($value) && $value ? '="' . esc_attr($value) . '"' : '');
             }
         }

@@ -4,8 +4,8 @@ Donate link: https://wobbie.nl/doneren
 Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 5.3
 Requires PHP: 7.0
-Tested up to: 6.4.3
-Stable tag: 2.7.8
+Tested up to: 6.7
+Stable tag: 2.7.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,9 @@ The following action hooks with parameters are available:
 * WordPress 5.3 or greater
 
 == Changelog ==
+
+= 2.7.9 - 20/11/2024 =
+* Fix PHP notice about string to array conversion in formatting.php
 
 = 2.7.8 - 19/11/2024 =
 * Do not send DE as billingCountry for retrieving payment methods
