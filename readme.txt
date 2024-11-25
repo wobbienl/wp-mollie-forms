@@ -5,7 +5,7 @@ Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 5.3
 Requires PHP: 7.0
 Tested up to: 6.7
-Stable tag: 2.7.9
+Stable tag: 2.7.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,9 @@ The following action hooks with parameters are available:
 * WordPress 5.3 or greater
 
 == Changelog ==
+
+= 2.7.10 - 25/11/2024 =
+* Send correct User-Agent for Mollie API requests
 
 = 2.7.9 - 20/11/2024 =
 * Fix PHP notice about string to array conversion in formatting.php

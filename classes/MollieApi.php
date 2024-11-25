@@ -106,8 +106,7 @@ class MollieApi
             'timeout'    => 45,
             'blocking'   => true,
             'headers'    => ['Authorization' => 'Bearer ' . $this->apiKey],
-            'user-agent' => 'PHP/' . phpversion() . ' Wordpress/' . get_bloginfo('version') . ' MollieForms/' .
-                            $this->mollieForms->getVersion(),
+            'user-agent' => 'PHP/' . phpversion() . ' Wordpress/' . get_bloginfo('version') . ' MollieForms/' . $this->mollieForms->getVersion() . ' uap/Ukh8zvBgPknSPdh8',
             'body'       => $body,
         ];
 
