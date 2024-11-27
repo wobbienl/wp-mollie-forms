@@ -400,6 +400,7 @@ class Admin
                         'locale'         => $locale,
                         'resource'       => $api_type,
                         'includeWallets' => 'applepay',
+                        'amount'         => ['value' => '1.00', 'currency' => $currency],
                 ]);
 
                 foreach ($methods as $method) {

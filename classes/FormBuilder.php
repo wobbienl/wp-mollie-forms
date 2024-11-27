@@ -195,6 +195,7 @@ class FormBuilder
         $fixed     = get_post_meta($post, '_rfmp_payment_method_fixed', true);
         $variable  = get_post_meta($post, '_rfmp_payment_method_variable', true);
         $display   = get_post_meta($post, '_rfmp_payment_methods_display', true);
+	    $currency  = get_post_meta($post, '_rfmp_currency', true) ?: 'EUR';
         $formValue = isset($_POST['rfmp_payment_method']) ? sanitize_text_field($_POST['rfmp_payment_method']) : '';
 
         $locale = get_post_meta($post, '_rfmp_locale', true) ?: null;
@@ -207,17 +208,14 @@ class FormBuilder
 
             $script = '';
             $rcur   = [];
-            foreach ($mollie->all('methods', ['sequenceType' => 'first']) as $method) {
+            foreach ($mollie->all('methods', ['sequenceType' => 'first', 'amount' => ['value' => '1.00', 'currency' => $currency]]) as $method) {
                 if (isset($active[$method->id]) && $active[$method->id]) {
                     $rcur[] = $method->id;
                     $script .= '    document.getElementById("rfmp_pm_' . $method->id . '_' . $post .
                                '").style.display = "block";' . "\n";
                 }
             }
-            foreach ($mollie->all('methods', ['locale'         => $locale,
-                                              'resource'       => $apiType,
-                                              'includeWallets' => 'applepay',
-            ]) as $method) {
+            foreach ($mollie->all('methods', ['locale' => $locale, 'resource' => $apiType, 'amount' => ['value' => '1.00', 'currency' => $currency], 'includeWallets' => 'applepay']) as $method) {
                 if (isset($active[$method->id]) && $active[$method->id] && !in_array($method->id, $rcur)) {
                     $script .= 'if (document.getElementById("rfmp_pm_' . $method->id . '_' . $post . '") !== null){' .
                                "\n";
@@ -285,9 +283,7 @@ class FormBuilder
             }
             </script>';
 
-            $currency = get_post_meta($post, '_rfmp_currency', true) ?: 'EUR';
-            $symbol   = $this->helpers->getCurrencySymbol($currency);
-
+            $symbol = $this->helpers->getCurrencySymbol($currency);
 
             if ($display != 'dropdown') {
                 $methods .= '<ul ' . $this->buildAtts($atts, ['name', 'value', 'placeholder']) .
@@ -301,10 +297,7 @@ class FormBuilder
             $first = true;
 
             // loop through all payment methods
-            foreach ($mollie->all('methods', ['locale'         => $locale,
-                                              'resource'       => $apiType,
-                                              'includeWallets' => 'applepay',
-            ]) as $method) {
+            foreach ($mollie->all('methods', ['locale' => $locale, 'resource' => $apiType, 'includeWallets' => 'applepay', 'amount' => ['value' => '1.00', 'currency' => $currency]]) as $method) {
                 // check if method is enabled in form
                 if (isset($active[$method->id]) && $active[$method->id]) {
                     $subcharge   = [];
