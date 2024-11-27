@@ -51,7 +51,6 @@
                         <option value="<?php echo esc_attr($c);?>" <?php echo ($c == $currency ? 'selected' : '');?>><?php echo esc_html($c);?></option>
                     <?php endforeach;?>
                 </select><br>
-                <small><?php echo esc_html_e('Non-EUR currencies are only working with credit card and PayPal.', 'mollie-forms');?> <a target="_blank" href="https://docs.mollie.com/payments/multicurrency#supported-currencies"><?php echo esc_html_e('More info about currencies.', 'mollie-forms');?></a></small>
             </td>
         </tr>
         <tr valign="top">
