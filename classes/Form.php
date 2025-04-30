@@ -129,8 +129,9 @@ class Form
 
         $total = (float) $atts['start'];
 
-        foreach (explode(',', str_replace(' ', '', $atts['id'])) as $formId) {
-            $post = get_post($formId);
+        foreach (explode(',', str_replace(' ', '', esc_attr($atts['id']))) as $formId) {
+	        $formId = (int) $formId;
+            $post   = get_post($formId);
 
             if (!$post->ID) {
                 return 'Form with ID ' . $formId . ' not found';
@@ -658,11 +659,10 @@ class Form
 					exit;
 				}
 
+	            $addressName = explode(' ', $customer->name, 2);
+
                 if ($apiType == 'orders') {
                     // create Mollie order
-
-                    $addressName = explode(' ', $customer->name, 2);
-
                     $addressSN      = trim(sanitize_text_field($_POST['form_' . $postId . '_field_' . array_search('address', $field_type)]));
                     $addressPC      = trim(sanitize_text_field($_POST['form_' . $postId . '_field_' . array_search('postalCode', $field_type)]));
                     $addressCity    = trim(sanitize_text_field($_POST['form_' . $postId . '_field_' . array_search('city', $field_type)]));
@@ -841,6 +841,11 @@ class Form
                         'amount'      => [
                             'currency' => $currency,
                             'value'    => number_format($totalPrice, $decimals, '.', ''),
+                        ],
+                        'billingAddress' => [
+	                        'givenName'  => isset($addressName[0]) ? $addressName[0] : null,
+	                        'familyName' => isset($addressName[1]) ? $addressName[1] : null,
+	                        'email'      => $customer->email,
                         ],
                         'description' => $desc,
                         'method'      => $paymentMethod,

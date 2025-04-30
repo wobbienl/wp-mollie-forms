@@ -5,7 +5,7 @@ Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 5.3
 Requires PHP: 7.0
 Tested up to: 6.7
-Stable tag: 2.7.12
+Stable tag: 2.7.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,10 @@ The following action hooks with parameters are available:
 * WordPress 5.3 or greater
 
 == Changelog ==
+
+= 2.7.13 - 30/04/2025 =
+* Send customer name and email to Mollie when creating payments
+* Escape data passed through the mollie-forms-total shortcode
 
 = 2.7.12 - 27/11/2024 =
 * Fix not able to save payment methods if currency not EUR
