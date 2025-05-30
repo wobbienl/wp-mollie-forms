@@ -167,6 +167,10 @@ class Webhook
                     ]);
                 }
 
+	            // send emails
+	            $this->sendEmail($post, $status, $registration->id, $payment, 'customer');
+	            $this->sendEmail($post, $status, $registration->id, $payment, 'merchant');
+
                 return 'OK';
             }
 
@@ -306,6 +310,10 @@ class Webhook
         if (!in_array($status, ['paid', 'expired', 'cancelled', 'charged_back'])) {
             return;
         }
+
+		if ($payment->sequenceType === 'recurring' && $status === 'paid') {
+			return;
+		}
 
         $status = str_replace('_', '', $status);
 
