@@ -110,7 +110,7 @@
                 <input name="rfmp_payment_description" id="rfmp_payment_desc" value="<?php echo esc_attr($payment_description);?>" required type="text" style="width: 350px"><br>
                 <small>
                     <?php esc_html_e('You can use variables in the payment description.', 'mollie-forms');?><br>
-                    <?php esc_html_e('Visit our Help Center to learn more about variables:', 'mollie-forms');?> <a target="_blank" href="https://support.wobbie.nl/help/welke-variabelen-kan-ik-gebruiken">support.wobbie.nl</a>
+                    <?php esc_html_e('Visit our Help Center to learn more about variables:', 'mollie-forms');?> <a target="_blank" href="https://support.wobbie.nl/nl/help/articles/8197590-welke-variabelen-kan-ik-gebruiken">support.wobbie.nl</a>
                 </small>
             </td>
         </tr>

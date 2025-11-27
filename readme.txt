@@ -4,8 +4,8 @@ Donate link: https://wobbie.nl/doneren
 Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 5.3
 Requires PHP: 7.0
-Tested up to: 6.8.1
-Stable tag: 2.8.0
+Tested up to: 6.8.3
+Stable tag: 2.8.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,10 @@ The following action hooks with parameters are available:
 * WordPress 5.3 or greater
 
 == Changelog ==
+
+= 2.8.1 - 27/11/2025 =
+* Fix deprecation messages
+* Update Help Center URL
 
 = 2.8.0 - 30/05/2025 =
 * Send e-mails about failed recurring payments
@@ -223,7 +227,7 @@ The following action hooks with parameters are available:
 * Fixed issue with variables in payment description
 
 = 2.5.0 - 25/11/2021 =
-* Added discount codes [Read more](https://support.wobbie.nl/help/hoe-werken-de-kortingscodes-in-mollie-forms)
+* Added discount codes [Read more](https://support.wobbie.nl/nl/help/articles/6323828-hoe-werken-de-kortingscodes-in-mollie-forms)
 * Use WP timezone for created_at date in e-mail variable
 
 = 2.4.0 - 23/11/2021 =

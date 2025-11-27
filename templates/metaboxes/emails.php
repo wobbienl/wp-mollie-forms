@@ -353,5 +353,5 @@
 
     <br>
     <?php esc_html_e('You can use variables in the subjects and messages.', 'mollie-forms');?><br>
-    <?php esc_html_e('Visit our Help Center to learn more about variables:', 'mollie-forms');?> <a target="_blank" href="https://support.wobbie.nl/help/welke-variabelen-kan-ik-gebruiken">support.wobbie.nl</a>
+    <?php esc_html_e('Visit our Help Center to learn more about variables:', 'mollie-forms');?> <a target="_blank" href="https://support.wobbie.nl/nl/help/articles/8197590-welke-variabelen-kan-ik-gebruiken">support.wobbie.nl</a>
 </div>

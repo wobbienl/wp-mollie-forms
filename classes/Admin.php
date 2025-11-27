@@ -72,7 +72,7 @@ class Admin
 
         // Single registration
         add_submenu_page(
-                null,
+                '',
                 __('Registration', 'mollie-forms'),
                 __('Registration', 'mollie-forms'),
                 'edit_posts',
