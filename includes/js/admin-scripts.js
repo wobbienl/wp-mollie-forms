@@ -73,17 +73,6 @@ jQuery(document).ready(function($) {
             $(this).closest('td').next('td').next('td').find(".rfmp_value").val('').hide();
     });
 
-    $("body").on('change', '.rfmp_discount_type_select', function() {
-        var row = $(this).closest('tr');
-        if ($(this).val() === 'xfory') {
-            row.find('.rfmp_discount_value_cell').hide();
-            row.find('.rfmp_discount_xfory_cell').show();
-        } else {
-            row.find('.rfmp_discount_value_cell').show();
-            row.find('.rfmp_discount_xfory_cell').hide();
-        }
-    });
-
     $('#rfmp_tabs').tabs();
 
 });
