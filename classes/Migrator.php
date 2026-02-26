@@ -344,6 +344,8 @@ class Migrator
             discount_code     varchar(255) NOT NULL,
             discount_type     varchar(255) NOT NULL,
             discount          decimal(8,2) NOT NULL,
+            discount_x        mediumint(9) DEFAULT NULL,
+            discount_y        mediumint(9) DEFAULT NULL,
             valid_from        datetime DEFAULT NULL,
             valid_until       datetime DEFAULT NULL,
             times_max         mediumint(9) DEFAULT NULL,

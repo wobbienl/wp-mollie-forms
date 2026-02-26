@@ -476,9 +476,43 @@ class Form
                             $discountPercentage = ((int) $discount->discount) / 100;
                             $discountAmount = $totalPrice * $discountPercentage;
                             $discountAmountExclVat = $totalPriceExclVat * $discountPercentage;
+                        } elseif ($discount->discount_type === 'xfory') {
+                            // X for Y discount: buy X items, pay for Y (e.g. 3 for 2)
+                            $x = (int) $discount->discount_x;
+                            $y = (int) $discount->discount_y;
+                            $discountAmount = 0;
+                            $discountAmountExclVat = 0;
+                            $xforyDiscountVat = 0;
+
+                            if ($x > 1 && $y > 0 && $y < $x) {
+                                foreach ($priceOptions as $priceOption) {
+                                    $quantity = $priceOption['quantity'];
+                                    $unitPrice = $priceOption['option']->price_type == 'open' ?
+                                        (isset($_POST['rfmp_amount_' . $postId]) ?
+                                            (float) str_replace(',', '.', sanitize_text_field($_POST['rfmp_amount_' . $postId])) : 0) :
+                                        (float) $priceOption['option']->price;
+
+                                    $groups = floor($quantity / $x);
+                                    $freeItems = $groups * ($x - $y);
+                                    $optionDiscount = $freeItems * $unitPrice;
+
+                                    $discountAmountExclVat += $optionDiscount;
+                                    if ($vatSetting === 'excl') {
+                                        $optionDiscountVat = ($priceOption['option']->vat / 100) * $optionDiscount;
+                                        $discountAmount += $optionDiscount + $optionDiscountVat;
+                                        $xforyDiscountVat += $optionDiscountVat;
+                                    } else {
+                                        $optionDiscountVat = $optionDiscount * ($priceOption['option']->vat / ($priceOption['option']->vat + 100));
+                                        $discountAmount += $optionDiscount;
+                                        $xforyDiscountVat += $optionDiscountVat;
+                                    }
+                                }
+                            }
                         }
 
-                        if ($vatSetting === 'excl') {
+                        if (isset($xforyDiscountVat)) {
+                            $discountVat = $xforyDiscountVat;
+                        } elseif ($vatSetting === 'excl') {
                             $discountVat = ($vatRateFirstPriceOption / 100) * $discountAmount;
                         } else {
                             $discountVat = $discountAmount * ($vatRateFirstPriceOption / ($vatRateFirstPriceOption + 100));

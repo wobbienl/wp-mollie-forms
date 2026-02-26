@@ -8,13 +8,19 @@
             <input type="text" name="rfmp_discount_code[]" class="rfmp_discount_code" value="">
         </td>
         <td>
-            <select name="rfmp_discount_type[]" style="width: 95%;">
+            <select name="rfmp_discount_type[]" class="rfmp_discount_type_select" style="width: 95%;">
                 <option value="amount"><?php esc_html_e('Amount', 'mollie-forms') ?></option>
                 <option value="percentage"><?php esc_html_e('Percentage', 'mollie-forms') ?></option>
+                <option value="xfory"><?php esc_html_e('X for Y', 'mollie-forms') ?></option>
             </select>
         </td>
-        <td>
+        <td class="rfmp_discount_value_cell">
             <input type="number" step="any" name="rfmp_discount[]" value="">
+        </td>
+        <td class="rfmp_discount_xfory_cell" style="display: none;">
+            <input type="number" min="2" name="rfmp_discount_x[]" value="" style="width: 50px;" placeholder="X">
+            <?php esc_html_e('for', 'mollie-forms') ?>
+            <input type="number" min="1" name="rfmp_discount_y[]" value="" style="width: 50px;" placeholder="Y">
         </td>
         <td>
             <input type="datetime-local" name="rfmp_discount_valid_from[]" value="">
@@ -41,6 +47,7 @@
                 <th><?php esc_html_e('Discount code', 'mollie-forms'); ?></th>
                 <th><?php esc_html_e('Type', 'mollie-forms'); ?></th>
                 <th><?php esc_html_e('Discount', 'mollie-forms'); ?></th>
+                <th></th>
                 <th><?php esc_html_e('Valid from', 'mollie-forms'); ?></th>
                 <th><?php esc_html_e('Valid until', 'mollie-forms'); ?></th>
                 <th>
@@ -79,17 +86,34 @@
                                value="<?php echo esc_attr($discountCode->discount_code) ?>">
                     </td>
                     <td>
-                        <select name="rfmp_discount_type[]" style="width: 95%;">
+                        <select name="rfmp_discount_type[]" class="rfmp_discount_type_select" style="width: 95%;">
                             <option value="amount"><?php esc_html_e('Amount', 'mollie-forms') ?></option>
                             <option value="percentage" <?php echo $discountCode->discount_type === 'percentage' ?
                                     'selected' : '' ?>><?php esc_html_e('Percentage', 'mollie-forms') ?></option>
+                            <option value="xfory" <?php echo $discountCode->discount_type === 'xfory' ?
+                                    'selected' : '' ?>><?php esc_html_e('X for Y', 'mollie-forms') ?></option>
                         </select>
                     </td>
-                    <td>
+                    <td class="rfmp_discount_value_cell" <?php echo $discountCode->discount_type === 'xfory' ? 'style="display: none;"' : '' ?>>
                         <input type="number"
                                step="any"
                                name="rfmp_discount[]"
                                value="<?php echo esc_attr($discountCode->discount) ?>">
+                    </td>
+                    <td class="rfmp_discount_xfory_cell" <?php echo $discountCode->discount_type !== 'xfory' ? 'style="display: none;"' : '' ?>>
+                        <input type="number"
+                               min="2"
+                               name="rfmp_discount_x[]"
+                               value="<?php echo esc_attr($discountCode->discount_x) ?>"
+                               style="width: 50px;"
+                               placeholder="X">
+                        <?php esc_html_e('for', 'mollie-forms') ?>
+                        <input type="number"
+                               min="1"
+                               name="rfmp_discount_y[]"
+                               value="<?php echo esc_attr($discountCode->discount_y) ?>"
+                               style="width: 50px;"
+                               placeholder="Y">
                     </td>
                     <td>
                         <input type="datetime-local" required
@@ -118,7 +142,7 @@
         </tbody>
         <tfoot>
             <tr>
-                <th colspan="8">
+                <th colspan="9">
                     <input type="button"
                            id="rfmp_add_discountcode"
                            class="button"
