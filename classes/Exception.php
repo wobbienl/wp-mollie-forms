@@ -2,16 +2,18 @@
 
 namespace MollieForms;
 
-class Exception extends \Exception
-{
-
-    /**
-     * @param string          $message
-     * @param int             $code
-     * @param \Throwable|null $previous
-     */
-    public function __construct($message = "", $code = 0, \Throwable $previous = null)
+if (!class_exists('MollieForms\\Exception')) {
+    class Exception extends \Exception
     {
-        parent::__construct($message, $code, $previous);
+
+        /**
+         * @param string          $message
+         * @param int             $code
+         * @param \Throwable|null $previous
+         */
+        public function __construct($message = "", $code = 0, \Throwable $previous = null)
+        {
+            parent::__construct($message, $code, $previous);
+        }
     }
 }
