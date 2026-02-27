@@ -2,6 +2,9 @@
 
 namespace MollieForms;
 
+if (class_exists('MollieForms\\Migrator')) {
+    return;
+}
 
 class Migrator
 {
