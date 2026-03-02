@@ -2,6 +2,10 @@
 
 namespace MollieForms;
 
+if (class_exists('MollieForms\\RegistrationsTable')) {
+    return;
+}
+
 class RegistrationsTable extends \WP_List_Table
 {
 

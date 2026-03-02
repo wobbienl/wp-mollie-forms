@@ -2,6 +2,9 @@
 
 namespace MollieForms;
 
+if (class_exists('MollieForms\\MollieForms')) {
+    return;
+}
 
 class MollieForms
 {
