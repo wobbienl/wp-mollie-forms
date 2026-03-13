@@ -5,7 +5,7 @@ Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 6.0
 Requires PHP: 8.0
 Tested up to: 6.9.4
-Stable tag: 2.9.0
+Stable tag: 2.9.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,7 +81,7 @@ The following action hooks with parameters are available:
 
 == Changelog ==
 
-= 2.9.0 - 13/03/2026 =
+= 2.9.1 - 13/03/2026 =
 * Added new type of field "Confirm field" to let customers fill in a field twice
 * Fixed sending e-mails for registrations without payment
 
