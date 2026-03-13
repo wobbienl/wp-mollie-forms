@@ -152,6 +152,9 @@ class Admin
 		    $this->mollieForms->getVersion(),
 		    [ 'in_footer' => true ]
 	    );
+	    wp_localize_script('mollie-forms_admin_scripts', 'rfmp_i18n', [
+		    'confirm_placeholder' => __('Label of field to confirm', 'mollie-forms'),
+	    ]);
 	    wp_enqueue_style(
 		    'mollie-forms_admin_styles',
 		    $this->mollieForms->getDirUrl() . 'includes/css/admin-styles.css',

@@ -3,7 +3,7 @@
 /*
 Plugin Name: Mollie Forms
 Description: Create registration forms with payment methods of Mollie. One-time and recurring payments are possible.
-Version: 2.8.1
+Version: 2.9.0
 Author: Wobbie.nl
 Author URI: https://wobbie.nl
 Text Domain: mollie-forms
@@ -20,6 +20,7 @@ require_once 'classes/MollieApi.php';
 require_once 'classes/Helpers.php';
 require_once 'classes/MollieForms.php';
 require_once 'classes/FormBuilder.php';
+require_once 'classes/Email.php';
 require_once 'classes/Form.php';
 require_once 'classes/Webhook.php';
 require_once 'classes/Migrator.php';

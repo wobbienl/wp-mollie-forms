@@ -106,6 +106,10 @@ class FormBuilder
             case 'email':
                 $html = '<input type="email" ' . $this->buildAtts($atts) . ' style="width: 100%">';
                 break;
+            case 'confirm':
+                $inputType = isset($atts['confirm_type']) && $atts['confirm_type'] === 'email' ? 'email' : 'text';
+                $html = '<input type="' . $inputType . '" ' . $this->buildAtts($atts) . ' style="width: 100%">';
+                break;
             case 'date':
                 $html = '<input type="date" ' . $this->buildAtts($atts) . ' style="width: 100%">';
                 break;
@@ -451,7 +455,7 @@ class FormBuilder
             $frequency = $priceOption->frequency != 'once' ?
                 $priceOption->frequency_value . ' ' . $priceOption->frequency : 'once';
             if ($priceOption->price_type != 'open') {
-                $price = $symbol . ' ' . number_format($priceOption->price, $decimals, ',', '') . ' ' .
+                $price = $symbol . ' ' . number_format($priceOption->price ?? 0, $decimals, ',', '') . ' ' .
                          $this->helpers->getFrequencyLabel($frequency);
             } else {
                 $price = $this->helpers->getFrequencyLabel($frequency);
@@ -751,7 +755,7 @@ class FormBuilder
 
         $html = [];
         foreach ($atts as $key => $value) {
-	        if ($key === 'options' || is_array($value)) {
+	        if ($key === 'options' || $key === 'confirm_type' || is_array($value)) {
 		        continue;
 	        }
 

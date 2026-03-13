@@ -101,7 +101,15 @@ class Form
                 $atts['value'] = $defaultCountry[1];
             }
 
-            if ($options[$key]) {
+            if ($type === 'confirm' && $options[$key]) {
+                $confirmLabel = trim($options[$key]);
+                foreach ($fields as $fk => $ft) {
+                    if (isset($label[$fk]) && trim($label[$fk]) === $confirmLabel) {
+                        $atts['confirm_type'] = $ft;
+                        break;
+                    }
+                }
+            } elseif ($options[$key]) {
                 $atts['options'] = explode('|', $options[$key]);
             }
 
@@ -233,6 +241,7 @@ class Form
 
                 $field_type  = get_post_meta($postId, '_rfmp_fields_type', true);
                 $field_label = get_post_meta($postId, '_rfmp_fields_label', true);
+                $field_value = get_post_meta($postId, '_rfmp_fields_value', true);
 
                 $name_field        = array_search('name', $field_type);
                 $email_field       = array_search('email', $field_type);
@@ -423,9 +432,35 @@ class Form
 	                }
 
 					$required = get_post_meta($postId, '_rfmp_fields_required', true);
-					if ($field_type[$key] != 'discount_code' && $required[$key] && ($value === '' || (is_array($value) && empty($value)))) {
+					if ($field_type[$key] != 'discount_code' && $field_type[$key] != 'confirm' && $required[$key] && ($value === '' || (is_array($value) && empty($value)))) {
 						/* translators: %s is the field label */
 						throw new Exception(sprintf(esc_html__( '%s is a required field', 'mollie-forms'), $field));
+					}
+
+					if ($field_type[$key] === 'confirm' && isset($field_value[$key]) && $field_value[$key]) {
+						$confirmLabel = trim($field_value[$key]);
+						$confirmTargetKey = null;
+						foreach ($field_label as $fk => $fl) {
+							if (trim($fl) === $confirmLabel) {
+								$confirmTargetKey = $fk;
+								break;
+							}
+						}
+
+						if ($confirmTargetKey !== null) {
+							$targetValue = isset($_POST['form_' . $postId . '_field_' . $confirmTargetKey]) ?
+								trim(sanitize_text_field($_POST['form_' . $postId . '_field_' . $confirmTargetKey])) : '';
+
+							if ($required[$key] && $value === '') {
+								/* translators: %s is the field label */
+								throw new Exception(sprintf(esc_html__('%s is a required field', 'mollie-forms'), $field));
+							}
+
+							if ($value !== $targetValue) {
+								/* translators: %1$s is the confirm field label, %2$s is the target field label */
+								throw new Exception(sprintf(esc_html__('%1$s does not match %2$s', 'mollie-forms'), $field, $confirmLabel));
+							}
+						}
 					}
 
 	                if ($field_type[$key] === 'file' && !empty($_FILES['form_' . $postId . '_field_' . $key]['tmp_name'])) {
@@ -524,7 +559,7 @@ class Form
                 // Add field values of registration
                 foreach ($field_label as $key => $field) {
                     if ($field_type[$key] != 'submit' && $field_type[$key] != 'total' &&
-                        $field_type[$key] != 'priceoptions') {
+                        $field_type[$key] != 'priceoptions' && $field_type[$key] != 'confirm') {
                         $value = isset($_POST['form_' . $postId . '_field_' . $key]) ?
                             sanitize_text_field($_POST['form_' . $postId . '_field_' . $key]) : '';
                         if ($field_type[$key] === 'payment_methods') {
@@ -649,11 +684,24 @@ class Form
 						'payment_id'      => '',
 						'payment_method'  => '',
 						'payment_mode'    => '',
-						'payment_status'  => '',
-						'currency'        => '',
+						'payment_status'  => 'paid',
+						'currency'        => $currency,
 						'amount'          => 0,
 						'rfmp_id'         => sanitize_text_field($rfmpId),
 					]);
+
+					// Send emails for free registration
+					$payment = new \stdClass();
+					$payment->amount = new \stdClass();
+					$payment->amount->currency = $currency;
+					$payment->amount->value    = '0.00';
+					$payment->id = $rfmpId;
+					$payment->method = '-';
+					$payment->redirectUrl = $redirect . 'payment=' . $rfmpId;
+
+					$emailHandler = new Email($this->mollieForms);
+					$emailHandler->send($postId, 'paid', $registrationId, $payment, 'customer');
+					$emailHandler->send($postId, 'paid', $registrationId, $payment, 'merchant');
 
 					wp_redirect($redirect . 'payment=' . $rfmpId);
 					exit;
@@ -851,7 +899,7 @@ class Form
                         'method'      => $paymentMethod,
                         'locale'      => $locale,
                         'redirectUrl' => $redirect . 'payment=' . $rfmpId,
-                        'webhookUrl'  => $webhook,
+//                        'webhookUrl'  => $webhook,
                         'customerId'  => $customer->id,
                         'metadata'    => [
                             'rfmp_id' => $rfmpId,

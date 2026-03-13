@@ -67,10 +67,14 @@ jQuery(document).ready(function($) {
     });
 
     $("body").on('change', '.rfmp_type', function() {
-        if ($(this).val() == 'dropdown' || $(this).val() == 'radio')
-            $(this).closest('td').next('td').next('td').find(".rfmp_value").show();
-        else
-            $(this).closest('td').next('td').next('td').find(".rfmp_value").val('').hide();
+        var $value = $(this).closest('td').next('td').next('td').find(".rfmp_value");
+        if ($(this).val() == 'dropdown' || $(this).val() == 'radio') {
+            $value.attr('placeholder', 'value1|value2|value3').show();
+        } else if ($(this).val() == 'confirm') {
+            $value.attr('placeholder', rfmp_i18n.confirm_placeholder).show();
+        } else {
+            $value.val('').hide();
+        }
     });
 
     $('#rfmp_tabs').tabs();

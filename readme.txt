@@ -2,10 +2,10 @@
 Contributors: ndijkstra
 Donate link: https://wobbie.nl/doneren
 Tags: ideal,forms,payments,subscriptions,recurring
-Requires at least: 5.3
-Requires PHP: 7.0
-Tested up to: 6.8.3
-Stable tag: 2.8.1
+Requires at least: 6.0
+Requires PHP: 8.0
+Tested up to: 6.9.4
+Stable tag: 2.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,11 +75,15 @@ The following action hooks with parameters are available:
 
 = Minimum Requirements =
 
-* PHP version 7.0 or greater
+* PHP version 8.0 or greater
 * PHP extensions enabled: cURL, JSON
-* WordPress 5.3 or greater
+* WordPress 6 or greater
 
 == Changelog ==
+
+= 2.9.0 - 13/03/2026 =
+* Added new type of field "Confirm field" to let customers fill in a field twice
+* Fixed sending e-mails for registrations without payment
 
 = 2.8.1 - 27/11/2025 =
 * Fix deprecation messages
