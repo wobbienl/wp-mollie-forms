@@ -867,13 +867,13 @@ class Admin
 
             <ul class="products">
                 <li class="product">
-                    <a href="https://wobbie.nl/downloads/mailchimp-for-mollie-forms/" target="_blank">
+                    <a href="https://wobbie.nl/checkout/mailchimp-mollie-forms" target="_blank">
                         <h2><?php esc_html_e('Mailchimp', 'mollie-forms'); ?></h2>
                         <p><?php esc_html_e('Add people to your Mailchimp mailing list.', 'mollie-forms'); ?></p>
                     </a>
                 </li>
                 <li class="product">
-                    <a href="https://wobbie.nl/downloads/laposta-for-mollie-forms/" target="_blank">
+                    <a href="https://wobbie.nl/checkout/laposta-mollie-forms" target="_blank">
                         <h2><?php esc_html_e('Laposta', 'mollie-forms'); ?></h2>
                         <p><?php esc_html_e('Add people to your Laposta mailing list.', 'mollie-forms'); ?></p>
                     </a>
