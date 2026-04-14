@@ -2,6 +2,9 @@
 
 namespace MollieForms;
 
+if (class_exists('MollieForms\\Form')) {
+    return;
+}
 
 use DateTime;
 
@@ -353,6 +356,40 @@ class Form
 
                 if ($vatRateFirstPriceOption === null) {
                     $vatRateFirstPriceOption = 21;
+                }
+
+                // Apply X for Y discounts automatically per price option
+                $xforyDiscount = 0;
+                $xforyDiscountVat = 0;
+                foreach ($priceOptions as $priceOption) {
+                    $x = (int) ($priceOption['option']->xfory_x ?? 0);
+                    $y = (int) ($priceOption['option']->xfory_y ?? 0);
+                    if ($x > 1 && $y > 0 && $y < $x && $priceOption['quantity'] >= $x) {
+                        $unitPrice = $priceOption['option']->price_type == 'open' ?
+                            (isset($_POST['rfmp_amount_' . $postId]) ?
+                                (float) str_replace(',', '.', sanitize_text_field($_POST['rfmp_amount_' . $postId])) : 0) :
+                            (float) $priceOption['option']->price;
+
+                        $groups = floor($priceOption['quantity'] / $x);
+                        $freeItems = $groups * ($x - $y);
+                        $optionDiscount = $freeItems * $unitPrice;
+
+                        if ($vatSetting === 'excl') {
+                            $optionDiscountVat = ($priceOption['option']->vat / 100) * $optionDiscount;
+                            $xforyDiscount += $optionDiscount + $optionDiscountVat;
+                            $xforyDiscountVat += $optionDiscountVat;
+                        } else {
+                            $optionDiscountVat = $optionDiscount * ($priceOption['option']->vat / ($priceOption['option']->vat + 100));
+                            $xforyDiscount += $optionDiscount;
+                            $xforyDiscountVat += $optionDiscountVat;
+                        }
+                    }
+                }
+
+                if ($xforyDiscount > 0) {
+                    $totalPrice -= $xforyDiscount;
+                    $totalPriceExclVat -= ($xforyDiscount - $xforyDiscountVat);
+                    $totalVat -= $xforyDiscountVat;
                 }
 
                 // calc shipping costs
@@ -827,6 +864,27 @@ class Form
                             'vatAmount'   => [
                                 'currency' => $currency,
                                 'value'    => '-' . number_format($discountVat, $decimals, '.', ''),
+                            ],
+                        ];
+                    }
+
+                    if ($xforyDiscount > 0) {
+                        $orderLines[] = [
+                            'type'        => 'discount',
+                            'name'        => __('X for Y discount', 'mollie-forms'),
+                            'quantity'    => 1,
+                            'unitPrice'   => [
+                                'currency' => $currency,
+                                'value'    => '-' . number_format($xforyDiscount, $decimals, '.', ''),
+                            ],
+                            'totalAmount' => [
+                                'currency' => $currency,
+                                'value'    => '-' . number_format($xforyDiscount, $decimals, '.', ''),
+                            ],
+                            'vatRate'     => number_format($vatRateFirstPriceOption, 2, '.'),
+                            'vatAmount'   => [
+                                'currency' => $currency,
+                                'value'    => '-' . number_format($xforyDiscountVat, $decimals, '.', ''),
                             ],
                         ];
                     }

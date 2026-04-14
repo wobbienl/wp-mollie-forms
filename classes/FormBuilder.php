@@ -2,6 +2,9 @@
 
 namespace MollieForms;
 
+if (class_exists('MollieForms\\FormBuilder')) {
+    return;
+}
 
 class FormBuilder
 {
@@ -494,10 +497,12 @@ class FormBuilder
                                 <input  type="number"
                                         name="rfmp_priceoptions_' . $post . '_quantity[' . $priceOption->id . ']"
                                         class="rfmp_priceoptions_' . $post . '_quantity"
-                                        data-frequency="' . esc_attr($priceOption->frequency) . '" 
-                                        data-freq="' . esc_attr($this->helpers->getFrequencyLabel($frequency)) . '" 
-                                        data-price="' . esc_attr($priceOption->price) . '" 
-                                        data-vat="' . esc_attr($priceOption->vat) . '" 
+                                        data-frequency="' . esc_attr($priceOption->frequency) . '"
+                                        data-freq="' . esc_attr($this->helpers->getFrequencyLabel($frequency)) . '"
+                                        data-price="' . esc_attr($priceOption->price) . '"
+                                        data-vat="' . esc_attr($priceOption->vat) . '"
+                                        data-xfory-x="' . esc_attr($priceOption->xfory_x ?: 0) . '"
+                                        data-xfory-y="' . esc_attr($priceOption->xfory_y ?: 0) . '"
                                         onchange="mollie_forms_recurring_methods_' . $post . '();mollie_forms_' .
                              $post . '_totals();"
                                         min="0"
@@ -618,8 +623,20 @@ class FormBuilder
                     if (q <= 0 || isNaN(q)) {
                         continue;
                     }
-                    
-                    var optionPrice = parseFloat(quantities[i].dataset.price) * q;
+
+                    var unitPrice = parseFloat(quantities[i].dataset.price);
+                    var effectiveQ = q;
+
+                    // Apply X for Y discount
+                    var xforyX = parseInt(quantities[i].dataset.xforyX) || 0;
+                    var xforyY = parseInt(quantities[i].dataset.xforyY) || 0;
+                    if (xforyX > 1 && xforyY > 0 && xforyY < xforyX && q >= xforyX) {
+                        var groups = Math.floor(q / xforyX);
+                        var freeItems = groups * (xforyX - xforyY);
+                        effectiveQ = q - freeItems;
+                    }
+
+                    var optionPrice = unitPrice * effectiveQ;
                     if (optionPrice > 0 || isNaN(optionPrice)) {
                         var optionVat = (parseInt(quantities[i].dataset.vat) / 100) * optionPrice;
                         vat   += optionVat;

@@ -2,6 +2,9 @@
 
 namespace MollieForms;
 
+if (class_exists('MollieForms\\Admin')) {
+    return;
+}
 
 class Admin
 {
@@ -594,6 +597,8 @@ class Admin
                         'times'           => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_times'][$key])) ?: null,
                         'stock'           => $_POST['rfmp_priceoptions_stock'][$key] != '' ? esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_stock'][$key])) : null,
                         'sort_order'      => $sortOrder,
+                        'xfory_x'        => isset($_POST['rfmp_priceoptions_xfory_x'][$key]) && $_POST['rfmp_priceoptions_xfory_x'][$key] != '' ? esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_xfory_x'][$key])) : null,
+                        'xfory_y'        => isset($_POST['rfmp_priceoptions_xfory_y'][$key]) && $_POST['rfmp_priceoptions_xfory_y'][$key] != '' ? esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_xfory_y'][$key])) : null,
                 ]);
             } elseif ($new == '-1') {
                 if (strstr($key, 'po-')) {
@@ -614,6 +619,8 @@ class Admin
                         'times'           => esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_times'][$key])) ?: null,
                         'stock'           => $_POST['rfmp_priceoptions_stock'][$key] != '' ? esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_stock'][$key])) : null,
                         'sort_order'      => $sortOrder,
+                        'xfory_x'        => isset($_POST['rfmp_priceoptions_xfory_x'][$key]) && $_POST['rfmp_priceoptions_xfory_x'][$key] != '' ? esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_xfory_x'][$key])) : null,
+                        'xfory_y'        => isset($_POST['rfmp_priceoptions_xfory_y'][$key]) && $_POST['rfmp_priceoptions_xfory_y'][$key] != '' ? esc_sql(sanitize_text_field($_POST['rfmp_priceoptions_xfory_y'][$key])) : null,
                 ], [
                         'ID' => str_replace('po-', '', $key),
                 ]);
@@ -1039,6 +1046,8 @@ class Admin
                     'times'           => $priceOption->times,
                     'stock'           => $priceOption->stock,
                     'sort_order'      => $priceOption->sort_order,
+                    'xfory_x'        => $priceOption->xfory_x,
+                    'xfory_y'        => $priceOption->xfory_y,
             ]);
         }
 

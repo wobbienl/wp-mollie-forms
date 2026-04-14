@@ -18,7 +18,12 @@
             <input type="number" min="0" name="rfmp_priceoptions_stock[]" style="width: 60px;">
         </td>
         <td>
-            <input type="number" name="rfmp_priceoptions_frequencyval[]" style="width:50px;display:none;">
+            <input type="number" min="2" name="rfmp_priceoptions_xfory_x[]" style="width: 40px;" placeholder="X">
+            <?php esc_html_e('for', 'mollie-forms') ?>
+            <input type="number" min="1" name="rfmp_priceoptions_xfory_y[]" style="width: 40px;" placeholder="Y">
+        </td>
+        <td>
+            <input type="number" min="0" name="rfmp_priceoptions_frequencyval[]" style="width:50px;display:none;">
             <select name="rfmp_priceoptions_frequency[]" class="rfmp_frequency">
                 <option value="once"><?php esc_html_e('Once', 'mollie-forms');?></option>
                 <option value="months"><?php esc_html_e('Months', 'mollie-forms');?></option>
@@ -45,6 +50,7 @@
             <th><?php esc_html_e('Price', 'mollie-forms');?> <a href="#" style="cursor: help;" title="<?php esc_html_e('When the price type is set to open, this field is optional to set a minimum amount', 'mollie-forms');?>">?</a></th>
             <th><?php esc_html_e('VAT', 'mollie-forms');?> %</th>
             <th><?php esc_html_e('Stock', 'mollie-forms');?> <a href="#" style="cursor: help;" title="<?php esc_html_e('Leave empty if you don\'t want to activate stock management', 'mollie-forms');?>">?</a></th>
+            <th><?php esc_html_e('X for Y', 'mollie-forms');?> <a href="#" style="cursor: help;" title="<?php esc_html_e('Buy X items, pay for Y. E.g. 3 for 2. Leave empty to disable.', 'mollie-forms');?>">?</a></th>
             <th><?php esc_html_e('Frequency', 'mollie-forms');?></th>
             <th><?php esc_html_e('Times', 'mollie-forms');?> <a href="#" style="cursor: help;" title="<?php esc_html_e('The number of times including the first payment. Leave empty or set to 0 for an on-going subscription', 'mollie-forms');?>">?</a></th>
             <th></th>
@@ -69,6 +75,11 @@
                     <input type="number" min="0" name="rfmp_priceoptions_stock[po-<?php echo esc_attr($priceOption->id);?>]" value="<?php echo esc_attr($priceOption->stock);?>" style="width: 60px;">
                 </td>
                 <td>
+                    <input type="number" min="2" name="rfmp_priceoptions_xfory_x[po-<?php echo esc_attr($priceOption->id);?>]" value="<?php echo esc_attr($priceOption->xfory_x);?>" style="width: 40px;" placeholder="X">
+                    <?php esc_html_e('for', 'mollie-forms') ?>
+                    <input type="number" min="1" name="rfmp_priceoptions_xfory_y[po-<?php echo esc_attr($priceOption->id);?>]" value="<?php echo esc_attr($priceOption->xfory_y);?>" style="width: 40px;" placeholder="Y">
+                </td>
+                <td>
                     <input type="number" name="rfmp_priceoptions_frequencyval[po-<?php echo esc_attr($priceOption->id);?>]" value="<?php echo esc_attr($priceOption->frequency_value);?>" style="width:50px;<?php echo ($priceOption->frequency == 'once' ? 'display:none;' : '');?>">
                     <select name="rfmp_priceoptions_frequency[po-<?php echo esc_attr($priceOption->id);?>]" class="rfmp_frequency">
                         <option value="once"><?php esc_html_e('Once', 'mollie-forms');?></option>
@@ -89,7 +100,7 @@
         </tbody>
         <tfoot>
         <tr>
-            <th colspan="9"><input type="button" id="rfmp_add_priceoption" class="button" value="<?php esc_html_e('Add new price option', 'mollie-forms');?>"></th>
+            <th colspan="10"><input type="button" id="rfmp_add_priceoption" class="button" value="<?php esc_html_e('Add new price option', 'mollie-forms');?>"></th>
         </tr>
         </tfoot>
     </table>
