@@ -46,12 +46,18 @@ class RegistrationsTable extends \WP_List_Table
      */
     function column_actions($item)
     {
-        $url_view   = 'edit.php?post_type=mollie-forms&page=registration&view=' . $item['id'];
+        $url_view = 'edit.php?post_type=mollie-forms&page=registration&view=' . $item['id'];
+        $view     = sprintf('<a href="%s">' . esc_html__('View', 'mollie-forms') . '</a>', esc_url($url_view));
+
+        // Only offer deletion when the form explicitly authorises it.
+        if (get_post_meta($item['post_id'], '_rfmp_allow_deletion', true) !== 'yes') {
+            return $view;
+        }
+
         $url_delete = wp_nonce_url('edit.php?post_type=mollie-forms&page=registration&view=' . $item['id'] . '&delete=true', 'delete-reg_' . $item['id']);
-        return sprintf('<a href="%s">' . esc_html__('View', 'mollie-forms') .
-                       '</a> <a href="%s" style="color:#a00;" onclick="return confirm(\'' .
+        return sprintf('%s <a href="%s" style="color:#a00;" onclick="return confirm(\'' .
                        esc_html__('Are you sure?', 'mollie-forms') . '\');">' . esc_html__('Delete', 'mollie-forms') .
-                       '</a>', $url_view, $url_delete);
+                       '</a>', $view, $url_delete);
     }
 
     /**

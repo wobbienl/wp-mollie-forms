@@ -66,6 +66,17 @@ jQuery(document).ready(function($) {
         }
     });
 
+    $("body").on('change', '[name=rfmp_allow_deletion]', function() {
+        if ($(this).val() == 'yes')
+        {
+            $('.rfmp_allow_deletion_warning').show();
+        }
+        else
+        {
+            $('.rfmp_allow_deletion_warning').hide();
+        }
+    });
+
     $("body").on('change', '.rfmp_type', function() {
         var $value = $(this).closest('td').next('td').next('td').find(".rfmp_value");
         if ($(this).val() == 'dropdown' || $(this).val() == 'radio') {

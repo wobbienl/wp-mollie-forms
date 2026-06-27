@@ -242,6 +242,25 @@
             </td>
         </tr>
 
+        <tr valign="top">
+            <th scope="row" class="titledesc">
+                <label for="rfmp_allow_deletion"><?php esc_html_e('Authorise deletion of rows', 'mollie-forms');?></label>
+            </th>
+            <td class="forminp forminp-text">
+                <select name="rfmp_allow_deletion" id="rfmp_allow_deletion" style="width: 350px;">
+                    <option value="no"><?php esc_html_e('No', 'mollie-forms');?></option>
+                    <option value="yes"<?php echo ($allowDeletion == 'yes' ? ' selected' : '');?>><?php esc_html_e('Yes', 'mollie-forms');?></option>
+                </select>
+                <br><small><?php esc_html_e('Allows deleting registrations from the entries overview. Disabled by default.', 'mollie-forms');?></small>
+                <div class="rfmp_allow_deletion_warning notice notice-warning inline" style="margin: 8px 0 0; padding: 8px 12px;<?php echo ($allowDeletion == 'yes' ? '' : ' display: none;');?>">
+                    <p style="margin: 0;">
+                        <strong><?php esc_html_e('Warning:', 'mollie-forms');?></strong>
+                        <?php esc_html_e('Deleting registrations is not recommended. It creates gaps in your payment IDs and permanently removes payment records. Only enable this if you are certain you need it.', 'mollie-forms');?>
+                    </p>
+                </div>
+            </td>
+        </tr>
+
         </tbody>
     </table>
 </div>
