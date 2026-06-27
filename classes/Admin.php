@@ -294,6 +294,7 @@ class Admin
         $recaptchaSiteKey    = get_post_meta($post->ID, '_rfmp_recaptcha_v3_site_key', true);
         $recaptchaSecretKey  = get_post_meta($post->ID, '_rfmp_recaptcha_v3_secret_key', true);
         $recaptchaScore      = get_post_meta($post->ID, '_rfmp_recaptcha_v3_minimum_score', true) ?: MollieForms::DEFAULT_MINIMUM_RECAPTCHA_SCORE;
+        $allowDeletion       = get_post_meta($post->ID, '_rfmp_allow_deletion', true) ?: 'no';
 
         include $this->mollieForms->getDirPath() . 'templates/metaboxes/settings.php';
     }
@@ -489,6 +490,7 @@ class Admin
         update_post_meta($postId, '_rfmp_recaptcha_v3_site_key', sanitize_text_field($_POST['rfmp_recaptcha_v3_site_key']));
         update_post_meta($postId, '_rfmp_recaptcha_v3_secret_key', sanitize_text_field($_POST['rfmp_recaptcha_v3_secret_key']));
         update_post_meta($postId, '_rfmp_recaptcha_v3_minimum_score', sanitize_text_field($_POST['rfmp_recaptcha_v3_minimum_score']));
+        update_post_meta($postId, '_rfmp_allow_deletion', (isset($_POST['rfmp_allow_deletion']) && $_POST['rfmp_allow_deletion'] === 'yes') ? 'yes' : 'no');
 
         // Add address fields when API type is "orders"
         if ($_POST['rfmp_api_type'] == 'orders') {
@@ -681,6 +683,10 @@ class Admin
                     $msg = '<div class="updated notice"><p>' .
                            esc_html__('The registration is successful deleted', 'mollie-forms') . '</p></div>';
                     break;
+                case 'delete-not-allowed':
+                    $msg = '<div class="error notice"><p>' .
+                           esc_html__('Deletion is not authorised for this form. Enable it in the form settings first.', 'mollie-forms') . '</p></div>';
+                    break;
             }
 
             echo esc_html($msg ?? '');
@@ -730,6 +736,12 @@ class Admin
 
         // Delete registration
         if (isset($_GET['delete']) && check_admin_referer('delete-reg_' . $id)) {
+            // Deletion must be explicitly authorised on the form, otherwise refuse.
+            if (get_post_meta($registration->post_id, '_rfmp_allow_deletion', true) !== 'yes') {
+                wp_redirect('?post_type=mollie-forms&page=registrations&msg=delete-not-allowed');
+                exit;
+            }
+
             $this->db->delete($this->mollieForms->getRegistrationsTable(), [
                     'id' => $id,
             ]);
