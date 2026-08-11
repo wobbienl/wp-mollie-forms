@@ -3,7 +3,7 @@
 /*
 Plugin Name: Mollie Forms
 Description: Create registration forms with payment methods of Mollie. One-time and recurring payments are possible.
-Version: 2.9.3
+Version: 2.10.0
 Author: Wobbie
 Author URI: https://wobbie.nl
 Text Domain: mollie-forms
@@ -24,6 +24,8 @@ require_once 'classes/Email.php';
 require_once 'classes/Form.php';
 require_once 'classes/Webhook.php';
 require_once 'classes/Migrator.php';
+require_once 'classes/Integrations/Rcur/RcurApi.php';
+require_once 'classes/Integrations/Rcur/RcurIntegration.php';
 
 // start the plugin
 $plugin = new \MollieForms\MollieForms();
@@ -37,13 +39,16 @@ if (is_admin()) {
 
     require_once 'classes/RegistrationsTable.php';
     require_once 'classes/Admin.php';
-    $admin = new \MollieForms\Admin($plugin);
+    require_once 'classes/Integrations/Rcur/RcurAdmin.php';
+    $admin     = new \MollieForms\Admin($plugin);
+    $rcurAdmin = new \MollieForms\Integrations\Rcur\RcurAdmin($plugin);
 }
 
 // init the migrator
-$migrator = new \MollieForms\Migrator($plugin);
-$form     = new \MollieForms\Form($plugin);
-$webhook  = new \MollieForms\Webhook($plugin);
+$migrator         = new \MollieForms\Migrator($plugin);
+$form             = new \MollieForms\Form($plugin);
+$webhook          = new \MollieForms\Webhook($plugin);
+$rcurIntegration  = new \MollieForms\Integrations\Rcur\RcurIntegration($plugin);
 
 if (get_option('mollie-forms_version') != $plugin->getVersion()) {
     $migrator->runMigration();

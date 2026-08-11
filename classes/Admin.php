@@ -294,6 +294,9 @@ class Admin
         $recaptchaSiteKey    = get_post_meta($post->ID, '_rfmp_recaptcha_v3_site_key', true);
         $recaptchaSecretKey  = get_post_meta($post->ID, '_rfmp_recaptcha_v3_secret_key', true);
         $recaptchaScore      = get_post_meta($post->ID, '_rfmp_recaptcha_v3_minimum_score', true) ?: MollieForms::DEFAULT_MINIMUM_RECAPTCHA_SCORE;
+        $turnstileSiteKey    = get_post_meta($post->ID, '_rfmp_turnstile_site_key', true);
+        $turnstileSecretKey  = get_post_meta($post->ID, '_rfmp_turnstile_secret_key', true);
+        $antispamMethod      = $this->helpers->getAntispamMethod($post->ID);
 
         include $this->mollieForms->getDirPath() . 'templates/metaboxes/settings.php';
     }
@@ -489,6 +492,9 @@ class Admin
         update_post_meta($postId, '_rfmp_recaptcha_v3_site_key', sanitize_text_field($_POST['rfmp_recaptcha_v3_site_key']));
         update_post_meta($postId, '_rfmp_recaptcha_v3_secret_key', sanitize_text_field($_POST['rfmp_recaptcha_v3_secret_key']));
         update_post_meta($postId, '_rfmp_recaptcha_v3_minimum_score', sanitize_text_field($_POST['rfmp_recaptcha_v3_minimum_score']));
+        update_post_meta($postId, '_rfmp_turnstile_site_key', sanitize_text_field($_POST['rfmp_turnstile_site_key']));
+        update_post_meta($postId, '_rfmp_turnstile_secret_key', sanitize_text_field($_POST['rfmp_turnstile_secret_key']));
+        update_post_meta($postId, '_rfmp_antispam_method', sanitize_text_field($_POST['rfmp_antispam_method']));
 
         // Add address fields when API type is "orders"
         if ($_POST['rfmp_api_type'] == 'orders') {

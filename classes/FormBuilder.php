@@ -6,7 +6,7 @@ namespace MollieForms;
 class FormBuilder
 {
 
-    private $db, $mollieForms, $form, $postId, $label, $helpers, $recaptchaSiteKey;
+    private $db, $mollieForms, $form, $postId, $label, $helpers, $recaptchaSiteKey, $turnstileSiteKey;
 
     /**
      * MollieFormsBuilder constructor.
@@ -22,9 +22,15 @@ class FormBuilder
         $this->mollieForms = new MollieForms();
         $this->helpers     = new Helpers();
 
+        $antispamMethod         = $this->helpers->getAntispamMethod($postId);
         $this->postId           = $postId;
-        $this->recaptchaSiteKey = sanitize_text_field(get_post_meta($postId, '_rfmp_recaptcha_v3_site_key', true));
+        $this->recaptchaSiteKey = $antispamMethod === 'recaptcha' ? sanitize_text_field(get_post_meta($postId, '_rfmp_recaptcha_v3_site_key', true)) : '';
+        $this->turnstileSiteKey = $antispamMethod === 'turnstile' ? sanitize_text_field(get_post_meta($postId, '_rfmp_turnstile_site_key', true)) : '';
         $this->form             = '';
+
+        if ($this->turnstileSiteKey) {
+            $this->form .= '<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>';
+        }
 
         if ($this->recaptchaSiteKey) {
             $this->form .= '<script src="https://www.google.com/recaptcha/api.js?render=' . esc_attr($this->recaptchaSiteKey) . '"></script>';
@@ -153,6 +159,10 @@ class FormBuilder
 					$html .= '<button type="submit" style="display:none;" id="rfmp_' . $this->postId . '_submit">' . $atts['label'] . '</button>';
                     $html .= '<br><button type="button" onclick="onSubmit' . $this->postId . '(event)" data-action="submit" ' .
                              $this->buildAtts($atts) . '>' . $atts['label'] . '</button>';
+                }
+
+                if ($this->turnstileSiteKey) {
+                    $html = '<div class="cf-turnstile" data-sitekey="' . esc_attr($this->turnstileSiteKey) . '"></div>' . $html;
                 }
                 break;
             case 'file':

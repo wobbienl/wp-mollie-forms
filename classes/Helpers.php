@@ -6,6 +6,27 @@ class Helpers
 {
 
     /**
+     * Get the selected anti-spam method for a form.
+     *
+     * Falls back to reCAPTCHA for forms that were configured before the
+     * method selector existed but already have a reCAPTCHA site key set.
+     *
+     * @param int $postId
+     *
+     * @return string One of 'none', 'recaptcha', 'turnstile'
+     */
+    public function getAntispamMethod($postId)
+    {
+        $method = get_post_meta($postId, '_rfmp_antispam_method', true);
+
+        if (!$method) {
+            $method = get_post_meta($postId, '_rfmp_recaptcha_v3_site_key', true) ? 'recaptcha' : 'none';
+        }
+
+        return $method;
+    }
+
+    /**
      * Get all currencies with number of decimals
      *
      * @param null $currency

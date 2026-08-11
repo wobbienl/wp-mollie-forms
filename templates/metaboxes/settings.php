@@ -209,6 +209,20 @@
 
         <tr valign="top">
             <th scope="row" class="titledesc">
+                <label for="rfmp_antispam_method"><?php esc_html_e('Spam protection', 'mollie-forms');?></label>
+            </th>
+            <td class="forminp forminp-text">
+                <select name="rfmp_antispam_method" id="rfmp_antispam_method">
+                    <option value="none" <?php selected($antispamMethod, 'none');?>><?php esc_html_e('None', 'mollie-forms');?></option>
+                    <option value="recaptcha" <?php selected($antispamMethod, 'recaptcha');?>><?php esc_html_e('Google reCAPTCHA v3', 'mollie-forms');?></option>
+                    <option value="turnstile" <?php selected($antispamMethod, 'turnstile');?>><?php esc_html_e('Cloudflare Turnstile', 'mollie-forms');?></option>
+                </select>
+                <br><small><?php esc_html_e('Choose which spam protection to use on this form.', 'mollie-forms');?></small>
+            </td>
+        </tr>
+
+        <tr valign="top" class="rfmp-antispam-row rfmp-antispam-recaptcha">
+            <th scope="row" class="titledesc">
                 <label for="rfmp_recaptcha_v3_site_key"><?php esc_html_e('Google reCAPTCHA v3 Site Key', 'mollie-forms');?></label>
             </th>
             <td class="forminp forminp-text">
@@ -219,7 +233,7 @@
             </td>
         </tr>
 
-        <tr valign="top">
+        <tr valign="top" class="rfmp-antispam-row rfmp-antispam-recaptcha">
             <th scope="row" class="titledesc">
                 <label for="rfmp_recaptcha_v3_secret_key"><?php esc_html_e('Google reCAPTCHA v3 Secret Key', 'mollie-forms');?></label>
             </th>
@@ -228,9 +242,9 @@
             </td>
         </tr>
 
-        <tr valign="top">
+        <tr valign="top" class="rfmp-antispam-row rfmp-antispam-recaptcha">
             <th scope="row" class="titledesc">
-                <label for="rfmp_recaptcha_v3_secret_key"><?php esc_html_e('reCAPTCHA minimum acceptance score', 'mollie-forms');?></label>
+                <label for="rfmp_recaptcha_v3_minimum_score"><?php esc_html_e('reCAPTCHA minimum acceptance score', 'mollie-forms');?></label>
             </th>
             <td class="forminp forminp-text">
                 <select name="rfmp_recaptcha_v3_minimum_score" id="rfmp_recaptcha_v3_minimum_score">
@@ -242,6 +256,48 @@
             </td>
         </tr>
 
+        <tr valign="top" class="rfmp-antispam-row rfmp-antispam-turnstile">
+            <th scope="row" class="titledesc">
+                <label for="rfmp_turnstile_site_key"><?php esc_html_e('Cloudflare Turnstile Site Key', 'mollie-forms');?></label>
+            </th>
+            <td class="forminp forminp-text">
+                <input name="rfmp_turnstile_site_key" id="rfmp_turnstile_site_key" value="<?php echo esc_attr($turnstileSiteKey);?>" type="text" style="width: 350px">
+                <br><small>
+                    <?php esc_html_e('Generate a Turnstile key at:', 'mollie-forms');?> <a target="_blank" href="https://dash.cloudflare.com/?to=/:account/turnstile">Cloudflare</a>
+                </small>
+            </td>
+        </tr>
+
+        <tr valign="top" class="rfmp-antispam-row rfmp-antispam-turnstile">
+            <th scope="row" class="titledesc">
+                <label for="rfmp_turnstile_secret_key"><?php esc_html_e('Cloudflare Turnstile Secret Key', 'mollie-forms');?></label>
+            </th>
+            <td class="forminp forminp-text">
+                <input name="rfmp_turnstile_secret_key" id="rfmp_turnstile_secret_key" value="<?php echo esc_attr($turnstileSecretKey);?>" type="text" style="width: 350px">
+            </td>
+        </tr>
+
         </tbody>
     </table>
+
+    <script>
+        (function () {
+            var select = document.getElementById('rfmp_antispam_method');
+            if (!select) {
+                return;
+            }
+
+            function toggleAntispamRows() {
+                var method = select.value;
+                var rows   = document.querySelectorAll('.rfmp-antispam-row');
+                for (var i = 0; i < rows.length; i++) {
+                    var show = rows[i].classList.contains('rfmp-antispam-' + method);
+                    rows[i].style.display = show ? '' : 'none';
+                }
+            }
+
+            select.addEventListener('change', toggleAntispamRows);
+            toggleAntispamRows();
+        })();
+    </script>
 </div>

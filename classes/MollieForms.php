@@ -9,7 +9,7 @@ class MollieForms
     /**
      * Plugin version number
      */
-    const PLUGIN_VERSION = '2.9.3';
+    const PLUGIN_VERSION = '2.10.0';
 
     /**
      * Webhook URL for Mollie
@@ -27,6 +27,8 @@ class MollieForms
     const TABLE_SUBSCRIPTIONS              = 'mollie_forms_subscriptions';
     const TABLE_PRICE_OPTIONS              = 'mollie_forms_price_options';
     const TABLE_DISCOUNT_CODES             = 'mollie_forms_discount_codes';
+    const TABLE_RCUR_CUSTOMERS             = 'mollie_forms_rcur_customers';
+    const TABLE_RCUR_SUBSCRIPTIONS         = 'mollie_forms_rcur_subscriptions';
 
 	const DEFAULT_MINIMUM_RECAPTCHA_SCORE = 0.5;
 
@@ -139,6 +141,26 @@ class MollieForms
     public function getPriceOptionsTable()
     {
         return $this->db->prefix . self::TABLE_PRICE_OPTIONS;
+    }
+
+    /**
+     * RCUR customers table name
+     *
+     * @return string
+     */
+    public function getRcurCustomersTable()
+    {
+        return $this->db->prefix . self::TABLE_RCUR_CUSTOMERS;
+    }
+
+    /**
+     * RCUR subscriptions table name
+     *
+     * @return string
+     */
+    public function getRcurSubscriptionsTable()
+    {
+        return $this->db->prefix . self::TABLE_RCUR_SUBSCRIPTIONS;
     }
 
     /**

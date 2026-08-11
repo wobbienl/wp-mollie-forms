@@ -352,6 +352,30 @@ class Migrator
         ) {$this->db->get_charset_collate()};";
         dbDelta($sqlDiscountCodes);
 
+        $sqlRcurCustomers = "CREATE TABLE {$this->mollieForms->getRcurCustomersTable()} (
+            id                      mediumint(9) NOT NULL AUTO_INCREMENT,
+            created_at              datetime NOT NULL,
+            post_id                 mediumint(9) NOT NULL,
+            customer_id             mediumint(9) NOT NULL,
+            rcur_customer_id        varchar(64) NOT NULL,
+            rcur_mollie_customer_id varchar(64) DEFAULT NULL,
+            UNIQUE KEY id (id),
+            KEY customer_id (customer_id),
+            KEY post_id (post_id)
+        ) {$this->db->get_charset_collate()};";
+        dbDelta($sqlRcurCustomers);
+
+        $sqlRcurSubscriptions = "CREATE TABLE {$this->mollieForms->getRcurSubscriptionsTable()} (
+            id                   mediumint(9) NOT NULL AUTO_INCREMENT,
+            created_at           datetime NOT NULL,
+            registration_id      mediumint(9) NOT NULL,
+            price_option_id      mediumint(9) NOT NULL,
+            rcur_subscription_id varchar(64) NOT NULL,
+            UNIQUE KEY id (id),
+            KEY registration_id (registration_id)
+        ) {$this->db->get_charset_collate()};";
+        dbDelta($sqlRcurSubscriptions);
+
         update_option('mollie-forms_version', $this->mollieForms->getVersion());
     }
 

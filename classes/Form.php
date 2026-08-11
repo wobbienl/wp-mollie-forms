@@ -211,7 +211,9 @@ class Form
         $redirect = (is_ssl() ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         $redirect .= strstr($redirect, '?') ? '&' : '?';
 
-		$recaptchaSecretKey = get_post_meta($postId, '_rfmp_recaptcha_v3_secret_key', true);
+		$antispamMethod     = $this->helpers->getAntispamMethod($postId);
+		$recaptchaSecretKey = $antispamMethod === 'recaptcha' ? get_post_meta($postId, '_rfmp_recaptcha_v3_secret_key', true) : '';
+		$turnstileSecretKey = $antispamMethod === 'turnstile' ? get_post_meta($postId, '_rfmp_turnstile_secret_key', true) : '';
 
         try {
             if ($recaptchaSecretKey) {
@@ -227,6 +229,25 @@ class Form
 
                 $recaptchaMinimumScore = get_post_meta($postId, '_rfmp_recaptcha_v3_minimum_score', true) ?: MollieForms::DEFAULT_MINIMUM_RECAPTCHA_SCORE;
                 if ($response->success === false || $response->score < $recaptchaMinimumScore) {
+                    throw new Exception('Spam');
+                }
+            }
+
+            if ($turnstileSecretKey) {
+                $response = wp_remote_post(
+                    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+                    [
+                        'timeout' => 45,
+                        'body'    => [
+                            'secret'   => $turnstileSecretKey,
+                            'response' => isset($_POST['cf-turnstile-response']) ? sanitize_text_field($_POST['cf-turnstile-response']) : '',
+                            'remoteip' => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : '',
+                        ],
+                    ]
+                );
+                $response = json_decode(wp_remote_retrieve_body($response));
+
+                if (!isset($response->success) || $response->success !== true) {
                     throw new Exception('Spam');
                 }
             }

@@ -48,6 +48,12 @@ class Webhook
     /**
      * Add API Endpoint
      *
+     * Registers the (legacy) rewrite rules on every request, but only flushes
+     * the rewrite rules when the plugin version changed. flush_rewrite_rules()
+     * regenerates and re-saves the large autoloaded "rewrite_rules" option, so
+     * calling it on every page load causes an UPDATE query for each visitor.
+     * It should only run on activation or after an upgrade.
+     *
      * @return void
      * @deprecated
      */
@@ -56,7 +62,12 @@ class Webhook
         add_rewrite_rule('^rfmp-webhook/([0-9]+)/first/([0-9]+)/?', 'index.php?__rfmpapi=1&post_id=$matches[1]&first=$matches[2]', 'top');
         add_rewrite_rule('^rfmp-webhook/([0-9]+)/sub/([0-9]+)/?', 'index.php?__rfmpapi=1&post_id=$matches[1]&sub=$matches[2]', 'top');
         add_rewrite_rule('^rfmp-webhook/([0-9]+)/?', 'index.php?__rfmpapi=1&post_id=$matches[1]', 'top');
-        flush_rewrite_rules();
+
+        // Only flush once per version (activation/upgrade), never on every request.
+        if (get_option('rfmp_rewrite_version') !== $this->mollieForms->getVersion()) {
+            flush_rewrite_rules();
+            update_option('rfmp_rewrite_version', $this->mollieForms->getVersion());
+        }
     }
 
     /**
@@ -247,53 +258,66 @@ class Webhook
                 $priceOptions = $this->db->get_results("SELECT * FROM {$this->mollieForms->getRegistrationPriceOptionsTable()} WHERE frequency!='once' AND registration_id=" .
                                                        (int) $registration->id);
                 foreach ($priceOptions as $priceOption) {
-                    // add subscription to database
-                    $this->db->insert($subsTable, [
-                        'registration_id' => $registration->id,
-                        'customer_id'     => $registration->customer_id,
-                        'created_at'      => current_time('mysql', 1),
-                    ]);
-                    $subId = $this->db->insert_id;
+                    $createMollieSubscription = apply_filters(
+                        'rfmp_create_subscription',
+                        true,
+                        $post,
+                        $registration->id,
+                        $priceOption,
+                        $payment
+                    );
+
+                    if ($createMollieSubscription) {
+                        // add subscription to database
+                        $this->db->insert($subsTable, [
+                            'registration_id' => $registration->id,
+                            'customer_id'     => $registration->customer_id,
+                            'created_at'      => current_time('mysql', 1),
+                        ]);
+                        $subId = $this->db->insert_id;
 
 
-                    $optionCurrency = $registration->currency ?: 'EUR';
-                    $optionTotal    = $priceOption->price * $priceOption->quantity;
-                    $optionVat      = ($priceOption->vat / 100) * $optionTotal;
+                        $optionCurrency = $registration->currency ?: 'EUR';
+                        $optionTotal    = $priceOption->price * $priceOption->quantity;
+                        $optionVat      = ($priceOption->vat / 100) * $optionTotal;
 
-                    // add VAT to total if price is excl.
-                    if ($vatSetting == 'excl') {
-                        $optionTotal += $optionVat;
+                        // add VAT to total if price is excl.
+                        if ($vatSetting == 'excl') {
+                            $optionTotal += $optionVat;
+                        }
+
+                        $optionFrequency = ($priceOption->frequency_value ?: 1) . ' ' . $priceOption->frequency;
+
+                        // create Mollie subscription
+                        $subscription = $mollie->post('customers/' . $registration->customer_id . '/subscriptions', [
+                            "amount"      => [
+                                "currency" => $optionCurrency,
+                                "value"    => number_format($optionTotal, $this->helpers->getCurrencies($optionCurrency), '.', ''),
+                            ],
+                            "interval"    => $optionFrequency,
+                            "times"       => $priceOption->times > 0 ? ($priceOption->times - 1) : null,
+                            "description" => $priceOption->quantity . 'x ' . $priceOption->description,
+                            "webhookUrl"  => $webhook . '&sub=' . $subId,
+                            "startDate"   => gmdate('Y-m-d', strtotime("+" . $optionFrequency, strtotime(gmdate('Y-m-d')))),
+                        ]);
+
+                        // update subscription in database with Mollie data
+                        $this->db->update($subsTable, [
+                            'subscription_id' => esc_sql(sanitize_text_field($subscription->id)),
+                            'sub_mode'        => esc_sql(sanitize_text_field($subscription->mode)),
+                            'sub_currency'    => esc_sql(sanitize_text_field($subscription->amount->currency)),
+                            'sub_amount'      => esc_sql(sanitize_text_field($subscription->amount->value)),
+                            'sub_times'       => esc_sql(sanitize_text_field($subscription->times)),
+                            'sub_interval'    => esc_sql(sanitize_text_field($subscription->interval)),
+                            'sub_description' => esc_sql(sanitize_text_field($subscription->description)),
+                            'sub_method'      => esc_sql(sanitize_text_field($subscription->method)),
+                            'sub_status'      => esc_sql(sanitize_text_field($subscription->status)),
+                        ], [
+                            'id' => $subId,
+                        ]);
                     }
 
-                    $optionFrequency = ($priceOption->frequency_value ?: 1) . ' ' . $priceOption->frequency;
-
-                    // create Mollie subscription
-                    $subscription = $mollie->post('customers/' . $registration->customer_id . '/subscriptions', [
-                        "amount"      => [
-                            "currency" => $optionCurrency,
-                            "value"    => number_format($optionTotal, $this->helpers->getCurrencies($optionCurrency), '.', ''),
-                        ],
-                        "interval"    => $optionFrequency,
-                        "times"       => $priceOption->times > 0 ? ($priceOption->times - 1) : null,
-                        "description" => $priceOption->quantity . 'x ' . $priceOption->description,
-                        "webhookUrl"  => $webhook . '&sub=' . $subId,
-                        "startDate"   => gmdate('Y-m-d', strtotime("+" . $optionFrequency, strtotime(gmdate('Y-m-d')))),
-                    ]);
-
-                    // update subscription in database with Mollie data
-                    $this->db->update($subsTable, [
-                        'subscription_id' => esc_sql(sanitize_text_field($subscription->id)),
-                        'sub_mode'        => esc_sql(sanitize_text_field($subscription->mode)),
-                        'sub_currency'    => esc_sql(sanitize_text_field($subscription->amount->currency)),
-                        'sub_amount'      => esc_sql(sanitize_text_field($subscription->amount->value)),
-                        'sub_times'       => esc_sql(sanitize_text_field($subscription->times)),
-                        'sub_interval'    => esc_sql(sanitize_text_field($subscription->interval)),
-                        'sub_description' => esc_sql(sanitize_text_field($subscription->description)),
-                        'sub_method'      => esc_sql(sanitize_text_field($subscription->method)),
-                        'sub_status'      => esc_sql(sanitize_text_field($subscription->status)),
-                    ], [
-                        'id' => $subId,
-                    ]);
+                    do_action('rfmp_subscription_stage', $post, $registration->id, $priceOption, $payment, $mollie);
                 }
             }
 
