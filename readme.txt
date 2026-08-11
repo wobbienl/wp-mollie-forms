@@ -5,7 +5,7 @@ Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 6.0
 Requires PHP: 8.0
 Tested up to: 6.9.4
-Stable tag: 2.10.0
+Stable tag: 2.10.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,9 @@ The following action hooks with parameters are available:
 * WordPress 6 or greater
 
 == Changelog ==
+
+= 2.10.1 - 11/08/2026 =
+* New Add-On: Memberships for Mollie Forms
 
 = 2.10.0 - 11/08/2026 =
 * New: Cloudflare Turnstile
