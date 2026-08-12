@@ -5,7 +5,7 @@ Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 6.0
 Requires PHP: 8.0
 Tested up to: 6.9.4
-Stable tag: 2.10.1
+Stable tag: 2.10.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -34,6 +34,7 @@ The plugin is using:
 
 * the API of [Mollie](https://mollie.com) to create payments.
 * the API of [Google reCAPTCHA](https://www.google.com/recaptcha) to prevent spam (if enabled)
+* the API of Cloudflare Turnstile to prevent spam (if enabled)
 
 == Frequently Asked Questions ==
 
@@ -80,6 +81,9 @@ The following action hooks with parameters are available:
 * WordPress 6 or greater
 
 == Changelog ==
+
+= 2.10.2 - 12/08/2026 =
+* New Add-On: Google Sheets for Mollie Forms
 
 = 2.10.1 - 11/08/2026 =
 * New Add-On: Memberships for Mollie Forms

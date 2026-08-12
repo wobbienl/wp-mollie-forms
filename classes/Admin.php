@@ -33,6 +33,7 @@ class Admin
         });
         add_action('admin_menu', [$this, 'adminMenu']);
         add_action('admin_enqueue_scripts', [$this, 'loadScripts']);
+        add_action('admin_head', [$this, 'addonsBadgeStyle']);
         add_action('add_meta_boxes_mollie-forms', [$this, 'addMetaBoxes']);
         add_action('save_post_mollie-forms', [$this, 'saveMetaBoxes'], 10, 2);
         add_action('admin_post_mollie-forms_export', [$this, 'exportRegistrations']);
@@ -50,6 +51,71 @@ class Admin
 			         </div>';
 			}
 	    });
+    }
+
+    /**
+     * Identifier of the current add-ons "generation". Bump this (e.g. to the
+     * newest add-on slug) whenever a new add-on is added, so the "New" badge on
+     * the Add-ons menu item shows again for everyone.
+     *
+     * @return string
+     */
+    private function addonsBadgeVersion()
+    {
+        return 'google-sheets';
+    }
+
+    /**
+     * Whether the "New" badge should show for the current user. It disappears
+     * once the user has opened the Add-ons page for the current generation.
+     *
+     * @return bool
+     */
+    private function addonsBadgeActive()
+    {
+        $seen = get_user_meta(get_current_user_id(), '_rfmp_addons_badge_seen', true);
+        return $seen !== $this->addonsBadgeVersion();
+    }
+
+    /**
+     * Output the styling for the "New" menu badge (a small pulsing pill).
+     */
+    public function addonsBadgeStyle()
+    {
+        if (!$this->addonsBadgeActive()) {
+            return;
+        }
+        ?>
+        <style>
+            #adminmenu .rfmp-menu-badge {
+                display: inline-block;
+                margin-left: 6px;
+                padding: 0 7px;
+                font-size: 9px;
+                font-weight: 700;
+                line-height: 17px;
+                text-transform: uppercase;
+                letter-spacing: .5px;
+                color: #fff;
+                background: #00a32a;
+                border-radius: 9px;
+                box-shadow: 0 0 0 0 rgba(0, 163, 42, 0.7);
+                animation: rfmpBadgePulse 1.8s infinite;
+            }
+            #adminmenu li.current .rfmp-menu-badge,
+            #adminmenu a:hover .rfmp-menu-badge {
+                color: #fff;
+            }
+            @keyframes rfmpBadgePulse {
+                0%   { box-shadow: 0 0 0 0 rgba(0, 163, 42, 0.7); }
+                70%  { box-shadow: 0 0 0 7px rgba(0, 163, 42, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(0, 163, 42, 0); }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                #adminmenu .rfmp-menu-badge { animation: none; }
+            }
+        </style>
+        <?php
     }
 
     /**
@@ -84,10 +150,14 @@ class Admin
         );
 
         // Add-ons
+        $addonsMenuTitle = __('Add-ons', 'mollie-forms');
+        if ($this->addonsBadgeActive()) {
+            $addonsMenuTitle .= ' <span class="rfmp-menu-badge">' . esc_html__('New', 'mollie-forms') . '</span>';
+        }
         add_submenu_page(
                 'edit.php?post_type=mollie-forms',
                 __('Add-ons', 'mollie-forms'),
-                __('Add-ons', 'mollie-forms'),
+                $addonsMenuTitle,
                 'administrator',
                 'add-ons',
                 [
@@ -861,6 +931,9 @@ class Admin
      */
     public function pageAddons()
     {
+        // Mark the "New" badge as seen for this user, so it disappears until a
+        // new add-on bumps addonsBadgeVersion().
+        update_user_meta(get_current_user_id(), '_rfmp_addons_badge_seen', $this->addonsBadgeVersion());
         ?>
         <div class="wrap">
             <h2><?php esc_html_e('Add-ons', 'mollie-forms'); ?></h2>
@@ -882,6 +955,12 @@ class Admin
                     <a href="https://wobbie.nl/checkout/memberships-mollie-forms" target="_blank">
                         <h2><?php esc_html_e('Memberships', 'mollie-forms'); ?></h2>
                         <p><?php esc_html_e('Automatically create a user account and assign a membership role on payment.', 'mollie-forms'); ?></p>
+                    </a>
+                </li>
+                <li class="product">
+                    <a href="https://wobbie.nl/checkout/google-sheets-mollie-forms" target="_blank">
+                        <h2><?php esc_html_e('Google Sheets', 'mollie-forms'); ?></h2>
+                        <p><?php esc_html_e('Automatically send registrations to a Google Sheet.', 'mollie-forms'); ?></p>
                     </a>
                 </li>
             </ul>
