@@ -101,8 +101,11 @@ class FormBuilder
                 $html = $visible ? '<input type="text" ' . $this->buildAtts($atts) . ' style="width: 100%">' : '';
                 break;
             case 'country':
+                // the options hold the countries that are excluded from this field
+                $countries = $this->helpers->getFieldCountries(isset($atts['options']) ? $atts['options'] : []);
+
                 $html = '<select ' . $this->buildAtts($atts) . ' style="width:100%;" style="width: 100%">';
-                foreach ($this->helpers->getCountries() as $code => $country) {
+                foreach ($countries as $code => $country) {
                     $html .= '<option value="' . $code . '" ' .
                              (isset($atts['value']) && $atts['value'] == $code ? 'selected' : '') . '>' . $country .
                              '</option>';
@@ -432,6 +435,18 @@ class FormBuilder
         $decimals = $this->helpers->getCurrencies($currency);
         $symbol   = $this->helpers->getCurrencySymbol($currency);
 
+        // shipping costs of the countries that override the default shipping costs
+        $shippingCountryCosts = [];
+        foreach ($this->helpers->getShippingCountryCosts($post) as $countryCode => $countryCosts) {
+            $shippingCountryCosts[$countryCode] = number_format((float) str_replace(',', '.', $countryCosts),
+                $decimals, '.', '');
+        }
+
+        // the field that determines the country, only needed when there are countries with their own shipping costs
+        $shippingCountryKey   = $this->helpers->getShippingCountryFieldKey($post);
+        $shippingCountryField = $shippingCountryCosts && $shippingCountryKey !== null ?
+            'form_' . $post . '_field_' . $shippingCountryKey : '';
+
         $formValue       = sanitize_text_field(isset($_POST['rfmp_priceoptions_' . $post]) ? $_POST['rfmp_priceoptions_' . $post] :
 	        (isset($_GET['form_' . $post . '_priceoption']) ? $_GET['form_' . $post . '_priceoption'] : ''));
         $formValueAmount = sanitize_text_field(isset($_POST['rfmp_amount_' . $post]) ? $_POST['rfmp_amount_' . $post] :
@@ -564,9 +579,24 @@ class FormBuilder
             var subtotal = 0, total = 0, vat = 0;
             
             
-            // Add shipping costs to total
-            var shippingCosts = "' .
+            // Add shipping costs to total, a country can have its own shipping costs
+            var shippingCountryCosts = ' . wp_json_encode((object) $shippingCountryCosts) . ';
+            var shippingCountryField = document.getElementById("' . esc_js($shippingCountryField) . '");
+            var shippingCountry      = shippingCountryField ? shippingCountryField.value : "";
+            var shippingCosts        = shippingCountryCosts.hasOwnProperty(shippingCountry) ?
+                shippingCountryCosts[shippingCountry] : "' .
                  ($shippingCosts ? number_format(str_replace(',', '.', $shippingCosts), $decimals, '.', '') : '') . '";
+
+            // Display shipping costs
+            var shippingRow   = document.getElementById("rfmp_totals_' . $post . '_shipping");
+            var shippingValue = document.getElementById("rfmp_totals_' . $post . '_shipping_value");
+            if (shippingValue) {
+                shippingValue.innerHTML = parseFloat(shippingCosts || 0).toFixed(2).replace(".", ",");
+            }
+            if (shippingRow) {
+                shippingRow.style.display = parseFloat(shippingCosts) > 0 ? "" : "none";
+            }
+
             if (shippingCosts) {
                 var shippingVat = 0.21 * parseFloat(shippingCosts);
                 vat   += shippingVat;
@@ -697,6 +727,21 @@ class FormBuilder
                 document.getElementById("payment_methods_' . $post . '").style.display = "block";
             }
         }
+        ' . ($shippingCountryField ? '
+        (function() {
+            var bindCountry = function() {
+                var countryField = document.getElementById("' . esc_js($shippingCountryField) . '");
+                if (countryField) {
+                    countryField.addEventListener("change", mollie_forms_' . $post . '_totals);
+                }
+            };
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", bindCountry);
+            } else {
+                bindCountry();
+            }
+        })();' : '') . '
         </script>';
 
         return $html;
@@ -715,13 +760,17 @@ class FormBuilder
         $shippingCosts = get_post_meta($post, '_rfmp_shipping_costs', true);
         $vatSetting    = get_post_meta($post, '_rfmp_vat_setting', true);
 
+        // countries can have their own shipping costs, those are filled in by JavaScript
+        $shippingCountryCosts = $this->helpers->getShippingCountryCosts($post);
+
         $html = '<table ' . $this->buildAtts($atts, ['name', 'placeholder', 'value']) . '>';
 
         // display shipping costs
-        if ($shippingCosts) {
-            $html .= '<tr>
+        if ($shippingCosts || $shippingCountryCosts) {
+            $html .= '<tr id="rfmp_totals_' . $post . '_shipping"' . ($shippingCosts ? '' : ' style="display:none;"') . '>
                         <td>' . esc_html__('Shipping costs', 'mollie-forms') . '</td>
-                        <td>' . esc_html($symbol . ' ' . number_format(str_replace(',', '.', $shippingCosts), 2, ',', '')) . '</td>
+                        <td>' . esc_html($symbol) . ' <span id="rfmp_totals_' . $post . '_shipping_value">' .
+                     esc_html(number_format((float) str_replace(',', '.', $shippingCosts), 2, ',', '')) . '</span></td>
                       </tr>';
         }
 

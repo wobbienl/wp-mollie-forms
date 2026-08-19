@@ -5,7 +5,7 @@ Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 6.0
 Requires PHP: 8.0
 Tested up to: 6.9.4
-Stable tag: 2.10.2
+Stable tag: 2.11.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,6 +27,7 @@ Create registration forms with payment methods of Mollie. One-time and recurring
 * Refund payments and cancel subscriptions in Wordpress admin
 * Style it with your own css classes.
 * Discount codes
+* Shipping costs, with the option to set different shipping costs per country
 
 
 = 3rd Party Services =
@@ -81,6 +82,12 @@ The following action hooks with parameters are available:
 * WordPress 6 or greater
 
 == Changelog ==
+
+= 2.11.0 - 19/08/2026 =
+* New: Shipping costs per country, add countries to override the default shipping costs
+* New: The country field can now also be added when the Mollie API type is set to payments
+* New: Exclude countries per country field, so they aren't shown in the form
+* Fix: The required setting of a field could end up on another field after sorting the form fields
 
 = 2.10.2 - 12/08/2026 =
 * New Add-On: Google Sheets for Mollie Forms

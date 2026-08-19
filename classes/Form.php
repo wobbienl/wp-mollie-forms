@@ -376,8 +376,13 @@ class Form
                     $vatRateFirstPriceOption = 21;
                 }
 
-                // calc shipping costs
-                $shippingCosts = get_post_meta($postId, '_rfmp_shipping_costs', true);
+                // calc shipping costs, the country field can override the default shipping costs
+                $shippingCountryKey = $this->helpers->getShippingCountryFieldKey($postId);
+                $shippingCountry    = $shippingCountryKey !== null &&
+                                      isset($_POST['form_' . $postId . '_field_' . $shippingCountryKey]) ?
+                    trim(sanitize_text_field($_POST['form_' . $postId . '_field_' . $shippingCountryKey])) : null;
+
+                $shippingCosts = $this->helpers->getShippingCosts($postId, $shippingCountry);
                 if ($shippingCosts) {
                     $shippingPrice = (float) number_format(str_replace(',', '.', $shippingCosts), $decimals, '.', '');
 
@@ -456,6 +461,15 @@ class Form
 					if ($field_type[$key] != 'discount_code' && $field_type[$key] != 'confirm' && $required[$key] && ($value === '' || (is_array($value) && empty($value)))) {
 						/* translators: %s is the field label */
 						throw new Exception(sprintf(esc_html__( '%s is a required field', 'mollie-forms'), $field));
+					}
+
+					if ($field_type[$key] === 'country' && $value !== '') {
+						$countries = $this->helpers->getFieldCountries(isset($field_value[$key]) ? $field_value[$key] : '');
+
+						if (!isset($countries[$value])) {
+							/* translators: %s is the field label */
+							throw new Exception(sprintf(esc_html__('%s is not a valid country', 'mollie-forms'), $field));
+						}
 					}
 
 					if ($field_type[$key] === 'confirm' && isset($field_value[$key]) && $field_value[$key]) {

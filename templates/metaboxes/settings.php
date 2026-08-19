@@ -120,7 +120,83 @@
             </th>
             <td class="forminp forminp-text">
                 <input name="rfmp_shipping_costs" min="0" id="rfmp_shipping_costs" value="<?php echo esc_attr($shippingCosts);?>" type="number" step="any" style="width: 350px"><br>
-                <small><?php esc_html_e('Leave empty if you don\'t want to charge shipping costs', 'mollie-forms');?></small>
+                <small><?php esc_html_e('Default shipping costs, used for every country without its own shipping costs. Leave empty if you don\'t want to charge shipping costs', 'mollie-forms');?></small>
+            </td>
+        </tr>
+        <tr valign="top">
+            <th scope="row" class="titledesc">
+                <label for="rfmp_shipping_country_field"><?php esc_html_e('Country field for shipping costs', 'mollie-forms');?></label>
+            </th>
+            <td class="forminp forminp-text">
+                <select name="rfmp_shipping_country_field" id="rfmp_shipping_country_field" style="width: 350px;">
+                    <option value=""><?php esc_html_e('First country field of the form', 'mollie-forms');?></option>
+                    <?php foreach ($countryFields as $fieldId => $fieldLabel): ?>
+                        <option value="<?php echo esc_attr($fieldId);?>" <?php echo ($countryField == $fieldId ? 'selected' : '');?>><?php echo esc_html($fieldLabel);?></option>
+                    <?php endforeach;?>
+                </select><br>
+                <small><?php esc_html_e('The country field that determines the shipping costs. Add a country field in the "Form fields" box below.', 'mollie-forms');?></small>
+            </td>
+        </tr>
+        <tr valign="top">
+            <th scope="row" class="titledesc">
+                <label><?php esc_html_e('Shipping costs per country', 'mollie-forms');?></label>
+            </th>
+            <td class="forminp forminp-text">
+                <?php
+                $countryOptions = '';
+                foreach ($this->helpers->getCountries() as $countryCode => $countryName) {
+                    $countryOptions .= '<option value="' . esc_attr($countryCode) . '">' . esc_html($countryName) . '</option>';
+                }
+                ?>
+
+                <script id="rfmp_template_shipping_country_cost" type="text/template">
+                    <tr>
+                        <td>
+                            <select name="rfmp_shipping_country_costs_country[]" style="width: 100%;">
+                                <?php echo $countryOptions;?>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" min="0" step="any" name="rfmp_shipping_country_costs_price[]" value="" style="width: 100%;">
+                        </td>
+                        <td width="1%"><a href="javascript: void(0);" class="delete"><?php esc_html_e('Delete', 'mollie-forms');?></a></td>
+                    </tr>
+                </script>
+
+                <table class="widefat rfmp_table" id="rfmp_shipping_country_costs" style="width: 350px;">
+                    <thead>
+                    <tr>
+                        <th><?php esc_html_e('Country', 'mollie-forms');?></th>
+                        <th><?php esc_html_e('Shipping costs', 'mollie-forms');?></th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($countryCosts as $countryCode => $countryPrice): ?>
+                        <tr>
+                            <td>
+                                <select name="rfmp_shipping_country_costs_country[]" style="width: 100%;">
+                                    <?php foreach ($this->helpers->getCountries() as $code => $country): ?>
+                                        <option value="<?php echo esc_attr($code);?>" <?php echo ($code == $countryCode ? 'selected' : '');?>><?php echo esc_html($country);?></option>
+                                    <?php endforeach;?>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="number" min="0" step="any" name="rfmp_shipping_country_costs_price[]" value="<?php echo esc_attr($countryPrice);?>" style="width: 100%;">
+                            </td>
+                            <td width="1%"><a href="javascript: void(0);" class="delete"><?php esc_html_e('Delete', 'mollie-forms');?></a></td>
+                        </tr>
+                    <?php endforeach;?>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th colspan="3">
+                            <input type="button" id="rfmp_add_shipping_country_cost" class="button" value="<?php esc_html_e('Add country', 'mollie-forms');?>">
+                        </th>
+                    </tr>
+                    </tfoot>
+                </table>
+                <small><?php esc_html_e('These shipping costs override the default shipping costs for the selected countries.', 'mollie-forms');?></small>
             </td>
         </tr>
 

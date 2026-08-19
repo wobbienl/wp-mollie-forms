@@ -218,6 +218,14 @@ class Admin
 	    );
 	    wp_localize_script('mollie-forms_admin_scripts', 'rfmp_i18n', [
 		    'confirm_placeholder' => __('Label of field to confirm', 'mollie-forms'),
+		    'country'             => __('Country', 'mollie-forms'),
+		    'exclude_countries'   => __('Exclude countries', 'mollie-forms'),
+		    /* translators: %d is the number of countries */
+		    'country_excluded'    => __('%d country excluded', 'mollie-forms'),
+		    /* translators: %d is the number of countries */
+		    'countries_excluded'  => __('%d countries excluded', 'mollie-forms'),
+		    /* translators: %d is the number of countries */
+		    'countries_selected'  => __('%d selected', 'mollie-forms'),
 	    ]);
 	    wp_enqueue_style(
 		    'mollie-forms_admin_styles',
@@ -326,6 +334,8 @@ class Admin
             ];
         }
 
+        $field_id = $this->helpers->getFieldIds($post->ID, $field_type);
+
         include $this->mollieForms->getDirPath() . 'templates/metaboxes/fields.php';
     }
 
@@ -354,6 +364,9 @@ class Admin
         $currency            = get_post_meta($post->ID, '_rfmp_currency', true);
         $locale              = get_post_meta($post->ID, '_rfmp_locale', true);
         $shippingCosts       = get_post_meta($post->ID, '_rfmp_shipping_costs', true);
+        $countryField        = get_post_meta($post->ID, '_rfmp_shipping_country_field', true);
+        $countryCosts        = $this->helpers->getShippingCountryCosts($post->ID);
+        $countryFields       = $this->helpers->getCountryFields($post->ID);
         $vatSetting          = get_post_meta($post->ID, '_rfmp_vat_setting', true);
         $recaptchaSiteKey    = get_post_meta($post->ID, '_rfmp_recaptcha_v3_site_key', true);
         $recaptchaSecretKey  = get_post_meta($post->ID, '_rfmp_recaptcha_v3_secret_key', true);
@@ -552,6 +565,9 @@ class Admin
         update_post_meta($postId, '_rfmp_locale', sanitize_text_field($_POST['rfmp_locale']));
         update_post_meta($postId, '_rfmp_currency', sanitize_text_field($_POST['rfmp_currency']));
         update_post_meta($postId, '_rfmp_shipping_costs', sanitize_text_field($_POST['rfmp_shipping_costs']));
+        update_post_meta($postId, '_rfmp_shipping_country_field',
+            isset($_POST['rfmp_shipping_country_field']) ? sanitize_text_field($_POST['rfmp_shipping_country_field']) : '');
+        update_post_meta($postId, '_rfmp_shipping_country_costs', $this->getShippingCountryCostsFromPost());
         update_post_meta($postId, '_rfmp_vat_setting', sanitize_text_field($_POST['rfmp_vat_setting']));
         update_post_meta($postId, '_rfmp_recaptcha_v3_site_key', sanitize_text_field($_POST['rfmp_recaptcha_v3_site_key']));
         update_post_meta($postId, '_rfmp_recaptcha_v3_secret_key', sanitize_text_field($_POST['rfmp_recaptcha_v3_secret_key']));
@@ -592,6 +608,7 @@ class Admin
             }
         }
 
+        update_post_meta($postId, '_rfmp_fields_id', $this->getFieldIdsFromPost());
         update_post_meta($postId, '_rfmp_fields_type', $_POST['rfmp_fields_type']);
         update_post_meta($postId, '_rfmp_fields_label', $_POST['rfmp_fields_label']);
         update_post_meta($postId, '_rfmp_fields_value', $_POST['rfmp_fields_value']);
@@ -731,6 +748,59 @@ class Admin
                 ]);
             }
         }
+    }
+
+    /**
+     * Get the unique identifier of every posted form field
+     *
+     * Fields that don't have an identifier yet, like newly added fields and
+     * the address fields that are added automatically, get one here.
+     *
+     * @return array
+     */
+    private function getFieldIdsFromPost()
+    {
+        $postedIds = isset($_POST['rfmp_fields_id']) ? (array) $_POST['rfmp_fields_id'] : [];
+
+        $ids = [];
+        foreach (array_keys((array) $_POST['rfmp_fields_type']) as $key) {
+            $id = isset($postedIds[$key]) ? sanitize_text_field($postedIds[$key]) : '';
+
+            if (!$id || in_array($id, $ids, true)) {
+                $id = uniqid('f');
+            }
+
+            $ids[$key] = $id;
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Get the posted shipping costs per country
+     *
+     * @return array Country code => shipping costs
+     */
+    private function getShippingCountryCostsFromPost()
+    {
+        if (!isset($_POST['rfmp_shipping_country_costs_country'])) {
+            return [];
+        }
+
+        $costs = [];
+        foreach ((array) $_POST['rfmp_shipping_country_costs_country'] as $key => $country) {
+            $country = sanitize_text_field($country);
+            $price   = isset($_POST['rfmp_shipping_country_costs_price'][$key]) ?
+                str_replace(',', '.', sanitize_text_field($_POST['rfmp_shipping_country_costs_price'][$key])) : '';
+
+            if (!$country || $price === '') {
+                continue;
+            }
+
+            $costs[$country] = $price;
+        }
+
+        return $costs;
     }
 
     /**

@@ -433,4 +433,145 @@ class Helpers
         return $return;
     }
 
+    /**
+     * Get the countries a country field can choose from
+     *
+     * @param array|string $excluded Excluded country codes, as array or separated by a pipe
+     *
+     * @return array Country code => country name
+     */
+    public function getFieldCountries($excluded = [])
+    {
+        if (!is_array($excluded)) {
+            $excluded = $excluded === '' ? [] : explode('|', $excluded);
+        }
+
+        if (!$excluded) {
+            return $this->getCountries();
+        }
+
+        return array_diff_key($this->getCountries(), array_flip($excluded));
+    }
+
+    /**
+     * Get the unique identifiers of all form fields
+     *
+     * Fields are stored in parallel arrays without an identifier, so fields
+     * that don't have an id yet get one based on their current position. As
+     * soon as the form is saved, the id moves along with the field.
+     *
+     * @param int        $postId
+     * @param array|null $types Field types, defaults to the saved field types
+     *
+     * @return array Field key => field id
+     */
+    public function getFieldIds($postId, $types = null)
+    {
+        if ($types === null) {
+            $types = get_post_meta($postId, '_rfmp_fields_type', true) ?: [];
+        }
+
+        $ids = get_post_meta($postId, '_rfmp_fields_id', true);
+        if (!is_array($ids)) {
+            $ids = [];
+        }
+
+        foreach (array_keys((array) $types) as $key) {
+            if (empty($ids[$key])) {
+                $ids[$key] = 'f' . $key;
+            }
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Get all country fields of a form
+     *
+     * @param int $postId
+     *
+     * @return array Field id => field label
+     */
+    public function getCountryFields($postId)
+    {
+        $types  = get_post_meta($postId, '_rfmp_fields_type', true) ?: [];
+        $labels = get_post_meta($postId, '_rfmp_fields_label', true) ?: [];
+        $ids    = $this->getFieldIds($postId, $types);
+
+        $fields = [];
+        foreach ($types as $key => $type) {
+            if ($type !== 'country') {
+                continue;
+            }
+
+            $fields[$ids[$key]] = !empty($labels[$key]) ? $labels[$key] : esc_html__('Country', 'mollie-forms');
+        }
+
+        return $fields;
+    }
+
+    /**
+     * Get the key of the field that determines the country for the shipping costs
+     *
+     * Falls back to the first country field of the form.
+     *
+     * @param int $postId
+     *
+     * @return int|string|null
+     */
+    public function getShippingCountryFieldKey($postId)
+    {
+        $types = get_post_meta($postId, '_rfmp_fields_type', true) ?: [];
+        $field = get_post_meta($postId, '_rfmp_shipping_country_field', true);
+
+        if ($field) {
+            $ids = $this->getFieldIds($postId, $types);
+            $key = array_search($field, $ids, true);
+
+            if ($key !== false && isset($types[$key]) && $types[$key] === 'country') {
+                return $key;
+            }
+        }
+
+        $key = array_search('country', $types, true);
+
+        return $key === false ? null : $key;
+    }
+
+    /**
+     * Get the shipping costs per country
+     *
+     * @param int $postId
+     *
+     * @return array Country code => shipping costs
+     */
+    public function getShippingCountryCosts($postId)
+    {
+        $costs = get_post_meta($postId, '_rfmp_shipping_country_costs', true);
+
+        return is_array($costs) ? $costs : [];
+    }
+
+    /**
+     * Get the shipping costs for a country
+     *
+     * Falls back to the default shipping costs when the country has no
+     * shipping costs of its own.
+     *
+     * @param int         $postId
+     * @param string|null $country
+     *
+     * @return string
+     */
+    public function getShippingCosts($postId, $country = null)
+    {
+        $countryCosts = $this->getShippingCountryCosts($postId);
+
+        if ($country && isset($countryCosts[$country])) {
+            return $countryCosts[$country];
+        }
+
+        return get_post_meta($postId, '_rfmp_shipping_costs', true);
+    }
+
 }
