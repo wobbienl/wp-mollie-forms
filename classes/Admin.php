@@ -823,7 +823,7 @@ class Admin
                     break;
             }
 
-            echo esc_html($msg ?? '');
+            echo wp_kses_post($msg ?? '');
         }
         ?>
         <div class="wrap">
