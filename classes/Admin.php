@@ -261,7 +261,7 @@ class Admin
                                         wp_nonce_url(admin_url('admin-post.php?action=mollie-forms_export&post=' . $post->ID), 'export-mollie-forms-registrations') .
                                         '">' . __('Export', 'mollie-forms') . '</a>';
             $actions['duplicate']     = '<a href="' .
-                                        wp_nonce_url(admin_url('admin-post.php?action=mollie-forms_duplicate&post=' . $post->ID), 'duplicate-mollie-forms-form') .
+                                        wp_nonce_url(admin_url('admin-post.php?action=mollie-forms_duplicate&post=' . $post->ID), 'duplicate-mollie-forms-form_' . $post->ID) .
                                         '">' . __('Duplicate', 'mollie-forms') . '</a>';
         }
         return $actions;
@@ -1135,18 +1135,23 @@ class Admin
 
     public function duplicateForm()
     {
-	    if (!isset($_REQUEST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'duplicate-mollie-forms-form')) {
+        $postId = isset($_GET['post']) ? (int) $_GET['post'] : 0;
+
+	    if (!isset($_REQUEST['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'duplicate-mollie-forms-form_' . $postId)) {
 		    return;
 	    }
 
-        $postId = (int) sanitize_text_field($_GET['post']);
+        $oldPost = get_post($postId);
+
+	    if (!$oldPost || $oldPost->post_type !== 'mollie-forms') {
+		    return;
+	    }
 
 	    if (!current_user_can('edit_post', $postId)) {
 		    return;
 	    }
 
         $title   = get_the_title($postId);
-        $oldPost = get_post($postId);
         $post    = [
                 'post_title'    => $title,
                 'post_status'   => 'publish',
@@ -1164,22 +1169,19 @@ class Admin
         $newPostId = wp_insert_post($post);
 
         $post_meta_infos = $this->db->get_results($this->db->prepare("SELECT meta_key, meta_value FROM {$this->db->postmeta} WHERE post_id=%d", $oldPost->ID));
-        if (count($post_meta_infos) != 0) {
-            $sql_query = "INSERT INTO {$this->db->postmeta} (post_id, meta_key, meta_value) ";
-            foreach ($post_meta_infos as $meta_info) {
-                $meta_key = $meta_info->meta_key;
-                if ($meta_key == '_wp_old_slug') {
-                    continue;
-                }
-                $meta_value      = addslashes($meta_info->meta_value);
-                $sql_query_sel[] = "SELECT $newPostId, '$meta_key', '$meta_value'";
+        foreach ($post_meta_infos as $meta_info) {
+            if ($meta_info->meta_key == '_wp_old_slug') {
+                continue;
             }
 
-            if (!empty($sql_query_sel)) {
-                $sql_query .= implode(" UNION ALL ", $sql_query_sel);
-                $this->db->query($sql_query);
-            }
+            $this->db->insert($this->db->postmeta, [
+                    'post_id'    => $newPostId,
+                    'meta_key'   => $meta_info->meta_key,
+                    'meta_value' => $meta_info->meta_value,
+            ], ['%d', '%s', '%s']);
         }
+
+        wp_cache_delete($newPostId, 'post_meta');
 
         $priceOptions = $this->db->get_results($this->db->prepare("SELECT * FROM {$this->mollieForms->getPriceOptionsTable()} WHERE post_id=%d ORDER BY sort_order ASC", $oldPost->ID));
         foreach ($priceOptions as $priceOption) {

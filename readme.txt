@@ -4,8 +4,8 @@ Donate link: https://wobbie.nl/doneren
 Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 6.0
 Requires PHP: 8.0
-Tested up to: 6.9.4
-Stable tag: 2.11.0
+Tested up to: 7.1.1
+Stable tag: 2.11.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,9 @@ The following action hooks with parameters are available:
 * WordPress 6 or greater
 
 == Changelog ==
+
+= 2.11.1 - 18/09/2026 =
+* Fix: Security improvements in the form duplication feature
 
 = 2.11.0 - 19/08/2026 =
 * New: Shipping costs per country, add countries to override the default shipping costs
