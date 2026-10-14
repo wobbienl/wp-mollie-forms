@@ -50,9 +50,12 @@ class Migrator
             $this->addDiscountCodeField();
         }
 
-        if (get_option('mollie-forms_version') < '2.5.0') {
+        if (version_compare((string) get_option('mollie-forms_version', '0'), '2.5.0', '<')) {
             $this->addDiscountCodeField();
         }
+
+        // remove duplicate discount code fields caused by earlier migrations
+        $this->removeDuplicateDiscountCodeFields();
 
         // run normal installation
         $this->updateDatabase();
@@ -203,8 +206,10 @@ class Migrator
             $field_value    = get_post_meta($post->ID, '_rfmp_fields_value', true);
             $field_class    = get_post_meta($post->ID, '_rfmp_fields_class', true);
             $field_required = get_post_meta($post->ID, '_rfmp_fields_required', true);
-            foreach ($field_type as $key => $field) {
-                if ($field == 'total') {
+            $hasDiscountField = in_array('discount_code', (array) $field_type, true);
+            foreach ((array) $field_type as $key => $field) {
+                if ($field == 'total' && !$hasDiscountField) {
+                    $hasDiscountField = true;
                     $fields[]   = 'discount_code';
                     $labels[]   = __('Discount code', 'mollie-forms');
                     $values[]   = '';
@@ -224,6 +229,47 @@ class Migrator
             update_post_meta($post->ID, '_rfmp_fields_value', $values);
             update_post_meta($post->ID, '_rfmp_fields_class', $classes);
             update_post_meta($post->ID, '_rfmp_fields_required', $required);
+        }
+    }
+
+    /**
+     * Remove duplicate discount code fields from all forms, keeping the first one
+     */
+    private function removeDuplicateDiscountCodeFields()
+    {
+        foreach (get_posts(['numberposts' => -1, 'post_type' => 'mollie-forms', 'post_status' => 'any']) as $post) {
+            $types = get_post_meta($post->ID, '_rfmp_fields_type', true);
+            if (!is_array($types) || count(array_keys($types, 'discount_code', true)) < 2) {
+                continue;
+            }
+
+            $metaKeys = ['_rfmp_fields_type', '_rfmp_fields_label', '_rfmp_fields_value', '_rfmp_fields_class', '_rfmp_fields_required', '_rfmp_fields_id'];
+            $meta     = [];
+            foreach ($metaKeys as $metaKey) {
+                $meta[$metaKey] = get_post_meta($post->ID, $metaKey, true);
+            }
+
+            $seen = false;
+            foreach ($types as $key => $type) {
+                if ($type !== 'discount_code') {
+                    continue;
+                }
+                if (!$seen) {
+                    $seen = true;
+                    continue;
+                }
+                foreach ($metaKeys as $metaKey) {
+                    if (is_array($meta[$metaKey])) {
+                        unset($meta[$metaKey][$key]);
+                    }
+                }
+            }
+
+            foreach ($meta as $metaKey => $value) {
+                if (is_array($value)) {
+                    update_post_meta($post->ID, $metaKey, array_values($value));
+                }
+            }
         }
     }
 

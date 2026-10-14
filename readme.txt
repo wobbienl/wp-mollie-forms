@@ -5,7 +5,7 @@ Tags: ideal,forms,payments,subscriptions,recurring
 Requires at least: 6.0
 Requires PHP: 8.0
 Tested up to: 7.1.1
-Stable tag: 2.11.1
+Stable tag: 2.11.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,11 @@ The following action hooks with parameters are available:
 * WordPress 6 or greater
 
 == Changelog ==
+
+= 2.11.2 - 14/10/2026 =
+* Fix: Multiple discount code fields could be added to a form, existing forms are cleaned up automatically
+* Fix: The "Text" field type was not displayed in the form
+* Fix: Conflict with other plugins, admin scripts and styles are now only loaded on Mollie Forms pages
 
 = 2.11.1 - 18/09/2026 =
 * Fix: Security improvements in the form duplication feature

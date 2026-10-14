@@ -209,6 +209,12 @@ class Admin
      */
     public function loadScripts()
     {
+        // only load on our own screens, to prevent conflicts with other plugins (e.g. Wordfence)
+        $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+        if (!$screen || ($screen->post_type !== 'mollie-forms' && strpos((string) $screen->id, 'mollie-forms') === false)) {
+            return;
+        }
+
 	    wp_enqueue_script(
 		    'mollie-forms_admin_scripts',
 		    $this->mollieForms->getDirUrl() . 'includes/js/admin-scripts.js',
@@ -605,6 +611,25 @@ class Admin
                 $_POST['rfmp_fields_value']    = array_merge($_POST['rfmp_fields_value'], ['']);
                 $_POST['rfmp_fields_class']    = array_merge($_POST['rfmp_fields_class'], ['']);
                 $_POST['rfmp_fields_required'] = array_merge($_POST['rfmp_fields_required'], [1]);
+            }
+        }
+
+        // a form can only have one discount code field
+        $seenDiscount = false;
+        foreach ($_POST['rfmp_fields_type'] as $key => $type) {
+            if ($type !== 'discount_code') {
+                continue;
+            }
+            if ($seenDiscount) {
+                foreach (['type', 'label', 'value', 'class', 'required', 'id'] as $name) {
+                    unset($_POST['rfmp_fields_' . $name][$key]);
+                }
+            }
+            $seenDiscount = true;
+        }
+        foreach (['type', 'label', 'value', 'class', 'required', 'id'] as $name) {
+            if (isset($_POST['rfmp_fields_' . $name])) {
+                $_POST['rfmp_fields_' . $name] = array_values((array) $_POST['rfmp_fields_' . $name]);
             }
         }
 

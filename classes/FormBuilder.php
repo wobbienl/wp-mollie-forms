@@ -183,6 +183,11 @@ class FormBuilder
                 $html = $visible ? $this->getTotal($atts) : '';
                 break;
             case 'text-only':
+                // show the label as text, regardless of the label display setting
+                $this->getLabel();
+                $visible = false;
+                $html    = '<div class="mollie-forms-text">' . nl2br(wp_kses_post(isset($atts['label']) ? $atts['label'] : '')) . '</div>';
+                break;
             default:
                 $html = '';
         }
